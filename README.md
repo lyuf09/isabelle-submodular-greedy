@@ -20,7 +20,7 @@ cardinality constraint.
 
 ## Status
 
-This is a research-oriented development, intended as a reusable framework for
+This is a research-oriented development, intended as a basis for a reusable framework for
 reasoning about submodular optimisation algorithms in Isabelle/HOL.
 
 ## Future Directions
