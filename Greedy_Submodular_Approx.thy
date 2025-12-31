@@ -65,20 +65,6 @@ lemma one_minus_inv_times:
 
 section \<open>Submodular setting\<close>
 
-subsection \<open>Marginal gain\<close>
-
-text \<open>Monotonicity implies that all marginal gains are non-negative.\<close>
-
-lemma gain_nonneg:
-  assumes "S \<subseteq> V" and "x \<in> V - S"
-  shows "0 \<le> gain S x"
-proof -
-  have "S \<subseteq> S \<union> {x}" by auto
-  moreover from assms have "S \<union> {x} \<subseteq> V" by auto
-  ultimately have "f S \<le> f (S \<union> {x})" using monotone_f by auto
-  thus ?thesis by (simp add: gain_def)
-qed
-
 subsection \<open>Non-emptiness lemmas\<close>
 
 text \<open>
@@ -215,35 +201,30 @@ proof -
   consider (le) "f Opt \<le> f S" | (gt) "f S < f Opt" by linarith
   then show ?thesis
   proof cases
-    case le
-    have "V - S \<noteq> {}"
-    proof
-      assume "V - S = {}"
-      hence "V \<subseteq> S" by auto
-      with S_sub have "V = S" by auto
-      from this cardS_lt_k k_le_V show False by simp
-    qed
-    then obtain e where eVS: "e \<in> V - S" by blast
-    hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
-    moreover from le k_pos have "(f Opt - f S) / real k \<le> 0"
-      by (simp add: divide_nonpos_pos)
-    ultimately have "(f Opt - f S) / real k \<le> gain S e"
-      by linarith
-    then show ?thesis
-      using eVS by (intro bexI[of _ e]) auto
+        case le
+        have VS_ne: "V - S \<noteq> {}"
+          using nonempty_candidates[OF S_sub cardS_lt_k k_le_V] .
+
+        then obtain e where eVS: "e \<in> V - S" by blast
+        hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
+
+        moreover have "(f Opt - f S) / real k \<le> 0"
+        proof -
+          have "f Opt - f S \<le> 0" using le by linarith
+          thus ?thesis
+            using k_pos by (simp add: divide_nonpos_pos)
+        qed
+
+        ultimately have "(f Opt - f S) / real k \<le> gain S e"
+          by linarith
+
+        thus ?thesis
+          using eVS by (intro bexI[of _ e]) auto
 
   next
     case gt
     have OS_ne: "Opt - S \<noteq> {}"
-    proof
-      assume "Opt - S = {}"
-      hence "Opt \<subseteq> S" by auto
-      have Opt_sub_S: "Opt \<subseteq> S" using \<open>Opt - S = {}\<close> by auto
-      have "f Opt \<le> f S"
-        using monotone_f Opt_sub_S S_sub by blast
-
-      with gt show False by linarith
-    qed
+     using nonempty_gap[OF S_sub O_sub gt] .
 
     have finOS: "finite (Opt - S)"
       using finV O_sub by (meson Diff_subset finite_subset)
@@ -260,22 +241,30 @@ proof -
     proof -
       have "f Opt \<le> f (S \<union> Opt)"
         using monotone_f[rule_format, of Opt "S \<union> Opt"] SUO_subV by auto
-
       then have "f Opt - f S \<le> f (S \<union> Opt) - f S" by linarith
       also have "S \<union> Opt = S \<union> (Opt - S)" by auto
       also have "f (S \<union> (Opt - S)) - f S
-                   \<le> (\<Sum>x\<in>Opt - S. gain S x)" using step_sum .
+                   \<le> (\<Sum>x\<in>Opt - S. gain S x)"
+        using step_sum .
       finally show ?thesis .
     qed
 
     obtain e where e_in: "e \<in> Opt - S"
-      and e_max: "\<forall>y\<in>Opt - S. gain S y \<le> gain S e"
-      using finite_arg_max[of "Opt - S" "gain S"] finOS OS_ne by auto
+      and e_arg: "is_arg_max (gain S) (\<lambda>y. y \<in> Opt - S) e"
+      using finite_is_arg_max_in[of "Opt - S" "gain S"] finOS OS_ne
+      by blast
+
+    have e_max: "\<forall>y\<in>Opt - S. gain S y \<le> gain S e"
+    proof
+      fix y assume yA: "y \<in> Opt - S"
+      show "gain S y \<le> gain S e"
+        using is_arg_maxD_le[OF e_arg yA] .
+    qed
 
     have "(\<Sum>x\<in>Opt - S. gain S x) \<le> (\<Sum>x\<in>Opt - S. gain S e)"
       using e_max by (intro sum_mono) simp_all
     also have "... = real (card (Opt - S)) * gain S e"
-       by simp
+      by simp
     finally have sum_le_card_max:
       "(\<Sum>x\<in>Opt - S. gain S x) \<le> real (card (Opt - S)) * gain S e" .
 
@@ -286,10 +275,8 @@ proof -
     proof -
       have "card (Opt - S) \<le> card Opt"
         using finO Diff_subset by (rule card_mono)
-      have "card (Opt - S) \<le> card Opt" by fact
-      also have "\<dots> \<le> k" using cardO_le_k .
+      also have "... \<le> k" using cardO_le_k .
       finally show ?thesis .
-
     qed
 
     have eVS: "e \<in> V - S" using e_in O_sub by auto
@@ -338,16 +325,27 @@ text \<open>
   Set-function version of the finite arg-max lemma: there is a maximizer
   of \<open>f\<close> over any finite non-empty family of sets.
 \<close>
-lemma finite_has_maximal:
-  assumes "finite A" and "A \<noteq> {}"
+lemma finite_has_maximal_is_arg:
+  assumes "finite A" "A \<noteq> {}"
+  shows "\<exists>x\<in>A. is_arg_max f (\<lambda>x. x \<in> A) x"
+  using finite_is_arg_max_in[of A f] assms by blast
+
+corollary finite_has_maximal:
+  assumes "finite A" "A \<noteq> {}"
   shows "\<exists>x\<in>A. \<forall>y\<in>A. f y \<le> f x"
 proof -
-  from assms have "finite (f ` A)" and "f ` A \<noteq> {}" by auto
-  then have "Max (f ` A) \<in> f ` A" and "\<forall>y\<in>f ` A. y \<le> Max (f ` A)"
-    using Max_in by auto
-  then obtain x where "x \<in> A" and "f x = Max (f ` A)" by auto
-  thus ?thesis by (metis \<open>\<forall>y\<in>f ` A. y \<le> Max (f ` A)\<close> image_iff)
+  from finite_has_maximal_is_arg[OF assms]
+  obtain x where xA: "x \<in> A" and xarg: "is_arg_max f (\<lambda>x. x \<in> A) x"
+    by blast
+  have "\<forall>y\<in>A. f y \<le> f x"
+  proof
+    fix y assume "y \<in> A"
+    thus "f y \<le> f x"
+      using is_arg_maxD_le[OF xarg] by blast
+  qed
+  thus ?thesis using xA by blast
 qed
+
 
 subsection \<open>OPT as a maximizer over feasible sets\<close>
 

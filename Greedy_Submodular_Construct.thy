@@ -1,5 +1,5 @@
 theory Greedy_Submodular_Construct
- imports Complex_Main
+  imports Submodular_Base
 begin
 
 section \<open>Greedy construction\<close>
@@ -22,70 +22,59 @@ text \<open>
 
 subsection \<open>Preliminaries on finite maximizers\<close>
 
-text \<open>
-  We begin with an abstract arg-max lemma for real-valued functions over
-  finite non-empty domains. This will be instantiated later with marginal
-  gains in the greedy construction.
-\<close>
+text \<open>Finite arg-max via the standard predicate is_arg_max.\<close>
 
-text \<open>Pointwise arg-max over a finite non-empty set.\<close>
+lemma finite_is_arg_max_in:
+  fixes g :: "'a \<Rightarrow> 'b::linorder"
+  assumes fin: "finite A" and ne: "A \<noteq> {}"
+  shows "\<exists>x\<in>A. is_arg_max g (\<lambda>x. x \<in> A) x"
+proof -
+  have img_fin: "finite (g ` A)"
+    using fin by simp
+  have img_ne: "g ` A \<noteq> {}"
+    using ne by auto
 
-lemma finite_arg_max:
-  fixes f :: "'a \<Rightarrow> real"
-  assumes "finite A" and "A \<noteq> {}"
-  shows "\<exists>x \<in> A. (\<forall>y \<in> A. f y \<le> f x)"
-  using assms
-proof (induction A rule: finite_induct)
-  case empty
-  then show ?case by simp
-next
-  case (insert a A)
-  show ?case
-  proof (cases "A = {}")
-    case True
-    then show ?thesis by simp
-  next
-    case False
-    then obtain x where "x \<in> A" and max_x: "\<forall>y \<in> A. f y \<le> f x"
-      using insert.IH by blast
-    show ?thesis
-    proof (cases "f a \<le> f x")
-      case True
-      hence "\<forall>y \<in> insert a A. f y \<le> f x"
-        using max_x by auto
-      moreover from \<open>x \<in> A\<close> have "x \<in> insert a A" by simp
-      ultimately show ?thesis by blast
-    next
-      case False
-      hence "f x < f a" by simp
-      {
-        fix y assume "y \<in> insert a A"
-        then have "f y \<le> f a"
-        proof
-          assume "y = a"
-          then show "f y \<le> f a" by simp
-        next
-          assume "y \<in> A"
-          then have "f y \<le> f x" using max_x by simp
-          then show "f y \<le> f a" using \<open>f x < f a\<close> by linarith
-        qed
-      }
-      then have "\<forall>y \<in> insert a A. f y \<le> f a" by auto
-      moreover have "a \<in> insert a A" by simp
-      ultimately show ?thesis by blast
+  let ?M = "Max (g ` A)"
+  have M_in: "?M \<in> g ` A"
+    using Max_in[OF img_fin img_ne] .
+  then obtain x where xA: "x \<in> A" and gx: "g x = ?M"
+    by auto
+
+    have no_better: "\<not> (\<exists>y. y \<in> A \<and> g y > g x)"
+    proof
+      assume ex: "\<exists>y. y \<in> A \<and> g y > g x"
+      then obtain y where yA: "y \<in> A" and gy: "g y > g x" by auto
+
+      have "g y \<le> Max (g ` A)"
+        using Max_ge_iff[OF img_fin img_ne] yA by auto
+      hence gy_le_gx: "g y \<le> g x"
+        by (simp add: gx)
+
+      have gx_lt_gy: "g x < g y" using gy by simp
+      show False
+        using gx_lt_gy gy_le_gx by (meson less_le_not_le)
     qed
-  qed
+
+  have "is_arg_max g (\<lambda>z. z \<in> A) x"
+    unfolding is_arg_max_def
+    using xA no_better by auto
+  thus ?thesis
+    using xA by blast
 qed
 
-text \<open>
-  A convenient corollary: directly obtain a witness that maximizes \<open>g\<close> on \<open>A\<close>.
-\<close>
-
-corollary finite_arg_max_in:
-  fixes g :: "'a \<Rightarrow> real"
-  assumes "finite A" "A \<noteq> {}"
-  obtains x where "x \<in> A" and "\<forall>y\<in>A. g y \<le> g x"
-  using finite_arg_max[of A g] assms by blast
+lemma is_arg_maxD_le:
+  fixes g :: "'a \<Rightarrow> 'b::linorder"
+  assumes H: "is_arg_max g (\<lambda>x. x \<in> A) x"
+      and yA: "y \<in> A"
+  shows "g y \<le> g x"
+proof -
+  from H have no_better: "\<not> (\<exists>z. z \<in> A \<and> g z > g x)"
+    unfolding is_arg_max_def by auto
+  hence "\<not> (g y > g x)"
+    using yA by blast
+  thus ?thesis
+    by (simp add: not_less)
+qed
 
 text \<open>
   Abstract setup for the greedy algorithm:
@@ -98,19 +87,9 @@ text \<open>
   without yet proving any approximation guarantees.
 \<close>
 
-locale Greedy_Setup =
-  fixes V :: "'a set" and k :: nat and f :: "'a set \<Rightarrow> real"
-  assumes finite_V: "finite V"
-      and f_nonneg: "\<And>S. S \<subseteq> V \<Longrightarrow> 0 \<le> f S"
-      and monotone_f: "\<And>S T. S \<subseteq> T \<Longrightarrow> T \<subseteq> V \<Longrightarrow> f S \<le> f T"
-      and submodular_f:
-        "\<And>S T. S \<subseteq> V \<Longrightarrow> T \<subseteq> V \<Longrightarrow> f (S \<union> T) + f (S \<inter> T) \<le> f S + f T"
-      and f_empty: "f {} = 0"
+locale Greedy_Setup = Submodular_Setup V k f
+  for V :: "'a set" and k :: nat and f :: "'a set \<Rightarrow> real"
 begin
-
-text \<open>Marginal gain of adding a single element to a set.\<close>
-definition gain :: "'a set \<Rightarrow> 'a \<Rightarrow> real" where
-  "gain S e = f (S \<union> {e}) - f S"
 
 text \<open>
   Arg-max of the marginal gain over a finite non-empty candidate set \<open>A\<close>
@@ -119,13 +98,14 @@ text \<open>
 \<close>
 definition argmax_gain :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a" where
   "argmax_gain S A =
-     (SOME x. x \<in> A \<and> (\<forall>y\<in>A. gain S y \<le> gain S x))"
+     (SOME x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x)"
 
 text \<open>Existence of a maximizer ensures that \<open>argmax_gain\<close> is well-defined.\<close>
 lemma argmax_gain_exists:
-  assumes "finite A" "A \<noteq> {}"
-  shows "\<exists>x\<in>A. \<forall>y\<in>A. gain S y \<le> gain S x"
-  using finite_arg_max[of A "\<lambda>x. gain S x"] assms by auto
+  assumes fin: "finite A" and ne: "A \<noteq> {}"
+  shows "\<exists>x\<in>A. is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
+  using fin ne
+  by (rule finite_is_arg_max_in[of A "gain S"])
 
 text \<open>
   Basic properties: the chosen element lies in \<open>A\<close>, and its gain dominates
@@ -138,33 +118,67 @@ lemma argmax_gain_in:
     "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
 proof -
   from argmax_gain_exists[OF fin ne]
-  obtain x where xA: "x \<in> A" and max: "\<forall>y\<in>A. gain S y \<le> gain S x"
-    by blast
-  hence ex: "\<exists>x. x \<in> A \<and> (\<forall>y\<in>A. gain S y \<le> gain S x)"
+  obtain x where xA: "x \<in> A"
+    and xarg: "is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
     by blast
 
-  from someI_ex[OF ex]
-  have
-    inA: "(SOME x. x \<in> A \<and> (\<forall>y\<in>A. gain S y \<le> gain S x)) \<in> A"
-    and max':
-      "\<forall>y\<in>A. gain S y \<le> gain S (SOME x. x \<in> A \<and> (\<forall>y\<in>A. gain S y \<le> gain S x))"
-    by blast+
+  have max: "\<forall>y\<in>A. gain S y \<le> gain S x"
+  proof
+    fix y assume yA: "y \<in> A"
+    show "gain S y \<le> gain S x"
+      using is_arg_maxD_le[OF xarg yA] .
+  qed
+
+  have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
+    using xA xarg by blast
+
+  have chosen:
+    "argmax_gain S A \<in> A \<and>
+     is_arg_max (gain S) (\<lambda>y. y \<in> A) (argmax_gain S A)"
+    unfolding argmax_gain_def
+    using someI_ex[OF ex] by blast
 
   show "argmax_gain S A \<in> A"
-    unfolding argmax_gain_def using inA by simp
-  show "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
-    unfolding argmax_gain_def using max' by simp
+    using chosen by blast
+
+  have "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
+  proof
+    fix y assume yA: "y \<in> A"
+    from chosen have arg:
+      "is_arg_max (gain S) (\<lambda>y. y \<in> A) (argmax_gain S A)"
+      by blast
+    show "gain S y \<le> gain S (argmax_gain S A)"
+      using is_arg_maxD_le[OF arg yA] .
+  qed
+  thus "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)" .
 qed
+
 
 lemma argmax_gain_mem:
   assumes fin: "finite A" and ne: "A \<noteq> {}"
   shows "argmax_gain S A \<in> A"
-  using argmax_gain_in[OF fin ne] by auto
+proof -
+  have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
+    using argmax_gain_exists[OF fin ne] by blast
+  show ?thesis
+    unfolding argmax_gain_def
+    using someI_ex[OF ex] by blast
+qed
 
 lemma argmax_gain_max:
   assumes fin: "finite A" and ne: "A \<noteq> {}"
   shows "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
-  using argmax_gain_in[OF fin ne] by auto
+proof
+  fix y assume yA: "y \<in> A"
+  have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>z. z \<in> A) x"
+    using argmax_gain_exists[OF fin ne] by blast
+  have chosen:
+    "argmax_gain S A \<in> A \<and> is_arg_max (gain S) (\<lambda>z. z \<in> A) (argmax_gain S A)"
+    unfolding argmax_gain_def
+    using someI_ex[OF ex] by blast
+  then show "gain S y \<le> gain S (argmax_gain S A)"
+    using is_arg_maxD_le[of "gain S" A "argmax_gain S A" y] yA by blast
+qed
 
 
 text \<open>
