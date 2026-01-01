@@ -30,6 +30,7 @@ text \<open>
   As a corollary, we obtain a uniform lower bound
   \<open>1 - (1 - 1/k)^k \<ge> 1 - 1/exp 1\<close> for all \<open>k \<ge> 1\<close>.
 \<close>
+
 lemma coeff_ge_1_minus_inv_exp:
   fixes k :: nat
   assumes "k \<ge> 1"
@@ -43,6 +44,7 @@ proof -
     by (simp add: exp_minus field_simps)
   finally show ?thesis .
 qed
+
 
 context Greedy_Setup
 begin
@@ -177,7 +179,7 @@ next
   have "(f ((S \<union> A) \<union> {a}) - f (S \<union> A)) + (f (S \<union> A) - f S)
         \<le> gain S a + (\<Sum>x\<in>A. gain S x)"
     using dec IH by linarith
-    thus ?case
+  thus ?case
     by (simp add: step insert_commute finA a_notin)
 qed
 
@@ -201,30 +203,29 @@ proof -
   consider (le) "f Opt \<le> f S" | (gt) "f S < f Opt" by linarith
   then show ?thesis
   proof cases
-        case le
-        have VS_ne: "V - S \<noteq> {}"
-          using nonempty_candidates[OF S_sub cardS_lt_k k_le_V] .
+    case le
+    have VS_ne: "V - S \<noteq> {}"
+      using nonempty_candidates[OF S_sub cardS_lt_k k_le_V] .
 
-        then obtain e where eVS: "e \<in> V - S" by blast
-        hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
+    then obtain e where eVS: "e \<in> V - S" by blast
+    hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
 
-        moreover have "(f Opt - f S) / real k \<le> 0"
-        proof -
-          have "f Opt - f S \<le> 0" using le by linarith
-          thus ?thesis
-            using k_pos by (simp add: divide_nonpos_pos)
-        qed
+    moreover have "(f Opt - f S) / real k \<le> 0"
+    proof -
+      have "f Opt - f S \<le> 0" using le by linarith
+      thus ?thesis
+        using k_pos by (simp add: divide_nonpos_pos)
+    qed
 
-        ultimately have "(f Opt - f S) / real k \<le> gain S e"
-          by linarith
+    ultimately have "(f Opt - f S) / real k \<le> gain S e"
+      by linarith
 
-        thus ?thesis
-          using eVS by (intro bexI[of _ e]) auto
-
+    thus ?thesis
+      using eVS by (intro bexI[of _ e]) auto
   next
     case gt
     have OS_ne: "Opt - S \<noteq> {}"
-     using nonempty_gap[OF S_sub O_sub gt] .
+      using nonempty_gap[OF S_sub O_sub gt] .
 
     have finOS: "finite (Opt - S)"
       using finV O_sub by (meson Diff_subset finite_subset)
@@ -301,18 +302,15 @@ text \<open>
   \<open>OPT_k\<close> as the maximum value of \<open>f\<close> over this family.
 \<close>
 
-definition feasible_set_k :: "'a set set" where
-  "feasible_set_k = {S. S \<subseteq> V \<and> card S \<le> k}"
-
 lemma feasible_set_k_nonempty:
   "{} \<in> feasible_set_k"
-  by (simp add: feasible_set_k_def)
+  by (simp add: feasible_set_k_def feasible_def)
 
 lemma feasible_set_k_finite:
   "finite feasible_set_k"
 proof -
   have "feasible_set_k \<subseteq> Pow V"
-    by (auto simp: feasible_set_k_def)
+    by (auto simp: feasible_set_k_def feasible_def)
   moreover have "finite (Pow V)"
     using finite_V by simp
   ultimately show ?thesis
@@ -443,7 +441,7 @@ proof -
   obtain X where X_in: "X \<in> feasible_set_k" and X_opt: "f X = OPT_k"
     using exists_opt_set by blast
   from X_in have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
-    unfolding feasible_set_k_def by auto
+    unfolding feasible_set_k_def feasible_def by auto
 
   have S_sub': "?S \<subseteq> V"
     using S_sub .
@@ -471,13 +469,12 @@ proof -
     using R_nonempty by simp
 
   have argmax_dom:
-  "argmax_gain ?S ?R \<in> ?R"
-  using argmax_gain_mem[OF finR R_nonempty'] .
+    "argmax_gain ?S ?R \<in> ?R"
+    using argmax_gain_mem[OF finR R_nonempty'] .
 
   have argmax_max:
-  "\<forall>y\<in>?R. gain ?S y \<le> gain ?S (argmax_gain ?S ?R)"
-  using argmax_gain_max[OF finR R_nonempty'] .
-
+    "\<forall>y\<in>?R. gain ?S y \<le> gain ?S (argmax_gain ?S ?R)"
+    using argmax_gain_max[OF finR R_nonempty'] .
 
   from argmax_max e_inR
   have e_le_argmax:
@@ -505,7 +502,7 @@ text \<open>Greedy sets are feasible whenever their size is at most \<open>k\<cl
 lemma feasible_set_k_subset:
   assumes "S \<in> feasible_set_k"
   shows "S \<subseteq> V" "card S \<le> k"
-  using assms unfolding feasible_set_k_def by auto
+  using assms unfolding feasible_set_k_def feasible_def by auto
 
 lemma greedy_set_feasible:
   assumes S_sub: "greedy_set i \<subseteq> V"
@@ -516,7 +513,7 @@ proof -
   have "card (greedy_set i) \<le> k"
     using card_le_i i_le_k by (meson order_trans)
   with S_sub show ?thesis
-    unfolding feasible_set_k_def by auto
+    unfolding feasible_set_k_def feasible_def by auto
 qed
 
 text \<open>The gap is non-negative along the greedy sequence.\<close>
@@ -672,8 +669,7 @@ next
   proof -
     have IH: "gap i \<le> (1 - 1 / real k) ^ i * OPT_k"
       using Suc.IH i_le_k by simp
-      from IH coef_nonneg
-      show ?thesis
+    from IH coef_nonneg show ?thesis
       by (rule mult_left_mono)
   qed
 
@@ -735,7 +731,6 @@ proof -
 
   finally show ?thesis .
 qed
-
 
 subsection \<open>Non-negativity of OPT and approximation ratio\<close>
 
@@ -818,6 +813,6 @@ next
     by (simp add: field_simps)
 qed
 
-
 end
+
 end

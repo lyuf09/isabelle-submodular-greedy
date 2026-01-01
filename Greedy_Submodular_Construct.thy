@@ -24,6 +24,8 @@ subsection \<open>Preliminaries on finite maximizers\<close>
 
 text \<open>Finite arg-max via the standard predicate is_arg_max.\<close>
 
+(* We rely on the standard predicate is_arg_max and arg_max_def from the library.
+   The following lemma establishes existence on finite domains. *)
 lemma finite_is_arg_max_in:
   fixes g :: "'a \<Rightarrow> 'b::linorder"
   assumes fin: "finite A" and ne: "A \<noteq> {}"
@@ -63,18 +65,11 @@ proof -
 qed
 
 lemma is_arg_maxD_le:
-  fixes g :: "'a \<Rightarrow> 'b::linorder"
-  assumes H: "is_arg_max g (\<lambda>x. x \<in> A) x"
-      and yA: "y \<in> A"
-  shows "g y \<le> g x"
-proof -
-  from H have no_better: "\<not> (\<exists>z. z \<in> A \<and> g z > g x)"
-    unfolding is_arg_max_def by auto
-  hence "\<not> (g y > g x)"
-    using yA by blast
-  thus ?thesis
-    by (simp add: not_less)
-qed
+  fixes f :: "'b \<Rightarrow> 'a::linorder"
+  assumes "is_arg_max f P x" "P y"
+  shows "f y \<le> f x"
+  using assms
+  by (simp add: is_arg_max_linorder)
 
 text \<open>
   Abstract setup for the greedy algorithm:
@@ -87,110 +82,69 @@ text \<open>
   without yet proving any approximation guarantees.
 \<close>
 
-locale Greedy_Setup = Submodular_Setup V k f
-  for V :: "'a set" and k :: nat and f :: "'a set \<Rightarrow> real"
+section \<open>Concrete argmax oracle for marginal gain\<close>
+
+context Submodular_Func
 begin
 
-text \<open>
-  Arg-max of the marginal gain over a finite non-empty candidate set \<open>A\<close>
-  at a given state \<open>S\<close>. The choice operator \<open>SOME\<close> is justified by the
-  finite arg-max lemma above.
-\<close>
-definition argmax_gain :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a" where
-  "argmax_gain S A =
+definition argmax_gain_some :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a" where
+  "argmax_gain_some S A =
      (SOME x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x)"
 
-text \<open>Existence of a maximizer ensures that \<open>argmax_gain\<close> is well-defined.\<close>
-lemma argmax_gain_exists:
+lemma argmax_gain_some_mem:
   assumes fin: "finite A" and ne: "A \<noteq> {}"
-  shows "\<exists>x\<in>A. is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
-  using fin ne
-  by (rule finite_is_arg_max_in[of A "gain S"])
-
-text \<open>
-  Basic properties: the chosen element lies in \<open>A\<close>, and its gain dominates
-  all other candidates in \<open>A\<close>.
-\<close>
-lemma argmax_gain_in:
-  assumes fin: "finite A" and ne: "A \<noteq> {}"
-  shows
-    "argmax_gain S A \<in> A"
-    "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
+  shows "argmax_gain_some S A \<in> A"
 proof -
-  from argmax_gain_exists[OF fin ne]
-  obtain x where xA: "x \<in> A"
-    and xarg: "is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
-    by blast
-
-  have max: "\<forall>y\<in>A. gain S y \<le> gain S x"
-  proof
-    fix y assume yA: "y \<in> A"
-    show "gain S y \<le> gain S x"
-      using is_arg_maxD_le[OF xarg yA] .
-  qed
+  have exB: "\<exists>x\<in>A. is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
+    using finite_is_arg_max_in[OF fin ne] .
 
   have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
-    using xA xarg by blast
+    using exB by auto
 
-  have chosen:
-    "argmax_gain S A \<in> A \<and>
-     is_arg_max (gain S) (\<lambda>y. y \<in> A) (argmax_gain S A)"
-    unfolding argmax_gain_def
-    using someI_ex[OF ex] by blast
-
-  show "argmax_gain S A \<in> A"
-    using chosen by blast
-
-  have "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
-  proof
-    fix y assume yA: "y \<in> A"
-    from chosen have arg:
-      "is_arg_max (gain S) (\<lambda>y. y \<in> A) (argmax_gain S A)"
-      by blast
-    show "gain S y \<le> gain S (argmax_gain S A)"
-      using is_arg_maxD_le[OF arg yA] .
-  qed
-  thus "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)" .
-qed
-
-
-lemma argmax_gain_mem:
-  assumes fin: "finite A" and ne: "A \<noteq> {}"
-  shows "argmax_gain S A \<in> A"
-proof -
-  have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>y. y \<in> A) x"
-    using argmax_gain_exists[OF fin ne] by blast
   show ?thesis
-    unfolding argmax_gain_def
+    unfolding argmax_gain_some_def
     using someI_ex[OF ex] by blast
 qed
 
-lemma argmax_gain_max:
-  assumes fin: "finite A" and ne: "A \<noteq> {}"
-  shows "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
-proof
-  fix y assume yA: "y \<in> A"
+lemma argmax_gain_some_max:
+  assumes fin: "finite A" and ne: "A \<noteq> {}" and yA: "y \<in> A"
+  shows "gain S y \<le> gain S (argmax_gain_some S A)"
+proof -
+  have exB: "\<exists>x\<in>A. is_arg_max (gain S) (\<lambda>z. z \<in> A) x"
+    using finite_is_arg_max_in[OF fin ne] .
+
   have ex: "\<exists>x. x \<in> A \<and> is_arg_max (gain S) (\<lambda>z. z \<in> A) x"
-    using argmax_gain_exists[OF fin ne] by blast
+    using exB by auto
+
   have chosen:
-    "argmax_gain S A \<in> A \<and> is_arg_max (gain S) (\<lambda>z. z \<in> A) (argmax_gain S A)"
-    unfolding argmax_gain_def
+    "is_arg_max (gain S) (\<lambda>z. z \<in> A) (argmax_gain_some S A)"
+    unfolding argmax_gain_some_def
     using someI_ex[OF ex] by blast
-  then show "gain S y \<le> gain S (argmax_gain S A)"
-    using is_arg_maxD_le[of "gain S" A "argmax_gain S A" y] yA by blast
+
+  show ?thesis
+    using is_arg_maxD_le[OF chosen yA] .
 qed
 
+end
+
+locale Greedy_Setup = Cardinality_Constraint V f k
+  for V :: "'a set" and f :: "'a set \<Rightarrow> real" and k :: nat +
+  fixes argmax_gain :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a"
+  assumes argmax_gain_mem:
+    "finite A \<Longrightarrow> A \<noteq> {} \<Longrightarrow> argmax_gain S A \<in> A"
+  assumes argmax_gain_max:
+    "finite A \<Longrightarrow> A \<noteq> {} \<Longrightarrow> \<forall>y\<in>A. gain S y \<le> gain S (argmax_gain S A)"
+begin
 
 text \<open>
   Greedy construction: start from \<open>{}\<close> and, as long as there are remaining
   elements, add one with maximum marginal gain.
 \<close>
-primrec greedy_set :: "nat \<Rightarrow> 'a set" where
+fun greedy_set :: "nat \<Rightarrow> 'a set" where
   "greedy_set 0 = {}"
 | "greedy_set (Suc i) =
      (let S = greedy_set i in
-      if V - S = {} then S else S \<union> {argmax_gain S (V - S)})"
-
+      if V - S = {} then S else insert (argmax_gain S (V - S)) S)"
 
 text \<open>Greedy sets are always subsets of the ground set \<open>V\<close>.\<close>
 lemma greedy_subset_V: "greedy_set i \<subseteq> V"
@@ -212,9 +166,10 @@ next
     case False
     have finA: "finite (V - greedy_set i)"
       using finite_V by simp
-    from argmax_gain_in(1)[OF finA False]
-    have inA: "argmax_gain (greedy_set i) (V - greedy_set i)
-               \<in> V - greedy_set i" .
+    have inA:
+      "argmax_gain (greedy_set i) (V - greedy_set i) \<in> V - greedy_set i"
+      using argmax_gain_mem[OF finA False] .
+
     hence inV: "argmax_gain (greedy_set i) (V - greedy_set i) \<in> V"
       by simp
 
@@ -243,15 +198,15 @@ proof -
   have finA: "finite ?A"
     using finite_V by simp
 
-  from argmax_gain_in(1)[OF finA ne]
-  have x_in_A: "?x \<in> ?A" .
+  have x_in_A: "?x \<in> ?A"
+    using argmax_gain_mem[OF finA ne] .
   hence x_notin_S: "?x \<notin> ?S"
     by simp
 
   have suc_def:
     "greedy_set (Suc i) =
        (let S = ?S in
-        if V - S = {} then S else S \<union> {argmax_gain S (V - S)})"
+        if V \<subseteq> S then S else insert (argmax_gain S (V - S)) S)"
     by simp
 
   from ne have "greedy_set (Suc i) = ?S \<union> {?x}"
@@ -262,6 +217,7 @@ proof -
   thus ?thesis
     using finS x_notin_S by simp
 qed
+
 
 text \<open>If the remainder is empty, the greedy set stays unchanged.\<close>
 lemma greedy_card_idle:
@@ -288,7 +244,7 @@ proof -
   have def_suc:
     "greedy_set (Suc j) =
        (let S = greedy_set j in
-        if V - S = {} then S else S \<union> {argmax_gain S (V - S)})"
+        if V \<subseteq> S then S else insert (argmax_gain S (V - S)) S)"
     by simp
 
   from rem_ne have
@@ -479,7 +435,7 @@ proof -
     using finite_V by simp
   have xinA:
     "argmax_gain (greedy_set i) (V - greedy_set i) \<in> V - greedy_set i"
-    by (rule argmax_gain_in(1)[OF finA rem_ne])
+    using argmax_gain_mem[OF finA rem_ne] .
   show "x \<in> V - greedy_set i"
     unfolding x_def by (rule xinA)
   then show "x \<notin> greedy_set i" by simp
@@ -489,18 +445,24 @@ text \<open>
   Increment shape at a non-empty step: \<open>Sᵢ₊₁\<close> is obtained by inserting
   the arg-max element into \<open>Sᵢ\<close>. This is often useful in counting arguments.
 \<close>
+
 lemma greedy_increment_nonempty[simp]:
-  assumes "V - greedy_set i \<noteq> {}"
+  assumes rem_ne: "V - greedy_set i \<noteq> {}"
   shows   "greedy_set (Suc i) =
            insert (argmax_gain (greedy_set i) (V - greedy_set i)) (greedy_set i)"
 proof -
+  have not_subset: "\<not> V \<subseteq> greedy_set i"
+    using rem_ne by (simp add: Diff_eq_empty_iff)
+
   have def:
     "greedy_set (Suc i) =
        (let S = greedy_set i in
-        if V - S = {} then S else S \<union> {argmax_gain S (V - S)})"
+        if V \<subseteq> S then S else insert (argmax_gain S (V - S)) S)"
     by simp
-  from assms show ?thesis
+
+  show ?thesis
     unfolding def
+    using not_subset
     by (simp add: Let_def)
 qed
 
@@ -535,4 +497,28 @@ proof -
 qed
 
 end
+
+context Cardinality_Constraint
+begin
+
+interpretation Greedy_Concrete: Greedy_Setup V f k argmax_gain_some
+proof
+  fix S :: "'a set" and A :: "'a set"
+  assume fin: "finite A" and ne: "A \<noteq> {}"
+  show "argmax_gain_some S A \<in> A"
+    using argmax_gain_some_mem[OF fin ne] .
+next
+  fix S :: "'a set" and A :: "'a set"
+  assume fin: "finite A" and ne: "A \<noteq> {}"
+  show "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain_some S A)"
+  proof
+    fix y
+    assume yA: "y \<in> A"
+    show "gain S y \<le> gain S (argmax_gain_some S A)"
+      using argmax_gain_some_max[OF fin ne yA] .
+  qed
+qed
+
+end
+
 end

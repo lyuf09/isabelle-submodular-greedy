@@ -2,10 +2,9 @@ theory Submodular_Base
   imports Complex_Main
 begin
 
-locale Submodular_Setup =
-  fixes V :: "'a set" and k :: nat and f :: "'a set \<Rightarrow> real"
+locale Submodular_Func =
+  fixes V :: "'a set" and f :: "'a set \<Rightarrow> real"
   assumes finite_V: "finite V"
-      and f_nonneg: "\<And>S. S \<subseteq> V \<Longrightarrow> 0 \<le> f S"
       and monotone_f: "\<And>S T. S \<subseteq> T \<Longrightarrow> T \<subseteq> V \<Longrightarrow> f S \<le> f T"
       and submodular_f:
         "\<And>S T. S \<subseteq> V \<Longrightarrow> T \<subseteq> V \<Longrightarrow> f (S \<union> T) + f (S \<inter> T) \<le> f S + f T"
@@ -15,6 +14,15 @@ begin
 text \<open>Marginal gain of adding a single element to a set.\<close>
 definition gain :: "'a set \<Rightarrow> 'a \<Rightarrow> real" where
   "gain S e = f (S \<union> {e}) - f S"
+
+lemma f_nonneg:
+  assumes "S \<subseteq> V"
+  shows "0 \<le> f S"
+proof -
+  have "{} \<subseteq> S" by auto
+  from monotone_f[OF this assms] have "f {} \<le> f S" .
+  thus ?thesis by (simp add: f_empty)
+qed
 
 lemma monotone_on_PowV:
   shows "monotone_on (Pow V) (\<subseteq>) (\<le>) f"
@@ -45,7 +53,20 @@ proof -
   thus ?thesis by (simp add: gain_def)
 qed
 
-text \<open>Diminishing-returns (DR) form of submodularity.\<close>
+text \<open>
+  Diminishing-returns (DR) form of submodularity.
+
+  This definition is included as an alternative interface to the lattice-based
+  submodularity assumption used throughout the current development.
+  At present, we do not establish the equivalence between the two formulations.
+
+  The DR form is often more convenient when reasoning about algorithmic variants
+  such as LazyGreedy or StochasticGreedy, while the lattice-based formulation
+  aligns more naturally with classical submodular calculus on sets.
+
+  Proving equivalence between these formulations is deferred and left as a
+  potential future extension of the framework.
+\<close>
 definition dr_submodular_on :: "'a set \<Rightarrow> ('a set \<Rightarrow> real) \<Rightarrow> bool" where
   "dr_submodular_on W g \<longleftrightarrow>
      (\<forall>A\<subseteq>W. \<forall>B\<subseteq>W. A \<subseteq> B \<longrightarrow>
@@ -62,6 +83,24 @@ lemma dr_submodular_fD:
   using dr A B AB i
   unfolding dr_submodular_on_def gain_def
   by simp
+
+end
+
+
+locale Cardinality_Constraint = Submodular_Func +
+  fixes k :: nat
+  assumes k_le_cardV: "k \<le> card V"
+begin
+
+definition feasible :: "'a set \<Rightarrow> bool" where
+  "feasible S \<longleftrightarrow> S \<subseteq> V \<and> card S \<le> k"
+
+definition feasible_set_k :: "'a set set" where
+  "feasible_set_k = {S. feasible S}"
+
+lemma feasible_iff_mem_feasible_set_k:
+  "feasible S \<longleftrightarrow> S \<in> feasible_set_k"
+  by (simp add: feasible_def feasible_set_k_def)
 
 end
 
