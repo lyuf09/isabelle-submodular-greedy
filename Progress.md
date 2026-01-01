@@ -36,3 +36,11 @@
   - no hidden finiteness or maximality assumptions are introduced implicitly.
 
 - Improved overall proof robustness and maintainability, reducing “red zones” and brittle proof steps, and aligning the development more closely with Isabelle best practices for large structured formalizations.
+
+- Identified and eliminated a redundant non-negativity assumption on the submodular function (`f_nonneg`) by deriving it as a lemma from monotonicity and the normalisation condition `f {} = 0`, thereby strengthening the minimality and reusability of the core locale assumptions.
+
+- Consolidated feasibility notions by moving the canonical definition of feasible sets of size at most `k` into the `Cardinality_Constraint` locale (`feasible_set_k`), together with a bridging lemma linking set-based and predicate-based formulations, eliminating duplication in the approximation layer.
+
+- Introduced the diminishing-returns (DR) formulation of submodularity as an explicit alternative interface, accompanied by in-file documentation clarifying its role as a future extension hook (e.g. for LazyGreedy or StochasticGreedy variants), while intentionally deferring equivalence proofs with the lattice-based formulation.
+
+- Separated purely analytic inequalities (e.g. bounds involving `(1 - 1/k)^k` and `exp`) from locale-dependent reasoning, ensuring that approximation proofs inside `Greedy_Setup` remain free of accidental parameter clashes and logically clean.
