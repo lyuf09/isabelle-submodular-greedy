@@ -30,7 +30,7 @@ Nemhauser–Wolsey **(1 − 1/e)** approximation guarantee for greedy maximisati
   averaging arguments, gap recurrence, and the proof of the
   (1 − 1/e) approximation bound.
 
-- `Current_Status_and_Planned_Next_Steps (1).pdf`  
+- `Current_Status_and_Planned_Next_Steps.pdf`  
   A brief research note describing the current status of the project and
   outlining possible extensions and directions.
 
