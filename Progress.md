@@ -44,3 +44,16 @@
 - Introduced the diminishing-returns (DR) formulation of submodularity as an explicit alternative interface, accompanied by in-file documentation clarifying its role as a future extension hook (e.g. for LazyGreedy or StochasticGreedy variants), while intentionally deferring equivalence proofs with the lattice-based formulation.
 
 - Separated purely analytic inequalities (e.g. bounds involving `(1 - 1/k)^k` and `exp`) from locale-dependent reasoning, ensuring that approximation proofs inside `Greedy_Setup` remain free of accidental parameter clashes and logically clean.
+
+## 2026-02-07
+
+### Updates
+- Updated the project status note to directly address supervisor feedback:
+  - Added an informal/empirical complexity comparison (greedy vs exhaustive baseline), focusing on oracle-call counts and scaling intuition.
+  - Made the experiments plan concrete (small instances, greedy vs exhaustive, record value/ratio and basic evaluation counts).
+  - Clarified the goal around counterexamples: (i) tightness instances approaching 1 - 1/e under the standard assumptions; (ii) debugging-style counterexamples only if assumptions are weakened/incorrectly stated.
+
+### Next
+- Implement a small exhaustive maximiser for tiny |V| and add basic counters (e.g., marginal-gain evaluation count).
+- Run a small suite of hand-crafted instances and record outputs (value, ratio, counts) to illustrate trends.
+- Decide and document whether the “counterexample” track is tightness (under standard assumptions) or assumption-violation (debugging).
