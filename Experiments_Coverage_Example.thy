@@ -51,4 +51,18 @@ value "opt_sol"
 value "f_cov opt_sol"
 value "if f_cov opt_sol = 0 then (0::nat) else (f_cov greedy_sol * 100 div f_cov opt_sol)"
 
+definition greedy_marginal_evals :: nat where
+  "greedy_marginal_evals =
+     sum_list (map (%i. length Vlist - i) [0..<k])"
+
+definition greedy_f_evals :: nat where
+  "greedy_f_evals = 2 * greedy_marginal_evals"
+
+definition exhaustive_candidates :: nat where
+  "exhaustive_candidates = length (subseqs_upto_k Vlist k)"
+
+value "greedy_marginal_evals"
+value "greedy_f_evals"
+value "exhaustive_candidates"
+
 end
