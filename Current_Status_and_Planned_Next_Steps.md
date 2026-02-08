@@ -112,3 +112,30 @@ prove `f_cov(S) = card (⋃x∈S. g x)` satisfies `Greedy_Setup`, and instantiat
   - `isabelle jedit -d . -l Submodular_Greedy_Experiments`
   - open the experiment theories and click `value ...` lines to view outputs in the Output panel.
 
+## 2026-02-07 Update: P1 Experiments + Coverage Interpretation
+
+### What’s new (concrete deliverables)
+- **Executable baseline + counters (tiny instances)**:
+  - Added a tiny exhaustive maximiser (`enum_opt_set`) over candidates `subseqs_upto_k Vlist k`, plus simple evaluation counters.
+  - Added runnable toy instances comparing **greedy vs exhaustive** (value/ratio + basic oracle-call intuition).
+
+- **Toy coverage instantiation connected to the abstract theorem layer**:
+  - Defined `f_cov_real : Item set ⇒ real` from the toy coverage objective and proved (on `V = set Vlist`) the required facts:
+    - `f_cov_real {} = 0`
+    - monotonicity on subsets of `V`
+    - submodularity on subsets of `V`
+  - Interpreted the abstract locale as:
+    - `CovToy: Greedy_Setup V f_cov_real k (Submodular_Func.argmax_gain_some f_cov_real)`
+  - Exposed the instantiated Nemhauser–Wolsey guarantee as a named lemma:
+    - `CovToy_main_bound` (derived from `CovToy.greedy_approximation`).
+
+- **Non-submodular “assumption-violation” counterexample (debugging track)**:
+  - Added a small non-submodular set function with an explicit witness and a tiny instance where greedy underperforms the true optimum by a visible margin (sanity-checking the necessity of assumptions).
+
+### Key files
+- `Coverage_Interpretation_Toy.thy` — coverage objective + locale interpretation + `CovToy_main_bound`.
+- `Experiments_Exhaustive.thy` / `Experiments_Coverage_Example.thy` / `Experiments_Coverage_Suboptimal.thy` (and related experiment theories) — runnable greedy vs exhaustive comparisons.
+
+### Next steps (if we want to tighten the story further)
+- (Optional) Add a short note clarifying that the executable `greedy_list` layer is a runnable sanity check; a refinement proof connecting it to the abstract `greedy_set` can be future work.
+- Add 1–2 more tiny hand-crafted instances (coverage + non-submodular) to illustrate trends (ratios + counts).

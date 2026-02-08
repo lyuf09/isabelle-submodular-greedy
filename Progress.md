@@ -47,6 +47,13 @@
 
 ## 2026-02-07
 
+### P1 completion (formal + executable bridge)
+- Added `Coverage_Interpretation_Toy.thy`:
+  - Defined `f_cov_real` (toy coverage objective lifted to `real`) over `V = set Vlist`.
+  - Proved monotonicity and submodularity on subsets of `V`, and discharged `Greedy_Setup` obligations.
+  - Interpreted the abstract locale as `CovToy: Greedy_Setup ...` and exposed `CovToy_main_bound` using `CovToy.greedy_approximation`.
+- Added/extended runnable tiny experiments (greedy vs exhaustive) with basic counters (oracle-call intuition) and included a non-submodular assumption-violation example.
+
 ### Updates
 - Added an executable experiment scaffold as an Isabelle session (`Submodular_Greedy_Experiments`) via a minimal `ROOT`.
 - Implemented an exhaustive baseline for tiny instances (`enum_opt_set`) in `Experiments_Exhaustive.thy`.
