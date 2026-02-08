@@ -48,12 +48,15 @@
 ## 2026-02-07
 
 ### Updates
-- Updated the project status note to directly address supervisor feedback:
-  - Added an informal/empirical complexity comparison (greedy vs exhaustive baseline), focusing on oracle-call counts and scaling intuition.
-  - Made the experiments plan concrete (small instances, greedy vs exhaustive, record value/ratio and basic evaluation counts).
-  - Clarified the goal around counterexamples: (i) tightness instances approaching 1 - 1/e under the standard assumptions; (ii) debugging-style counterexamples only if assumptions are weakened/incorrectly stated.
+- Added an executable experiment scaffold as an Isabelle session (`Submodular_Greedy_Experiments`) via a minimal `ROOT`.
+- Implemented an exhaustive baseline for tiny instances (`enum_opt_set`) in `Experiments_Exhaustive.thy`.
+- Added coverage (monotone submodular) toy instances with recorded outputs and oracle-call counters:
+  - Instance 1 (|V|=5, k=2): greedy=4, opt=4, ratio=100%, greedy_f_evals=18, exhaustive_candidates=16.
+  - Instance 2 (|V|=3, k=2): greedy=5, opt=6, ratio=83%, greedy_f_evals=10, exhaustive_candidates=7.
+- Added a monotone but non-submodular counterexample (|V|=3, k=2) with an explicit witness lemma:
+  greedy=100, opt=200, ratio=50% (< 1 - 1/e), greedy_f_evals=10, exhaustive_candidates=7.
 
 ### Next
-- Implement a small exhaustive maximiser for tiny |V| and add basic counters (e.g., marginal-gain evaluation count).
-- Run a small suite of hand-crafted instances and record outputs (value, ratio, counts) to illustrate trends.
-- Decide and document whether the “counterexample” track is tightness (under standard assumptions) or assumption-violation (debugging).
+- Prove basic correctness lemmas for `enum_opt_set` (feasibility and maximality over the finite feasible family).
+- Formalise coverage as a locale interpretation of `Greedy_Setup` (prove coverage is monotone submodular and instantiate the main theorem).
+- Add a brief “How to run experiments” section to `README.md`.
