@@ -63,7 +63,13 @@
 - Added a monotone but non-submodular counterexample (|V|=3, k=2) with an explicit witness lemma:
   greedy=100, opt=200, ratio=50% (< 1 - 1/e), greedy_f_evals=10, exhaustive_candidates=7.
 
+## 2026-02-16
+- Added `Experiments_Exhaustive_Correctness.thy`: correctness lemmas for the exhaustive baseline `enum_opt_set`
+  (feasibility + maximality over the finite candidate family).
+- Updated session wiring in `ROOT` to include `sessions "HOL-Library"` and build the new correctness theory
+  (required for importing `HOL-Library.Sublist`).
+
 ### Next
-- Prove basic correctness lemmas for `enum_opt_set` (feasibility and maximality over the finite feasible family).
-- Formalise coverage as a locale interpretation of `Greedy_Setup` (prove coverage is monotone submodular and instantiate the main theorem).
-- Add a brief “How to run experiments” section to `README.md`.
+- Generalise coverage as a reusable locale (`Coverage_Setup`) and interpret `Greedy_Setup` generically.
+- Connect the executable exhaustive optimum to `OPT_k` cleanly (and optionally expose a greedy-vs-exhaustive theorem).
+- Add a short “How to run experiments” section in `README.md` (and optionally CI).

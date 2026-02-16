@@ -94,48 +94,20 @@ This demonstrates that the classical approximation guarantee relies essentially 
 
 ## 3. Planned Next Steps
 
-### 3.1 Baseline correctness lemmas (`enum_opt_set`)
-
-Add short lemmas stating that `enum_opt_set` returns:
-- a feasible set (`S ⊆ set Vlist` and `card S ≤ k`), and
-- a maximiser over the finite feasible family.
-
-### 3.2 Coverage as a locale interpretation
-
+### 3.1 General coverage locale (beyond the toy instance)
 Introduce a locale `Coverage_Setup` (finite universe `U`, ground set `V`, mapping `g : V ⇒ Pow U`, budget `k`),
-prove `f_cov(S) = card (⋃x∈S. g x)` satisfies `Greedy_Setup`, and instantiate the main theorem via `interpret`.
+prove `f_cov(S) = card (⋃x∈S. g x)` satisfies `Greedy_Setup`, and instantiate the main theorem via `interpretation`.
+
+### 3.2 Bridge exhaustive baseline to OPT_k (clean story)
+Connect the executable baseline `enum_opt_set` to the abstract optimum `OPT_k`:
+- show `f (enum_opt_set ...) = OPT_k` (under `distinct Vlist`),
+- optionally expose a theorem comparing greedy to exhaustive on the toy coverage instance.
 
 ### 3.3 Documentation polish
+Add a brief “How to run experiments” section in `README.md`:
+- `isabelle build -D .`
+- `isabelle jedit -d . -l Submodular_Greedy_Experiments`
 
-- Add a brief “How to run experiments” section in `README.md`:
-  - `isabelle build -D .`
-  - `isabelle jedit -d . -l Submodular_Greedy_Experiments`
-  - open the experiment theories and click `value ...` lines to view outputs in the Output panel.
-
-## 2026-02-07 Update: P1 Experiments + Coverage Interpretation
-
-### What’s new (concrete deliverables)
-- **Executable baseline + counters (tiny instances)**:
-  - Added a tiny exhaustive maximiser (`enum_opt_set`) over candidates `subseqs_upto_k Vlist k`, plus simple evaluation counters.
-  - Added runnable toy instances comparing **greedy vs exhaustive** (value/ratio + basic oracle-call intuition).
-
-- **Toy coverage instantiation connected to the abstract theorem layer**:
-  - Defined `f_cov_real : Item set ⇒ real` from the toy coverage objective and proved (on `V = set Vlist`) the required facts:
-    - `f_cov_real {} = 0`
-    - monotonicity on subsets of `V`
-    - submodularity on subsets of `V`
-  - Interpreted the abstract locale as:
-    - `CovToy: Greedy_Setup V f_cov_real k (Submodular_Func.argmax_gain_some f_cov_real)`
-  - Exposed the instantiated Nemhauser–Wolsey guarantee as a named lemma:
-    - `CovToy_main_bound` (derived from `CovToy.greedy_approximation`).
-
-- **Non-submodular “assumption-violation” counterexample (debugging track)**:
-  - Added a small non-submodular set function with an explicit witness and a tiny instance where greedy underperforms the true optimum by a visible margin (sanity-checking the necessity of assumptions).
-
-### Key files
-- `Coverage_Interpretation_Toy.thy` — coverage objective + locale interpretation + `CovToy_main_bound`.
-- `Experiments_Exhaustive.thy` / `Experiments_Coverage_Example.thy` / `Experiments_Coverage_Suboptimal.thy` (and related experiment theories) — runnable greedy vs exhaustive comparisons.
-
-### Next steps (if we want to tighten the story further)
-- (Optional) Add a short note clarifying that the executable `greedy_list` layer is a runnable sanity check; a refinement proof connecting it to the abstract `greedy_set` can be future work.
-- Add 1–2 more tiny hand-crafted instances (coverage + non-submodular) to illustrate trends (ratios + counts).
+## 2026-02-16 Update: P1 baseline correctness + session wiring
+- Added `Experiments_Exhaustive_Correctness.thy`: feasibility + optimality lemmas for `enum_opt_set`.
+- Updated `ROOT` to include `sessions "HOL-Library"` (needed for `HOL-Library.Sublist`) and to build the new theory as part of the session.
