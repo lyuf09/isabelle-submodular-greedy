@@ -30,12 +30,40 @@ Nemhauser–Wolsey **(1 − 1/e)** approximation guarantee for greedy maximisati
   averaging arguments, gap recurrence, and the proof of the
   (1 − 1/e) approximation bound.
 
-- `Current_Status_and_Planned_Next_Steps.pdf`  
+- `Experiments_Exhaustive.thy`  
+  Small executable experiments (list-level refinement layer) and helper definitions for exhaustive baselines.
+
+- `Experiments_Exhaustive_Correctness.thy`  
+  Correctness/optimality facts for the exhaustive baseline `enum_opt_set`, including feasibility and optimality over enumerated candidates.
+
+- `Coverage_Interpretation_Toy.thy`  
+  Interpretation of the abstract greedy approximation theorem for a toy coverage function, exposing the `(1 - 1/e)` guarantee for this instance.
+
+- `Coverage_Exhaustive_Bridge.thy`  
+  End-to-end bridge for the toy coverage instance: proves `enum_opt_set = OPT_k` and derives a clean greedy-vs-true-optimum statement (`CovToy_greedy_vs_enum`).
+
+- `Current_Status_and_Planned_Next_Steps.md`  
   A brief research note describing the current status of the project and
   outlining possible extensions and directions.
 
-## Status
+## Toy coverage: end-to-end guarantee (greedy vs true optimum)
 
+To build everything:
+
+```bash
+isabelle build -D .
+```
+
+Key files:
+- `Coverage_Interpretation_Toy.thy`: interprets the abstract theorem layer for the toy coverage function and exposes the `(1 - 1/e)` guarantee.
+- `Experiments_Exhaustive_Correctness.thy`: proves correctness/optimality properties of the exhaustive baseline `enum_opt_set`.
+- `Coverage_Exhaustive_Bridge.thy`: bridges `enum_opt_set` to `CovToy.OPT_k` and derives a clean end-to-end statement.
+
+Final theorem (toy instance):
+- `CovToy_greedy_vs_enum`:
+  `f_cov_real (CovToy.greedy_set k) ≥ (1 - 1 / exp 1) * f_cov_real (enum_opt_set f_cov_real Vlist k)`
+
+## Status
 This is an ongoing, research-oriented development. The current codebase already
 supports a clean separation between submodular assumptions, feasibility
 constraints, and algorithmic reasoning, and is intended to function as a
