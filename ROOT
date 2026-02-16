@@ -10,3 +10,4 @@ session Submodular_Greedy_Experiments = HOL +
     Experiments_Nonsubmodular_Counterexample
     Coverage_Interpretation_Toy
     Experiments_Exhaustive_Correctness
+    Coverage_Exhaustive_Bridge
