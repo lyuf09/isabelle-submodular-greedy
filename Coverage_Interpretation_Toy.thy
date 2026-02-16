@@ -208,8 +208,6 @@ qed
 (* find_theorems name:"CovToy.*" "_ \<ge> ((1::real) - 1 / exp 1) * _" *)
 (* find_theorems name:CovToy "approx" *)
 
-(* Once you see the theorem name, expose it explicitly: *)
-(* thm CovToy.<THEOREM_NAME> *)
 
 lemma CovToy_main_bound:
   shows "f_cov_real (CovToy.greedy_set k) \<ge> ((1::real) - 1 / exp 1) * CovToy.OPT_k"
@@ -220,6 +218,19 @@ proof -
     by (rule CovToy.k_le_cardV)
   show ?thesis
     using CovToy.greedy_approximation[OF kpos kcard]
+    by simp
+qed
+
+(* Expose the main (1 - 1/e) approximation theorem for the toy coverage instance. *)
+theorem CovToy_greedy_approximation:
+  shows "(1 - 1 / exp 1) * CovToy.OPT_k \<le> f_cov_real (CovToy.greedy_set k)"
+proof -
+  have k_pos: "k > 0"
+    by (simp add: k_def)
+  have k_le: "k \<le> card V"
+    by (rule CovToy.k_le_cardV)
+  show ?thesis
+    using CovToy.greedy_approximation[OF k_pos k_le]
     by simp
 qed
 
