@@ -98,10 +98,12 @@ This demonstrates that the classical approximation guarantee relies essentially 
 Introduce a locale `Coverage_Setup` (finite universe `U`, ground set `V`, mapping `g : V ⇒ Pow U`, budget `k`),
 prove `f_cov(S) = card (⋃x∈S. g x)` satisfies `Greedy_Setup`, and instantiate the main theorem via `interpretation`.
 
-### 3.2 Bridge exhaustive baseline to OPT_k (clean story)
-Connect the executable baseline `enum_opt_set` to the abstract optimum `OPT_k`:
-- show `f (enum_opt_set ...) = OPT_k` (under `distinct Vlist`),
-- optionally expose a theorem comparing greedy to exhaustive on the toy coverage instance.
+### 3.2 Completed (P2): Bridge exhaustive baseline to OPT_k (toy coverage)
+- Added `Coverage_Exhaustive_Bridge.thy`.
+- Proved `f_cov_real (enum_opt_set f_cov_real Vlist k) = CovToy.OPT_k` (under `distinct Vlist`).
+- Derived a clean comparison theorem:
+  `f_cov_real (CovToy.greedy_set k) ≥ (1 - 1 / exp 1) * f_cov_real (enum_opt_set f_cov_real Vlist k)`.
+
 
 ### 3.3 Documentation polish
 Add a brief “How to run experiments” section in `README.md`:
@@ -111,3 +113,9 @@ Add a brief “How to run experiments” section in `README.md`:
 ## 2026-02-16 Update: P1 baseline correctness + session wiring
 - Added `Experiments_Exhaustive_Correctness.thy`: feasibility + optimality lemmas for `enum_opt_set`.
 - Updated `ROOT` to include `sessions "HOL-Library"` (needed for `HOL-Library.Sublist`) and to build the new theory as part of the session.
+
+## 2026-02-16 Update: P2 bridge OPT_k to exhaustive optimum (toy coverage)
+- Exposed the toy instance’s main `(1 - 1/e)` approximation theorem in `Coverage_Interpretation_Toy.thy`.
+- Added `Coverage_Exhaustive_Bridge.thy`, connecting `enum_opt_set` (exhaustive optimum) to `OPT_k`,
+  and proving a direct greedy-vs-exhaustive bound for the toy instance.
+

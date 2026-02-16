@@ -64,6 +64,13 @@
   greedy=100, opt=200, ratio=50% (< 1 - 1/e), greedy_f_evals=10, exhaustive_candidates=7.
 
 ## 2026-02-16
+- Updated `Coverage_Interpretation_Toy.thy` to expose the toy instance’s main `(1 - 1/e)` guarantee
+  via a public theorem (discharging the `k > 0` and `k ≤ card V` side conditions using `CovToy` facts).
+- Added `Coverage_Exhaustive_Bridge.thy`: bridged the executable exhaustive baseline `enum_opt_set`
+  to the abstract optimum `CovToy.OPT_k` (proof that `f_cov_real (enum_opt_set ...) = OPT_k` under `distinct Vlist`),
+  and derived a clean toy statement comparing greedy to exhaustive:
+  `f(greedy_set k) ≥ (1 - 1/e) * f(enum_opt_set ...)`.
+
 - Added `Experiments_Exhaustive_Correctness.thy`: correctness lemmas for the exhaustive baseline `enum_opt_set`
   (feasibility + maximality over the finite candidate family).
 - Updated session wiring in `ROOT` to include `sessions "HOL-Library"` and build the new correctness theory
@@ -71,5 +78,6 @@
 
 ### Next
 - Generalise coverage as a reusable locale (`Coverage_Setup`) and interpret `Greedy_Setup` generically.
-- Connect the executable exhaustive optimum to `OPT_k` cleanly (and optionally expose a greedy-vs-exhaustive theorem).
-- Add a short “How to run experiments” section in `README.md` (and optionally CI).
+- Polish the end-to-end story: surface the “toy coverage: greedy vs true optimum” theorem in `README.md` with pointers to the key files.
+- Add CI (GitHub Actions) to run `isabelle build -D .` on each push.
+
