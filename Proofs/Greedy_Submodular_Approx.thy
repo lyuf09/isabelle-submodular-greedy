@@ -1,5 +1,5 @@
 theory Greedy_Submodular_Approx
-  imports Greedy_Submodular_Construct
+  imports "../Algorithms/Greedy_Submodular_Construct"
 begin
 
 text \<open>

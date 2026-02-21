@@ -1,5 +1,5 @@
 theory Greedy_Submodular_Construct
-  imports Submodular_Base
+  imports "../Core/Submodular_Base"
 begin
 
 section \<open>Greedy construction\<close>
