@@ -91,4 +91,23 @@ Planned extensions of the framework include:
 
 ---
 
+## Architecture
+
+The development is organised into four layers:
+
+- **Core** (`Core/`): abstract interfaces and reusable locales for finite set functions
+  (submodularity, monotonicity, marginal gains), together with a basic oracle cost model.
+
+- **Proofs** (`Proofs/`): the main approximation analysis, culminating in the
+  Nemhauser–Wolsey **(1 − 1/e)** guarantee for greedy maximisation under a cardinality constraint.
+
+- **Instances** (`Instances/`): reusable instantiations of the abstract framework.
+  Currently includes a generic **coverage objective setup** (`Coverage_Setup.thy`)
+  and a toy interpretation connecting it to the theorem layer.
+
+- **Experiments** (`Experiments/`): executable reference implementations and sanity checks,
+  including query-count instrumentation for comparing greedy variants.
+
+---
+
 Supervised and developed as part of an ongoing research project.
