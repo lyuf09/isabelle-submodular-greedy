@@ -1,5 +1,6 @@
 theory Coverage_Exhaustive_Bridge
-  imports Coverage_Interpretation_Toy Experiments_Exhaustive_Correctness
+  imports  "../Experiments/Experiments_Exhaustive_Correctness"
+           Coverage_Interpretation_Toy 
 begin
 
 (* Bridge: the executable exhaustive optimum equals OPT_k in the toy instance. *)

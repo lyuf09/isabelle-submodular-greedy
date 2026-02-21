@@ -1,7 +1,7 @@
 theory Coverage_Interpretation_Toy
   imports
-    Greedy_Submodular_Approx
-    Experiments_Coverage_Example
+    "../Proofs/Greedy_Submodular_Approx"
+    "../Experiments/Experiments_Coverage_Example"
 begin
 
 (*
