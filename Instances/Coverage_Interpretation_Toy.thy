@@ -1,5 +1,6 @@
 theory Coverage_Interpretation_Toy
   imports
+    "Coverage_Setup"
     "../Proofs/Greedy_Submodular_Approx"
     "../Experiments/Experiments_Coverage_Example"
 begin
@@ -10,146 +11,45 @@ begin
   Here we connect the coverage objective to the abstract theorem layer.
 *)
 
+(* g is finite for every Item, hence also for x \<in> V *)
+lemma finite_g_all[simp]: "finite (g x)"
+  by (cases x; simp)
+
 definition V :: "Item set" where
   "V = set Vlist"
 
-definition f_cov_real :: "Item set \<Rightarrow> real" where
-  "f_cov_real S = real (f_cov S)"
-
-lemma finite_V: "finite V"
-  by (simp add: V_def Vlist_def)
-
-lemma finite_g[simp]: "finite (g x)"
-  by (cases x; simp)
-
-lemma finite_subset_V:
-  assumes "S \<subseteq> V"
-  shows "finite S"
-  using finite_V assms by (meson finite_subset)
-
-lemma finite_union_g:
-  assumes "S \<subseteq> V"
-  shows "finite (\<Union>x\<in>S. g x)"
-  using finite_subset_V[OF assms] by simp
-
-lemma f_cov_real_empty[simp]: "f_cov_real {} = 0"
-  by (simp add: f_cov_real_def f_cov_def)
-
-lemma f_cov_real_nonneg:
-  assumes "S \<subseteq> V"
-  shows "0 \<le> f_cov_real S"
-  by (simp add: f_cov_real_def f_cov_def)
-
-lemma f_cov_real_mono_on:
-  assumes SV: "S \<subseteq> V" and TV: "T \<subseteq> V" and ST: "S \<subseteq> T"
-  shows "f_cov_real S \<le> f_cov_real T"
-proof -
-  have subset: "(\<Union>x\<in>S. g x) \<subseteq> (\<Union>x\<in>T. g x)"
-    using ST by auto
-  have finT: "finite (\<Union>x\<in>T. g x)"
-    using TV by (rule finite_union_g)
-  have "card (\<Union>x\<in>S. g x) \<le> card (\<Union>x\<in>T. g x)"
-    using subset finT by (simp add: card_mono)
-  thus ?thesis
-    by (simp add: f_cov_real_def f_cov_def)
+(* Instantiate the generic coverage setup on the toy ground set *)
+interpretation Cov: Coverage_Setup V g
+proof
+  show "finite V"
+    by (simp add: V_def Vlist_def)
+ show "\<And>x. x \<in> V \<Longrightarrow> finite (g x)"
+    by simp
 qed
+
+abbreviation f_cov_real :: "Item set \<Rightarrow> real" where
+  "f_cov_real \<equiv> Cov.coverage"
 
 lemma f_cov_real_mono_obl:
-  assumes ST: "S \<subseteq> T"
-  assumes TV: "T \<subseteq> V"
+  assumes "S \<subseteq> T" and "T \<subseteq> V"
   shows "f_cov_real S \<le> f_cov_real T"
-proof -
-  have SV: "S \<subseteq> V"
-    using ST TV by auto
-  show ?thesis
-    by (rule f_cov_real_mono_on[OF SV TV ST])
-qed
-
-lemma f_cov_real_submod_on:
-  assumes SV: "S \<subseteq> V" and TV: "T \<subseteq> V"
-  shows "f_cov_real S + f_cov_real T \<ge> f_cov_real (S \<union> T) + f_cov_real (S \<inter> T)"
-proof -
-  let ?X = "\<Union>x\<in>S. g x"
-  let ?Y = "\<Union>x\<in>T. g x"
-
-  have finS: "finite S"
-    using finite_V SV by (meson finite_subset)
-  have finT: "finite T"
-    using finite_V TV by (meson finite_subset)
-
-  have finX: "finite ?X"
-    using finS by simp
-  have finY: "finite ?Y"
-    using finT by simp
-
-  have Un_eq: "(\<Union>x\<in>(S \<union> T). g x) = ?X \<union> ?Y"
-    by auto
-
-  have subset_int: "(\<Union>x\<in>S \<inter> T. g x )\<subseteq> ?X \<inter> ?Y"
-    by auto
-
-  have fin_inter: "finite (?X \<inter> ?Y)"
-    using finX by simp
-
-  have card_int_le: "card (\<Union>x\<in>S \<inter> T. g x) \<le> card (?X \<inter> ?Y)"
-    by (rule card_mono[OF fin_inter subset_int])
-
-  have cardUI: "card (?X \<union> ?Y) + card (?X \<inter> ?Y) = card ?X + card ?Y"
-    by (metis finX finY card_Un_Int)
-
-  have ineq_nat:
-    "card (?X \<union> ?Y) + card (\<Union>x\<in>S \<inter> T. g x) \<le> card ?X + card ?Y"
-  proof -
-    have "card (?X \<union> ?Y) + card (\<Union>x\<in>S \<inter> T. g x)
-          \<le> card (?X \<union> ?Y) + card (?X \<inter> ?Y)"
-      using card_int_le by simp
-    also have "... = card ?X + card ?Y"
-      using cardUI by simp
-    finally show ?thesis .
-  qed
-
-  have ineq_real:
-    "real (card (?X \<union> ?Y)) + real (card (\<Union>x\<in>S \<inter> T. g x))
-     \<le> real (card ?X) + real (card ?Y)"
-    using ineq_nat by simp
-
-  show ?thesis
-    using ineq_real
-    by (simp add: f_cov_real_def f_cov_def Un_eq algebra_simps)
-qed
+  using assms by (rule Cov.coverage_mono)
 
 lemma f_cov_real_submod_obl:
   assumes "S \<subseteq> V" and "T \<subseteq> V"
   shows "f_cov_real (S \<union> T) + f_cov_real (S \<inter> T) \<le> f_cov_real S + f_cov_real T"
-  using f_cov_real_submod_on[OF assms] by simp
+  using assms by (rule Cov.coverage_submodular)
 
-(*
-  Interpretation:
-  This should generate locale obligations. We discharge them using the lemmas above.
-  If Isabelle shows a remaining goal, it will usually be one of:
-    - k > 0 / k >= 1 / k <= card V
-    - monotonicity/submodularity stated in a slightly different interface
-  In that case, the fix is a small wrapper lemma (we can add it immediately).
-*)
 lemma Submodular_Func_covtoy:
-  shows "Submodular_Func V f_cov_real"
-proof
-  show "finite V" by (rule finite_V)
-  show "f_cov_real {} = 0" by simp
-  show "\<And>S T. S \<subseteq> T \<Longrightarrow> T \<subseteq> V \<Longrightarrow> f_cov_real S \<le> f_cov_real T"
-    by (rule f_cov_real_mono_obl)
-  show "\<And>S T. S \<subseteq> V \<Longrightarrow> T \<subseteq> V \<Longrightarrow>
-        f_cov_real (S \<union> T) + f_cov_real (S \<inter> T) \<le> f_cov_real S + f_cov_real T"
-    by (rule f_cov_real_submod_obl)
-qed
-
+  "Submodular_Func V f_cov_real"
+  by (rule Cov.Submodular_Func_coverage)
 
 interpretation CovToy: Greedy_Setup V f_cov_real k
   "Submodular_Func.argmax_gain_some f_cov_real"
 proof (unfold_locales)
 
   show "finite V"
-    by (rule finite_V)
+    by (rule Cov.finite_V)
 next
   show "f_cov_real {} = 0"
     by simp

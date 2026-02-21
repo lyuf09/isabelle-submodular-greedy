@@ -13,6 +13,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Core/Oracle_Cost"
     "Algorithms/Greedy_Submodular_Construct"
     "Proofs/Greedy_Submodular_Approx"
+    "Instances/Coverage_Setup"
     "Instances/Coverage_Interpretation_Toy"
     "Instances/Coverage_Exhaustive_Bridge"
     "Experiments/Cost_Model"
