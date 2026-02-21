@@ -1,5 +1,5 @@
 theory Cost_Model
-  imports Main
+  imports "../Core/Oracle_Cost"
 begin
 
 (* Cost model conventions:

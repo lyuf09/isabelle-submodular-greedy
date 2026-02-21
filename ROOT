@@ -10,6 +10,7 @@ session Submodular_Greedy_Experiments = HOL +
 
   theories
     "Core/Submodular_Base"
+    "Core/Oracle_Cost"
     "Algorithms/Greedy_Submodular_Construct"
     "Proofs/Greedy_Submodular_Approx"
     "Instances/Coverage_Interpretation_Toy"
