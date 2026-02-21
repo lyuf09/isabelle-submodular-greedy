@@ -1,0 +1,25 @@
+name: Isabelle CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Isabelle
+        uses: gauravpartha/setup-isabelle@v1
+        with:
+          isabelle-version: 2025-2
+
+      - name: Isabelle version
+        run: isabelle version
+
+      - name: Build sessions
+        run: isabelle build -j2 -D .
