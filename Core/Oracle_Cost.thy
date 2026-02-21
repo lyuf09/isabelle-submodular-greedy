@@ -16,4 +16,17 @@ definition naive_greedy_oracle_calls :: "nat \<Rightarrow> nat \<Rightarrow> nat
   "naive_greedy_oracle_calls n k =
      gain_call_cost * naive_greedy_gain_evals n k"
 
+lemma naive_greedy_gain_evals_0[simp]:
+  "naive_greedy_gain_evals n 0 = 0"
+  by (simp add: naive_greedy_gain_evals_def)
+
+lemma naive_greedy_gain_evals_1[simp]:
+  "naive_greedy_gain_evals n 1 = n"
+  by (simp add: naive_greedy_gain_evals_def)
+
+lemma naive_greedy_oracle_calls_alt:
+  "naive_greedy_oracle_calls n k = gain_call_cost * naive_greedy_gain_evals n k"
+  by (simp add: naive_greedy_oracle_calls_def)
+
+
 end
