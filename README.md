@@ -43,12 +43,13 @@ To build everything from the repository root:
 
 ```bash
 isabelle build -D .
+```
 
 Tip (jEdit): select the session defined in ROOT (currently Submodular_Greedy_Experiments) and restart the session image if needed.
 
 ---
 
-##Toy Coverage: End-to-End Guarantee (Greedy vs True Optimum)
+## Toy Coverage: End-to-End Guarantee (Greedy vs True Optimum)
 
 Key files:
 
@@ -69,13 +70,13 @@ f_cov_real (CovToy.greedy_set k) ≥ (1 - 1 / exp 1) * f_cov_real (enum_opt_set 
 
 ---
 
-##Status
+## Status
 
 This is an ongoing, research-oriented development. The current codebase already supports a clean separation between submodular assumptions, feasibility constraints, and algorithmic reasoning, and is intended to function as a reusable framework rather than a single-purpose formalisation.
 
 ---
 
-##Future Directions
+## Future Directions
 
 Planned extensions of the framework include:
 
