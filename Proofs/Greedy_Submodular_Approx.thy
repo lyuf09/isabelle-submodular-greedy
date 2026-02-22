@@ -1,5 +1,7 @@
 theory Greedy_Submodular_Approx
-  imports "../Algorithms/Greedy_Submodular_Construct"
+  imports
+    "../Algorithms/Greedy_Submodular_Construct"
+    "../Algorithms/Lazy_Greedy"
 begin
 
 text \<open>
@@ -812,6 +814,37 @@ next
     using main False OPT_pos
     by (simp add: field_simps)
 qed
+
+end
+
+context Cardinality_Constraint
+begin
+
+interpretation Greedy_LazyOracle: Greedy_Setup V f k argmax_gain_lazy
+proof
+  fix S :: "'a set" and A :: "'a set"
+  assume fin: "finite A" and ne: "A \<noteq> {}"
+  show "argmax_gain_lazy S A \<in> A"
+    using argmax_gain_lazy_mem[OF fin ne] .
+next
+  fix S :: "'a set" and A :: "'a set"
+  assume fin: "finite A" and ne: "A \<noteq> {}"
+  show "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain_lazy S A)"
+    using argmax_gain_lazy_max[OF fin ne] .
+qed
+
+abbreviation lazy_greedy_set :: "nat \<Rightarrow> 'a set" where
+  "lazy_greedy_set i \<equiv> Greedy_Setup.greedy_set V argmax_gain_lazy i"
+
+abbreviation lazy_OPT_k :: real where
+  "lazy_OPT_k \<equiv> Greedy_Setup.OPT_k V f k"
+
+lemmas lazy_greedy_approximation = Greedy_LazyOracle.greedy_approximation
+
+theorem lazy_greedy_approximation':
+  assumes "k > 0" "k \<le> card V"
+  shows "f (lazy_greedy_set k) \<ge> (1 - 1 / exp 1) * lazy_OPT_k"
+  using Greedy_LazyOracle.greedy_approximation[OF assms] .
 
 end
 
