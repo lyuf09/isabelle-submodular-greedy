@@ -18,7 +18,7 @@ upper-bound list (Item \<times> nat), together with counters:
 \<close>
 
 
-type_synonym ub_list = "(Item \<times> nat) list"
+type_synonym ub_list = "(Item * nat) list"
 
 definition remaining_ubs :: "Item set \<Rightarrow> ub_list \<Rightarrow> ub_list" where
   "remaining_ubs S ubs = filter (\<lambda>p. fst p \<notin> S) ubs"
@@ -38,7 +38,7 @@ definition ub_init :: ub_list where
   "ub_init = map (\<lambda>e. (e, gain f_cov {} e)) Vlist"
 
 
-type_synonym sel_res = "Item \<times> ub_list \<times> nat \<times> nat"
+type_synonym sel_res = "Item * ub_list * nat * nat"
 
 fun lazy_select_fuel :: "nat \<Rightarrow> (Item set \<Rightarrow> nat) \<Rightarrow> Item set \<Rightarrow> ub_list \<Rightarrow> sel_res" where
   "lazy_select_fuel 0 f S ubs =
@@ -59,7 +59,7 @@ definition lazy_select :: "(Item set \<Rightarrow> nat) \<Rightarrow> Item set \
   "lazy_select f S ubs = lazy_select_fuel (length (remaining_ubs S ubs)) f S ubs"
 
 
-type_synonym run_res = "Item set \<times> ub_list \<times> nat \<times> nat"
+type_synonym run_res = "Item set * ub_list * nat * nat"
 
 fun lazy_greedy_list :: "(Item set \<Rightarrow> nat) \<Rightarrow> nat \<Rightarrow> ub_list \<Rightarrow> Item set \<Rightarrow> run_res" where
   "lazy_greedy_list f 0 ubs S = (S, ubs, 0, 0)"
@@ -98,7 +98,7 @@ text \<open>
 definition sol_as_list :: "Item set \<Rightarrow> Item list" where
   "sol_as_list S = filter (\<lambda>e. e \<in> S) Vlist"
 
-type_synonym run_report = "string \<times> Item list \<times> nat \<times> nat \<times> nat \<times> nat"
+type_synonym run_report = "string * Item list * nat * nat * nat * nat"
 
 definition greedy_report :: run_report where
   "greedy_report =
@@ -129,3 +129,5 @@ definition toy_checks :: "(string \<times> bool) list" where
 
 value toy_summary
 value toy_checks
+
+end
