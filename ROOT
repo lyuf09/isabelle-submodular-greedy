@@ -7,6 +7,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Proofs"
     "Instances"
     "Experiments"
+    "Complexity"
 
   theories
     "Core/Submodular_Base"
