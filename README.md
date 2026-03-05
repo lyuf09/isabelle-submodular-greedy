@@ -49,6 +49,43 @@ Tip (jEdit): select the session defined in ROOT (currently Submodular_Greedy_Exp
 
 ---
 
+## Toy Experiment: Lazy vs Greedy (Coverage, Oracle-Count Instrumentation)
+
+File:
+- `Experiments/Lazy_vs_Greedy_Toy.thy`
+
+Reproduce (CLI):
+```bash
+isabelle build -D .
+
+Reproduce (jEdit):
+
+isabelle jedit -l Submodular_Greedy_Experiments
+
+Then open Experiments/Lazy_vs_Greedy_Toy.thy and wait until the theory is fully processed.
+The Output panel will show two evaluations: toy_summary and toy_checks.
+
+Expected output summary (fixed toy instance):
+
+toy_summary prints two reports of the form
+(tag, solution_as_list, f_value, gain_evals, tighten_steps, oracle_calls).
+
+For the current toy coverage instance (Vlist = [A,B,C,D,E], k = 2), the deterministic result is:
+
+Greedy solution value equals Lazy solution value: both achieve coverage value 4 on solution [C, E].
+
+Greedy total gain evaluations: 9, oracle calls: 18.
+
+Lazy total gain evaluations: 3, tighten steps: 1, oracle calls: 6.
+
+So you should see (up to pretty-printing):
+
+toy_summary = [(... ''GREEDY'' ..., [C, E], 4, 9, 0, 18), (... ''LAZY'' ..., [C, E], 4, 3, 1, 6)]
+
+toy_checks = [(... ''same_value'' ..., True), (..., True), (..., True)]
+
+---
+
 ## Toy Coverage: End-to-End Guarantee (Greedy vs True Optimum)
 
 Key files:

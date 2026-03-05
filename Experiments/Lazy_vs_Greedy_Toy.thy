@@ -88,23 +88,44 @@ definition lazy_f_evals :: nat where
 
 
 text \<open>
-Printed sanity checks / comparisons (via evaluation).
+  Paper-artifact output (deterministic, fixed format):
+
+    report = (tag, solution_as_list, f_value, gain_evals, tighten_steps, oracle_calls)
+
+  We order the solution by Vlist to avoid any reliance on a linorder instance for Item.
 \<close>
 
-value lazy_sol
-value "f_cov lazy_sol"
+definition sol_as_list :: "Item set \<Rightarrow> Item list" where
+  "sol_as_list S = filter (\<lambda>e. e \<in> S) Vlist"
 
-value greedy_sol
-value "f_cov greedy_sol"
+type_synonym run_report = "string \<times> Item list \<times> nat \<times> nat \<times> nat \<times> nat"
 
-value greedy_marginal_evals
-value greedy_f_evals
+definition greedy_report :: run_report where
+  "greedy_report =
+     (''GREEDY'',
+      sol_as_list greedy_sol,
+      f_cov greedy_sol,
+      greedy_marginal_evals,
+      0,
+      greedy_f_evals)"
 
-value lazy_gain_evals
-value lazy_tighten_steps
-value lazy_f_evals
+definition lazy_report :: run_report where
+  "lazy_report =
+     (''LAZY'',
+      sol_as_list lazy_sol,
+      f_cov lazy_sol,
+      lazy_gain_evals,
+      lazy_tighten_steps,
+      lazy_f_evals)"
 
-value "lazy_gain_evals \<le> greedy_marginal_evals"
-value "lazy_f_evals \<le> greedy_f_evals"
+definition toy_summary :: "run_report list" where
+  "toy_summary = [greedy_report, lazy_report]"
 
-end
+definition toy_checks :: "(string \<times> bool) list" where
+  "toy_checks =
+     [( ''same_value'', f_cov lazy_sol = f_cov greedy_sol ),
+      ( ''lazy_gain_evals_le_greedy'', lazy_gain_evals \<le> greedy_marginal_evals ),
+      ( ''lazy_oracle_calls_le_greedy'', lazy_f_evals \<le> greedy_f_evals )]"
+
+value toy_summary
+value toy_checks
