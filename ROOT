@@ -14,6 +14,8 @@ session Submodular_Greedy_Experiments = HOL +
     "Algorithms/Greedy_Submodular_Construct"
     "Algorithms/Lazy_Greedy_Stateful"
     "Proofs/Greedy_Submodular_Approx"
+    "Proofs/Greedy_Approx_From_Spec"
+    "Proofs/Greedy_Step_Spec"
     "Instances/Coverage_Setup"
     "Instances/Coverage_Interpretation_Toy"
     "Instances/Coverage_Exhaustive_Bridge"
