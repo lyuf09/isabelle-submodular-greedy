@@ -100,6 +100,9 @@ definition sol_as_list :: "Item set \<Rightarrow> Item list" where
 
 type_synonym run_report = "string * Item list * nat * nat * nat * nat"
 
+definition greedy_f_evals :: nat where
+  "greedy_f_evals = gain_call_cost * greedy_marginal_evals"
+
 definition greedy_report :: run_report where
   "greedy_report =
      (''GREEDY'',

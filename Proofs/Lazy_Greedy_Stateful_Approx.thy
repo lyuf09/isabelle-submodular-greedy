@@ -1,7 +1,7 @@
 theory Lazy_Greedy_Stateful_Approx
   imports
     Greedy_Submodular_Approx
-    "../Algorithms/Lazy_Greedy_Stateful"
+    Lazy_Greedy_Stateful_StepSpec
 begin
 
 text \<open>
@@ -9,7 +9,7 @@ text \<open>
   We prove the classical Nemhauser–Wolsey (1 - 1/e) guarantee for lazy_set.
   The proof follows the standard gap-recurrence argument, using:
     (1) the OPT_k infrastructure from Greedy_Submodular_Approx, and
-    (2) the per-step argmax property already proved for the stateful lazy step.
+    (2) the packaged per-step step-spec lemmas from Lazy_Greedy_Stateful_StepSpec.
 \<close>
 
 context Cardinality_Constraint
@@ -20,10 +20,6 @@ interpretation Greedy_Some: Greedy_Setup V f k argmax_gain_some
 
 abbreviation OPT_k :: real where
   "OPT_k \<equiv> Greedy_Some.OPT_k"
-
-definition lazy_choice :: "nat \<Rightarrow> 'a" where
-  "lazy_choice i =
-     fst (lazy_select (lazy_set i) (V - lazy_set i) (ubg (lazy_state i)))"
 
 definition gapL :: "nat \<Rightarrow> real" where
   "gapL i = OPT_k - f (lazy_set i)"
@@ -42,68 +38,6 @@ lemma lazy_set_finite[simp]: "finite (lazy_set i)"
 lemma remaining_lazy_state[simp]: "remaining (lazy_state i) = V - lazy_set i"
   by (simp add: remaining_def lazy_set_def)
 
-lemma lazy_set_Suc_insert:
-  "V - lazy_set i \<noteq> {} \<Longrightarrow> lazy_set (Suc i) = insert (lazy_choice i) (lazy_set i)"
-proof -
-  assume rem_ne: "V - lazy_set i \<noteq> {}"
-  have rem_ne': "remaining (lazy_state i) \<noteq> {}"
-    using rem_ne by simp
-  have "Sg (lazy_step (lazy_state i)) =
-        insert (fst (lazy_select (Sg (lazy_state i)) (remaining (lazy_state i)) (ubg (lazy_state i))))
-               (Sg (lazy_state i))"
-    using lazy_step_nonempty_Sg[OF rem_ne'] .
-  thus "lazy_set (Suc i) = insert (lazy_choice i) (lazy_set i)"
-    by (simp add: lazy_set_def lazy_choice_def)
-qed
-
-lemma lazy_choice_in_remainder:
-  "V - lazy_set i \<noteq> {} \<Longrightarrow> lazy_choice i \<in> V - lazy_set i"
-proof -
-  assume rem_ne: "V - lazy_set i \<noteq> {}"
-  have finA: "finite (V - lazy_set i)" using finite_V by simp
-  have eq: "lazy_choice i =
-            lazy_argmax_gain (lazy_set i) (V - lazy_set i) (ubg (lazy_state i))"
-    by (simp add: lazy_choice_def lazy_select_fst)
-  have mem: "lazy_argmax_gain (lazy_set i) (V - lazy_set i) (ubg (lazy_state i))
-             \<in> V - lazy_set i"
-    using lazy_argmax_gain_mem[OF finA rem_ne] by simp
-  show "lazy_choice i \<in> V - lazy_set i"
-    using eq mem by simp
-qed
-
-lemma lazy_choice_is_argmax:
-  "V - lazy_set i \<noteq> {} \<Longrightarrow> (\<forall>y\<in>V - lazy_set i. gain (lazy_set i) y \<le> gain (lazy_set i) (lazy_choice i))"
-proof -
-  assume rem_ne: "V - lazy_set i \<noteq> {}"
-  let ?st = "lazy_state i"
-
-  have rem_ne': "remaining ?st \<noteq> {}"
-    using rem_ne by (simp add: remaining_def lazy_set_def)
-
-  have ubv: "ub_valid (Sg ?st) (remaining ?st) (ubg ?st)"
-    using lazy_state_ub_valid[of i] by simp
-
-  have finA: "finite (remaining ?st)"
-    using finite_V by (simp add: remaining_def)
-
-  have step_argmax:
-    "\<And>y. y \<in> remaining ?st \<Longrightarrow>
-        gain (Sg ?st) y \<le>
-        gain (Sg ?st) (fst (lazy_select (Sg ?st) (remaining ?st) (ubg ?st)))"
-    using lazy_step_is_argmax[OF rem_ne' ubv finA] by simp
-
-  show "\<forall>y\<in>V - lazy_set i. gain (lazy_set i) y \<le> gain (lazy_set i) (lazy_choice i)"
-  proof (intro ballI)
-    fix y assume y_in: "y \<in> V - lazy_set i"
-    have y_in_rem: "y \<in> remaining ?st"
-      using y_in by (simp add: remaining_def lazy_set_def)
-
-    show "gain (lazy_set i) y \<le> gain (lazy_set i) (lazy_choice i)"
-      using step_argmax[OF y_in_rem]
-      by (simp add: lazy_set_def lazy_choice_def remaining_def)
-  qed
-qed
-
 lemma card_lazy_le_i: "card (lazy_set i) \<le> i"
 proof (induction i)
   case 0
@@ -121,9 +55,9 @@ next
   next
     case False
     have ins: "lazy_set (Suc i) = insert (lazy_choice i) (lazy_set i)"
-      using lazy_set_Suc_insert[OF False] .
+      using lazy_set_Suc_insert_V_minus_S[OF False] .
     have xin: "lazy_choice i \<in> V - lazy_set i"
-      using lazy_choice_in_remainder[OF False] .
+      using lazy_choice_in_V_minus_S[OF False] .
     have xnot: "lazy_choice i \<notin> lazy_set i" using xin by simp
     have "card (lazy_set (Suc i)) = card (lazy_set i) + 1"
       using ins xnot by simp
@@ -210,7 +144,7 @@ proof -
     using lazy_remainder_nonempty[OF i_lt_k k_le] .
   have argmax:
     "\<forall>y\<in>V - lazy_set i. gain (lazy_set i) y \<le> gain (lazy_set i) (lazy_choice i)"
-    using lazy_choice_is_argmax[OF rem_ne] .
+    using lazy_choice_argmax_V_minus_S[OF rem_ne] .
   have e_le: "gain (lazy_set i) e \<le> gain (lazy_set i) (lazy_choice i)"
     using argmax e_in by auto
 
@@ -237,7 +171,7 @@ proof -
   have rem_ne: "V - lazy_set i \<noteq> {}"
     using lazy_remainder_nonempty[OF i_lt_k k_le] .
   have ins: "lazy_set (Suc i) = insert (lazy_choice i) (lazy_set i)"
-    using lazy_set_Suc_insert[OF rem_ne] .
+    using lazy_set_Suc_insert_V_minus_S[OF rem_ne] .
 
   have step_gain: "f (lazy_set (Suc i)) = f (lazy_set i) + gain (lazy_set i) (lazy_choice i)"
     using ins by (simp add: gain_def algebra_simps)
