@@ -115,6 +115,17 @@ proof -
     using cardS by simp
 qed
 
+lemma total_gain_evals_eq_sum:
+  "total_gain_evals n = (\<Sum>i<n. step_gain_evals i)"
+proof (induction n)
+  case 0
+  then show ?case by simp
+next
+  case (Suc n)
+  then show ?case
+    by simp
+qed
+
 theorem total_gain_evals_le_naive_scan:
   assumes m_le: "m \<le> card V"
   shows "total_gain_evals m \<le> naive_greedy_gain_evals (card V) m"
@@ -122,7 +133,8 @@ proof -
   have step_le:
     "\<And>i. i < m \<Longrightarrow> step_gain_evals i \<le> card V - i"
   proof -
-    fix i assume i_lt: "i < m"
+    fix i
+    assume i_lt: "i < m"
     have "step_gain_evals i \<le> card (remaining (lazy_state i))"
       by (rule step_gain_evals_le_card_remaining)
     also have "... = card V - i"
@@ -130,9 +142,16 @@ proof -
     finally show "step_gain_evals i \<le> card V - i" .
   qed
 
-  have tot_m: "total_gain_evals m \<le> (\<Sum>i<m. card V - i)"
-    by (rule tot_le[of m], simp)
-    by (induction m) (simp_all add: sum.lessThan_Suc)
+  have "total_gain_evals m = (\<Sum>i<m. step_gain_evals i)"
+    by (rule total_gain_evals_eq_sum)
+  also have "... \<le> (\<Sum>i<m. card V - i)"
+  proof (rule sum_mono)
+    fix i
+    assume "i \<in> {..<m}"
+    hence "i < m" by simp
+    thus "step_gain_evals i \<le> card V - i"
+      by (rule step_le)
+  qed
   also have "... = naive_greedy_gain_evals (card V) m"
     by (simp add: naive_greedy_gain_evals_def)
   finally show ?thesis .
