@@ -4,7 +4,7 @@ This repository develops a **modular Isabelle/HOL framework for reasoning about 
 
 The development is structured as a reusable library: core notions such as submodular set functions, feasibility constraints, and algorithmic oracles are isolated via locales, allowing the framework to be extended to different greedy variants, constraints, and instantiations.
 
-As a first milestone, the repository includes a complete formal proof of the Nemhauser–Wolsey **(1 − 1/e)** approximation guarantee for greedy maximisation ✅
+As a first milestone, the repository includes a complete formal proof of the Nemhauser–Wolsey **(1 − 1/e)** approximation guarantee for greedy maximisation
 
 ---
 
