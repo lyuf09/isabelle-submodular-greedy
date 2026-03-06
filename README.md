@@ -57,10 +57,12 @@ File:
 Reproduce (CLI):
 ```bash
 isabelle build -D .
+```
 
 Reproduce (jEdit):
-
+```bash
 isabelle jedit -l Submodular_Greedy_Experiments
+```
 
 Then open Experiments/Lazy_vs_Greedy_Toy.thy and wait until the theory is fully processed.
 The Output panel will show two evaluations: toy_summary and toy_checks.
