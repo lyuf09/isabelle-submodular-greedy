@@ -1,39 +1,111 @@
 # Isabelle Formalisation of Submodular Greedy Optimisation
 
-This repository develops a **modular Isabelle/HOL framework for reasoning about submodular maximisation algorithms**, with an initial focus on the classical greedy algorithm for **monotone submodular functions** under a **cardinality constraint**.
+This repository develops a modular Isabelle/HOL framework for reasoning about submodular maximisation algorithms, with a current focus on monotone submodular functions under a cardinality constraint.
 
-The development is structured as a reusable library: core notions such as submodular set functions, feasibility constraints, and algorithmic oracles are isolated via locales, allowing the framework to be extended to different greedy variants, constraints, and instantiations.
+The development is organised as a reusable library rather than a single isolated proof. Core notions such as submodularity, monotonicity, feasibility constraints, greedy-step specifications, and oracle-cost accounting are separated cleanly via locales and auxiliary theory layers, so that further greedy variants can be added in a principled way.
 
-As a first milestone, the repository includes a complete formal proof of the Nemhauser–Wolsey **(1 − 1/e)** approximation guarantee for greedy maximisation
+At present, the repository contains two main completed theorem lines at the theory level:
+
+- the classical greedy algorithm, with a complete formal proof of the Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee;
+- a stateful LazyGreedy line, including step-spec packaging, the same `(1 - 1/e)` approximation guarantee, and basic formal oracle-cost accounting.
+
+In addition, the repository includes small executable toy instances, exhaustive baselines for tiny ground sets, and sanity-check counterexamples.
 
 ---
 
 ## Repository Layout
 
 - `Core/Submodular_Base.thy`  
-  Core locales for finite submodular set functions, monotonicity, marginal gains, and feasibility under a cardinality constraint.  
-  Intended to serve as the foundational interface for further algorithmic developments.
+  Core locales for finite monotone submodular set functions, marginal gains, feasibility, and cardinality constraints.
+
+- `Core/Oracle_Cost.thy`  
+  A basic oracle-cost model used to reason about gain evaluations and total oracle calls.
 
 - `Algorithms/Greedy_Submodular_Construct.thy`  
-  Formal definition of the greedy algorithm using standard library notions (e.g. `is_arg_max`), together with structural invariants of the greedy sequence.
+  Formal construction of the classical greedy sequence and its structural invariants.
+
+- `Algorithms/Lazy_Greedy_Stateful.thy`  
+  A stateful LazyGreedy formulation with cached upper bounds and explicit algorithmic state.
+
+- `Proofs/Greedy_Step_Spec.thy`  
+  A packaged step-spec interface for the classical greedy step.
+
+- `Proofs/Greedy_Approx_From_Spec.thy`  
+  Reusable approximation reasoning from an abstract greedy step specification.
 
 - `Proofs/Greedy_Submodular_Approx.thy`  
-  Formalisation of the submodular calculus underlying the analysis, including averaging arguments, gap recurrence, and the proof of the (1 − 1/e) approximation bound.
+  The main approximation analysis for classical greedy, culminating in the Nemhauser--Wolsey `(1 - 1/e)` guarantee.
 
-- `Experiments/Experiments_Exhaustive.thy`  
-  Small executable experiments (list-level refinement layer) and helper definitions for exhaustive baselines.
+- `Proofs/Lazy_Greedy_Stateful_StepSpec.thy`  
+  Per-step correctness facts for the stateful LazyGreedy construction, showing that each lazy step still realises a valid argmax-style greedy choice over the remaining elements.
 
-- `Experiments/Experiments_Exhaustive_Correctness.thy`  
-  Correctness/optimality facts for the exhaustive baseline `enum_opt_set`, including feasibility and optimality over enumerated candidates.
+- `Proofs/Lazy_Greedy_Stateful_Approx.thy`  
+  Approximation analysis for the stateful LazyGreedy construction, proving the same `(1 - 1/e)` guarantee.
+
+- `Proofs/Lazy_Greedy_Approx.thy`  
+  A wrapper layer exposing the lazy approximation result in a convenient theorem-facing form.
+
+- `Complexity/Lazy_Greedy_OracleCost.thy`  
+  Per-round oracle-cost accounting for LazyGreedy.
+
+- `Complexity/Lazy_Greedy_TotalOracleCost.thy`  
+  Global oracle-cost bounds for the full LazyGreedy run.
+
+- `Complexity/Lazy_Greedy_Compare_NaiveScan.thy`  
+  Comparison lemmas relating LazyGreedy cost bounds to a naive scan baseline.
+
+- `Instances/Coverage_Setup.thy`  
+  A reusable coverage-function setup used as a concrete monotone submodular instance.
 
 - `Instances/Coverage_Interpretation_Toy.thy`  
-  Interpretation of the abstract greedy approximation theorem for a toy coverage function, exposing the `(1 - 1/e)` guarantee for this instance.
+  Interpretation of the abstract theorem layer for a toy coverage objective.
 
 - `Instances/Coverage_Exhaustive_Bridge.thy`  
-  End-to-end bridge for the toy coverage instance: proves `enum_opt_set = OPT_k` and derives a clean greedy-vs-true-optimum statement (`CovToy_greedy_vs_enum`).
+  End-to-end bridge from the executable exhaustive optimum to the abstract `OPT_k` notion on the toy instance.
+
+- `Experiments/Experiments_Exhaustive.thy`  
+  Executable exhaustive baseline for very small finite instances.
+
+- `Experiments/Experiments_Exhaustive_Correctness.thy`  
+  Feasibility and optimality facts for the executable exhaustive baseline.
+
+- `Experiments/Experiments_Coverage_Example.thy`  
+  A tiny coverage example with recorded outputs and query counters.
+
+- `Experiments/Experiments_Coverage_Suboptimal.thy`  
+  A small monotone submodular example where greedy is strictly suboptimal.
+
+- `Experiments/Experiments_Nonsubmodular_Counterexample.thy`  
+  A monotone but non-submodular counterexample illustrating the necessity of submodularity.
+
+- `Experiments/Lazy_vs_Greedy_Toy.thy`  
+  A toy executable comparison between naive greedy scanning and a lazy refinement.
 
 - `Current_Status_and_Planned_Next_Steps.md`  
-  A brief research note describing the current status of the project and outlining possible extensions and directions.
+  A research-oriented status note summarising what has been completed and what comes next.
+
+---
+
+## Main Formal Results
+
+### 1. Classical greedy line
+The repository contains a complete formalisation of the standard Nemhauser--Wolsey approximation theorem for monotone submodular maximisation under a cardinality constraint:
+- greedy is defined abstractly over a finite ground set;
+- the proof establishes the usual averaging lemma, gap recurrence, and final `(1 - 1/e)` approximation bound.
+
+### 2. Stateful LazyGreedy line
+The repository also contains a stateful LazyGreedy development:
+- the algorithm maintains explicit state and upper bounds;
+- per-step correctness is packaged as a greedy-style step specification;
+- the same Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee is recovered for the lazy construction;
+- a basic formal oracle-cost accounting is provided, together with comparison lemmas against a naive scan baseline.
+
+### 3. Tiny executable baselines and sanity checks
+For small finite examples, the repository includes:
+- executable exhaustive optimisation baselines;
+- toy coverage instances;
+- explicit examples where greedy is suboptimal but still consistent with the approximation theorem;
+- explicit non-submodular counterexamples where the classical guarantee can fail.
 
 ---
 
@@ -45,109 +117,43 @@ To build everything from the repository root:
 isabelle build -D .
 ```
 
-Tip (jEdit): select the session defined in ROOT (currently Submodular_Greedy_Experiments) and restart the session image if needed.
 
----
+For interactive work in Isabelle/jEdit, open the repository and select the session defined in ROOT (currently Submodular_Greedy_Experiments).
 
-## Toy Experiment: Lazy vs Greedy (Coverage, Oracle-Count Instrumentation)
+Current Status
 
-File:
-- `Experiments/Lazy_vs_Greedy_Toy.thy`
+This is an ongoing research-oriented development, but the theory-level status is now stronger than a minimal “classical greedy only” formalisation.
 
-Reproduce (CLI):
-```bash
-isabelle build -D .
-```
+At the moment, the repository should be viewed as a reusable Isabelle/HOL framework for submodular greedy optimisation with:
 
-Reproduce (jEdit):
-```bash
-isabelle jedit -l Submodular_Greedy_Experiments
-```
+a completed classical greedy theorem line;
 
-Then open Experiments/Lazy_vs_Greedy_Toy.thy and wait until the theory is fully processed.
-The Output panel will show two evaluations: toy_summary and toy_checks.
+a completed stateful LazyGreedy theorem line at the theory level;
 
-Expected output summary (fixed toy instance):
+reusable instance machinery for coverage objectives;
 
-toy_summary prints two reports of the form
-(tag, solution_as_list, f_value, gain_evals, tighten_steps, oracle_calls).
+executable toy experiments and exhaustive baselines;
 
-For the current toy coverage instance (Vlist = [A,B,C,D,E], k = 2), the deterministic result is:
+an initial formal complexity layer based on oracle-call accounting.
 
-Greedy solution value equals Lazy solution value: both achieve coverage value 4 on solution [C, E].
+Planned Next Steps
 
-Greedy total gain evaluations: 9, oracle calls: 18.
+Natural next directions include:
 
-Lazy total gain evaluations: 3, tighten steps: 1, oracle calls: 6.
+formalisation of additional modern greedy variants, especially StochasticGreedy and LazierThanLazyGreedy;
 
-So you should see (up to pretty-printing):
+code extraction and empirical validation against executable baselines;
 
-toy_summary = [(... ''GREEDY'' ..., [C, E], 4, 9, 0, 18), (... ''LAZY'' ..., [C, E], 4, 3, 1, 6)]
+stronger complexity refinements for lazy variants;
 
-toy_checks = [(... ''same_value'' ..., True), (..., True), (..., True)]
+connecting the present submodular library to Isabelle’s existing matroid-related infrastructure;
 
----
+additional concrete submodular instances and benchmark-style case studies.
 
-## Toy Coverage: End-to-End Guarantee (Greedy vs True Optimum)
+Positioning
 
-Key files:
+The broader goal of the project is not just to formalise one approximation theorem, but to build a modular Isabelle/HOL library for modern submodular optimisation algorithms and their analyses.
 
-- Instances/Coverage_Interpretation_Toy.thy
-Interprets the abstract theorem layer for the toy coverage function and exposes the (1 - 1/e) guarantee.
-
-- Experiments/Experiments_Exhaustive_Correctness.thy
-Proves correctness/optimality properties of the exhaustive baseline enum_opt_set.
-
-- Instances/Coverage_Exhaustive_Bridge.thy
-Bridges enum_opt_set to CovToy.OPT_k and derives a clean end-to-end statement.
-
-Final theorem (toy instance):
-
-- CovToy_greedy_vs_enum:
-
-f_cov_real (CovToy.greedy_set k) ≥ (1 - 1 / exp 1) * f_cov_real (enum_opt_set f_cov_real Vlist k)
-
----
-
-## Status
-
-This is an ongoing, research-oriented development. The current codebase already supports a clean separation between submodular assumptions, feasibility constraints, and algorithmic reasoning, and is intended to function as a reusable framework rather than a single-purpose formalisation.
-
----
-
-## Future Directions
-
-Planned extensions of the framework include:
-
-- Further modularisation of submodular assumptions and constraints via locales
-
-- More instantiations of the framework (e.g. coverage functions)
-
-- Formalisation of modern greedy variants (LazyGreedy, StochasticGreedy, etc.)
-
-- Reasoning about computational complexity and algorithmic behaviour
-
-- Code extraction and small executable experiments
-
----
-
-## Architecture
-
-The development is organised into four layers:
-
-- **Core** (`Core/`): abstract interfaces and reusable locales for finite set functions
-  (submodularity, monotonicity, marginal gains), together with a basic oracle cost model.
-
-- **Proofs** (`Proofs/`): the main approximation analysis, culminating in the
-  Nemhauser–Wolsey **(1 − 1/e)** guarantee for greedy maximisation under a cardinality constraint.
-
-- **Instances** (`Instances/`): reusable instantiations of the abstract framework.
-  Currently includes a generic **coverage objective setup** (`Coverage_Setup.thy`)
-  and a toy interpretation connecting it to the theorem layer.
-
-- **Experiments** (`Experiments/`): executable reference implementations and sanity checks,
-  including query-count instrumentation for comparing greedy variants.
-
----
+The current repository already supports this direction in a meaningful way: the classical greedy line is complete, and the LazyGreedy line has now also been formalised at the theory level.
 
 Supervised and developed as part of an ongoing research project.

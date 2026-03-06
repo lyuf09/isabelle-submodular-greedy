@@ -22,6 +22,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Proofs/Lazy_Greedy_Stateful_StepSpec"
     "Complexity/Lazy_Greedy_OracleCost"
     "Complexity/Lazy_Greedy_TotalOracleCost"
+    "Complexity/Lazy_Greedy_Compare_NaiveScan"
     "Instances/Coverage_Setup"
     "Instances/Coverage_Interpretation_Toy"
     "Instances/Coverage_Exhaustive_Bridge"
