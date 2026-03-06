@@ -120,40 +120,48 @@ isabelle build -D .
 
 For interactive work in Isabelle/jEdit, open the repository and select the session defined in ROOT (currently Submodular_Greedy_Experiments).
 
-Current Status
+---
+
+## Current Status
 
 This is an ongoing research-oriented development, but the theory-level status is now stronger than a minimal “classical greedy only” formalisation.
 
 At the moment, the repository should be viewed as a reusable Isabelle/HOL framework for submodular greedy optimisation with:
 
-a completed classical greedy theorem line;
+- a completed classical greedy theorem line;
 
-a completed stateful LazyGreedy theorem line at the theory level;
+- a completed stateful LazyGreedy theorem line at the theory level;
 
-reusable instance machinery for coverage objectives;
+- reusable instance machinery for coverage objectives;
 
-executable toy experiments and exhaustive baselines;
+- executable toy experiments and exhaustive baselines;
 
-an initial formal complexity layer based on oracle-call accounting.
+- an initial formal complexity layer based on oracle-call accounting.
 
-Planned Next Steps
+---
+
+## Planned Next Steps
 
 Natural next directions include:
 
-formalisation of additional modern greedy variants, especially StochasticGreedy and LazierThanLazyGreedy;
+- formalisation of additional modern greedy variants, especially StochasticGreedy and LazierThanLazyGreedy;
 
-code extraction and empirical validation against executable baselines;
+- code extraction and empirical validation against executable baselines;
 
-stronger complexity refinements for lazy variants;
+- stronger complexity refinements for lazy variants;
 
-connecting the present submodular library to Isabelle’s existing matroid-related infrastructure;
+- connecting the present submodular library to Isabelle’s existing matroid-related infrastructure;
 
-additional concrete submodular instances and benchmark-style case studies.
+- additional concrete submodular instances and benchmark-style case studies.
 
-Positioning
+---
+
+## Positioning
 
 The broader goal of the project is not just to formalise one approximation theorem, but to build a modular Isabelle/HOL library for modern submodular optimisation algorithms and their analyses.
 
 The current repository already supports this direction in a meaningful way: the classical greedy line is complete, and the LazyGreedy line has now also been formalised at the theory level.
+
+---
 
 Supervised and developed as part of an ongoing research project.
