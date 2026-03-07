@@ -52,7 +52,7 @@ Main ingredients:
 - `Complexity/Lazy_Greedy_TotalOracleCost.thy`
 - `Complexity/Lazy_Greedy_Compare_NaiveScan.thy`
 
-This line contributes three main pieces.
+This line contributes four main pieces.
 
 #### (a) Algorithmic formalisation
 A stateful lazy construction is defined explicitly, with internal state carrying the current selected set together with cached upper-bound information.
