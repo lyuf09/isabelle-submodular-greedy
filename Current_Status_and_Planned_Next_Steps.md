@@ -132,36 +132,50 @@ So it is now reasonable to describe the repository as a modular Isabelle/HOL fra
 
 ## 3. Planned Next Steps
 
-The next natural directions are the following.
+The next stage of the project is intended to deepen the present framework rather than merely broaden it.
 
-### 3.1 Formalise additional modern greedy variants
+### 3.1 Formalise a stochastic modern greedy variant
 
-The most immediate next targets are:
-- `StochasticGreedy`
-- `LazierThanLazyGreedy`
+The most immediate next target is `StochasticGreedy`.
 
-The current architecture is now in a much better position for these extensions than before, because the lazy line has already exercised the pattern:
+At this point, the development is in a much stronger position for such an extension than before, since the completed LazyGreedy line has already exercised the general pattern
 algorithmic construction -> step packaging -> approximation transfer -> cost accounting.
 
-### 3.2 Code extraction and empirical validation
+A stochastic greedy development would add a genuinely new dimension to the library: beyond deterministic greedy-style reasoning, it would require a principled treatment of sampled candidate sets, expected progress, and query-complexity bounds. This would substantially strengthen the scope of the present framework.
 
-Once the theory layer is stable enough, a natural next step is:
+A further variant such as `LazierThanLazyGreedy` remains a natural follow-up direction, but it is better viewed as a subsequent extension rather than an immediate parallel target.
+
+### 3.2 Prepare the development for AFP-level maturity
+
+A central next step is to consolidate the current theory into a more polished AFP-style entry.
+
+This includes:
+- stabilising the main interfaces and theorem endpoints;
+- sharpening the document-level narrative of the development;
+- keeping the current theory lines modular and reusable;
+- and ensuring that future extensions can be added without major refactoring of the existing structure.
+
+The goal is not only to add more results, but also to make the current framework read as a mature and reusable formal library.
+
+### 3.3 Code extraction and empirical validation
+
+Once the theory layer is sufficiently stable, a natural next step is:
 - code extraction from the formal developments,
 - executable comparison against small baselines,
 - and empirical validation of the extracted implementations.
 
-This would connect the present formal theory more directly to algorithm engineering.
+This would connect the present formal theory more directly to algorithm engineering and provide a clearer bridge from abstract proofs to executable artefacts.
 
-### 3.3 Strengthen the complexity layer
+### 3.4 Strengthen the complexity layer
 
-The current oracle-cost results are meaningful, but there is room for refinement.
+The current oracle-cost results already provide a meaningful first complexity layer, but there is still room for refinement.
 
-Possible directions:
+Natural directions include:
 - sharper accounting for lazy rounds,
 - stronger comparisons with naive scanning,
-- and eventually more variant-specific cost analyses for stochastic / approximate lazy methods.
+- and, in the longer term, variant-specific cost analyses for stochastic and approximate lazy methods.
 
-### 3.4 Connect to matroid-related infrastructure
+### 3.5 Connect to matroid-related infrastructure
 
 A particularly interesting medium-term direction is to relate the present submodular development to Isabelle’s existing libraries around matroid-style combinatorial structure.
 
@@ -169,7 +183,7 @@ This could matter in at least two ways:
 - richer feasible-set abstractions beyond pure cardinality constraints;
 - and a cleaner interface for future constrained submodular optimisation results.
 
-### 3.5 More concrete instances and case studies
+### 3.6 More concrete instances and case studies
 
 It would also be useful to add:
 - more concrete submodular instance families;
@@ -180,11 +194,12 @@ It would also be useful to add:
 
 ## 4. Positioning note
 
-The present project is increasingly best viewed as a small but growing Isabelle/HOL library for formal reasoning about modern submodular optimisation algorithms.
+The present project is increasingly best viewed not as a one-off formalisation, but as a small and growing Isabelle/HOL library for modern submodular optimisation.
 
-The completed classical greedy line provided the initial foundation.
+The completed classical greedy line provides the foundational theorem layer.
 
-The completed stateful LazyGreedy line is the first substantial extension beyond that foundation.
+The completed stateful LazyGreedy line is the first substantial extension beyond that foundation, showing that the framework can already support nontrivial modern variants together with approximation and oracle-cost reasoning.
 
-This makes the project a plausible base for a sequence of follow-up developments, rather than a one-off formalisation.
+The next objective is therefore not merely to accumulate more algorithm names, but to deepen the library in a principled way: first by consolidating the current architecture, and then by extending it to a genuinely new variant such as `StochasticGreedy`.
 
+This makes the project a plausible base for a sustained sequence of follow-up developments, rather than a single isolated formal result.
