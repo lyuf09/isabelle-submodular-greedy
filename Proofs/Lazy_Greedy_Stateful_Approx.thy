@@ -5,9 +5,12 @@ theory Lazy_Greedy_Stateful_Approx
 begin
 
 text \<open>
-  Approximation ratio for the stateful lazy greedy algorithm (Lazy_Greedy_Stateful).
-  We prove the classical Nemhauser–Wolsey (1 - 1/e) guarantee for lazy_set.
-  The proof follows the standard gap-recurrence argument, using:
+  Approximation guarantee for the verified stateful LazyGreedy construction
+  (Lazy_Greedy_Stateful), viewed as a substantial implementation-level / stateful
+  extension beyond classical greedy. We show that lazy_set inherits the classical
+  Nemhauser–Wolsey (1 - 1/e) guarantee via a correctness bridge back to the
+  reusable greedy-step specification. The proof follows the standard gap-recurrence
+  argument, using:
     (1) the OPT_k infrastructure from Greedy_Submodular_Approx, and
     (2) the packaged per-step step-spec lemmas from Lazy_Greedy_Stateful_StepSpec.
 \<close>

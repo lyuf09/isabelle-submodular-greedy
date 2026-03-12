@@ -4,10 +4,12 @@ theory Lazy_Greedy_Approx
 begin
 
 text \<open>
-This theory instantiates the step-spec locale Greedy_Step_Oracle
-with the lazy argmax oracle argmax_gain_lazy (defined in Lazy_Greedy).
-The Nemhauser–Wolsey (1 - 1/e) approximation guarantee then follows
-immediately via Greedy_Approx_From_Spec.
+This theory exposes the lazy approximation result in a convenient theorem-facing
+form by instantiating the step-spec locale Greedy_Step_Oracle with the lazy
+argmax oracle argmax_gain_lazy (defined in Lazy_Greedy). In this way, the
+LazyGreedy construction is connected back to the reusable classical greedy
+framework, and the Nemhauser–Wolsey (1 - 1/e) approximation guarantee is
+recovered via Greedy_Approx_From_Spec.
 \<close>
 
 context Cardinality_Constraint
