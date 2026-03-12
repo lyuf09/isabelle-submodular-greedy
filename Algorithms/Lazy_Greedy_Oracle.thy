@@ -1,6 +1,13 @@
-theory Lazy_Greedy
+theory Lazy_Greedy_Oracle
   imports "Greedy_Submodular_Construct"
 begin
+
+text \<open>
+  Auxiliary oracle-style lazy selection primitives based on cached upper bounds.
+  This theory is not the main theorem-facing LazyGreedy development.
+  Its role is to provide backend selection machinery reused by the stateful
+  LazyGreedy line.
+\<close>
 
 section "Lazy (accelerated) selection via upper bounds"
 

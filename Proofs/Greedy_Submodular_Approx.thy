@@ -1,7 +1,7 @@
 theory Greedy_Submodular_Approx
   imports
     "../Algorithms/Greedy_Submodular_Construct"
-    "../Algorithms/Lazy_Greedy"
+    "../Algorithms/Lazy_Greedy_Oracle"
 begin
 
 text \<open>
