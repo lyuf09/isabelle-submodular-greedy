@@ -26,6 +26,9 @@ At present, the repository contains:
 - `Algorithms/Lazy_Greedy_Stateful.thy`  
   A stateful LazyGreedy formulation with cached upper bounds and explicit algorithmic state.
 
+- `Algorithms/Lazy_Greedy_Oracle.thy`
+  A legacy oracle-view LazyGreedy layer defining `argmax_gain_lazy` via lazy upper-bound tightening and packaging it as a greedy-style oracle interpretation.
+
 - `Proofs/Greedy_Step_Spec.thy`  
   A packaged step-spec interface for the classical greedy step.
 
@@ -79,6 +82,9 @@ At present, the repository contains:
 
 - `Experiments/Lazy_vs_Greedy_Toy.thy`  
   A toy executable comparison between naive greedy scanning and a lazy refinement.
+
+- `Experiments/Cost_Model.thy`
+  A tiny experimental cost-model helper defining simple oracle-call conventions and naive greedy scan cost baselines.
 
 - `Current_Status_and_Planned_Next_Steps.md`  
   A research-oriented status note summarising what has been completed and what comes next.
