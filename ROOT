@@ -14,6 +14,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Core/Oracle_Cost"
     "Algorithms/Greedy_Submodular_Construct"
     "Algorithms/Lazy_Greedy_Stateful"
+    "Algorithms/Lazy_Greedy_Oracle"
     "Proofs/Greedy_Step_Spec"
     "Proofs/Greedy_Submodular_Approx"
     "Proofs/Greedy_Approx_From_Spec"
@@ -33,5 +34,4 @@ session Submodular_Greedy_Experiments = HOL +
     "Experiments/Experiments_Nonsubmodular_Counterexample"
     "Experiments/Experiments_Exhaustive_Correctness"
     "Experiments/Lazy_vs_Greedy_Toy"
-
 

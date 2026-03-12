@@ -1,5 +1,5 @@
 theory Lazy_Greedy_Stateful
-  imports Lazy_Greedy
+  imports Lazy_Greedy_Oracle
 begin
 
 section "Stateful Lazy Greedy with cached upper bounds"
