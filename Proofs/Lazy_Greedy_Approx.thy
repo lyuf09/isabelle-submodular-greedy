@@ -3,11 +3,11 @@ theory Lazy_Greedy_Approx
 begin
 
 text \<open>
-  Legacy oracle-view approximation theorem for the non-stateful lazy selector.
-  This theory instantiates the step-spec locale Greedy_Step_Oracle with the
-  lazy argmax oracle argmax_gain_lazy.
-  The main theorem-facing LazyGreedy result in this repository is the
-  stateful one over lazy_set.
+  Compatibility wrapper exposing the LazyGreedy approximation result
+  in a legacy oracle-oriented form.
+  The main approximation development for LazyGreedy in this repository
+  is the stateful one over lazy_set, proved in Lazy_Greedy_Stateful_Approx.
+  This theory simply re-exports that result under theorem-facing legacy naming.
 \<close>
 
 context Cardinality_Constraint

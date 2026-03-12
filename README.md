@@ -1,13 +1,13 @@
 # Isabelle Formalisation of Submodular Greedy Optimisation
 
-This repository develops a modular Isabelle/HOL framework for reasoning about submodular maximisation algorithms, with a current focus on monotone submodular functions under a cardinality constraint.
+This repository develops a modular Isabelle/HOL framework for reasoning about submodular maximisation algorithms, currently focused on monotone submodular functions under a cardinality constraint.
 
-The development is organised as a reusable library rather than a single isolated proof. Core notions such as submodularity, monotonicity, feasibility constraints, greedy-step specifications, and oracle-cost accounting are separated cleanly via locales and auxiliary theory layers, so that further greedy variants can be added in a principled way.
+The development is organised as a reusable library rather than a single isolated proof. Core notions such as submodularity, monotonicity, feasibility constraints, greedy-step specifications, and oracle-cost accounting are separated via locales and auxiliary theory layers, so that further greedy variants can be added in a principled and reusable way.
 
 At present, the repository contains:
 
 - a completed foundational theorem line for the classical greedy algorithm, including a full formal proof of the Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee;
-- a first substantial implementation-level / stateful extension beyond classical greedy, namely a verified LazyGreedy development with explicit state, per-step correctness bridges, inherited approximation guarantees, and an initial oracle-cost layer;
+- a completed stateful / implementation-level extension beyond classical greedy, namely a verified LazyGreedy development with explicit state, correctness bridges, inherited approximation guarantees, and an initial oracle-cost layer;
 - small executable toy instances, exhaustive baselines for tiny ground sets, and sanity-check counterexamples.
 
 ---
@@ -26,8 +26,8 @@ At present, the repository contains:
 - `Algorithms/Lazy_Greedy_Stateful.thy`  
   A stateful LazyGreedy formulation with cached upper bounds and explicit algorithmic state.
 
-- `Algorithms/Lazy_Greedy_Oracle.thy`
-  A legacy oracle-view LazyGreedy layer defining `argmax_gain_lazy` via lazy upper-bound tightening and packaging it as a greedy-style oracle interpretation.
+- `Algorithms/Lazy_Greedy_Oracle.thy`  
+  An auxiliary oracle-style LazyGreedy layer that packages lazy upper-bound tightening into a greedy-style oracle view, mainly for compatibility and theorem-facing reuse.
 
 - `Proofs/Greedy_Step_Spec.thy`  
   A packaged step-spec interface for the classical greedy step.
@@ -45,7 +45,7 @@ At present, the repository contains:
   Approximation analysis for the stateful LazyGreedy construction, proving the same `(1 - 1/e)` guarantee via a correctness bridge back to the classical greedy-style step specification.
 
 - `Proofs/Lazy_Greedy_Approx.thy`  
-  A wrapper layer exposing the lazy approximation result in a convenient theorem-facing form.
+  A theorem-facing compatibility wrapper exposing the LazyGreedy approximation result in a convenient form.
 
 - `Complexity/Lazy_Greedy_OracleCost.thy`  
   Per-round oracle-cost accounting for LazyGreedy.
@@ -83,8 +83,8 @@ At present, the repository contains:
 - `Experiments/Lazy_vs_Greedy_Toy.thy`  
   A toy executable comparison between naive greedy scanning and a lazy refinement.
 
-- `Experiments/Cost_Model.thy`
-  A tiny experimental cost-model helper defining simple oracle-call conventions and naive greedy scan cost baselines.
+- `Experiments/Cost_Model.thy`  
+  A small experimental cost-model helper defining simple oracle-call conventions and naive greedy scan cost baselines.
 
 - `Current_Status_and_Planned_Next_Steps.md`  
   A research-oriented status note summarising what has been completed and what comes next.
@@ -96,10 +96,10 @@ At present, the repository contains:
 ### 1. Classical greedy foundation
 The repository contains a complete formalisation of the standard Nemhauser--Wolsey approximation theorem for monotone submodular maximisation under a cardinality constraint:
 - greedy is defined abstractly over a finite ground set;
-- the proof establishes the usual averaging lemma, gap recurrence, and final `(1 - 1/e)` approximation bound.
+- the proof establishes the standard averaging lemma, gap recurrence, and final `(1 - 1/e)` approximation bound.
 
 ### 2. Verified LazyGreedy as a stateful extension
-The repository also contains a stateful LazyGreedy development, positioned as the first substantial implementation-level / stateful extension beyond classical greedy:
+The repository also contains a verified LazyGreedy development, positioned as the first completed stateful / implementation-level extension beyond classical greedy:
 - the algorithm maintains explicit state and cached upper bounds;
 - key invariants are tracked directly at the level of the algorithmic state;
 - per-step correctness is packaged through a bridge back to a greedy-style argmax specification;
@@ -132,7 +132,7 @@ For interactive work in Isabelle/jEdit, open the repository and select the sessi
 
 This is an ongoing research-oriented development, but it is already substantially stronger than a minimal “classical greedy only” formalisation.
 
-At the moment, the repository should be viewed as a reusable Isabelle/HOL framework for submodular greedy optimisation with:
+At present, the repository should be viewed as a reusable Isabelle/HOL framework for submodular greedy optimisation with:
 
 - a completed foundational theorem line for classical greedy;
 
@@ -148,17 +148,21 @@ At the moment, the repository should be viewed as a reusable Isabelle/HOL framew
 
 ## Planned Next Steps
 
-The most immediate next direction is the formalisation of StochasticGreedy as the next major theorem line.
+The most immediate next direction is the formalisation of StochasticGreedy as the next main theorem line beyond the current classical-greedy foundation and LazyGreedy stateful extension.
 
-Further natural next steps include:
+The primary near-term goals are:
 
-- formalisation of StochasticGreedy and its approximation / complexity guarantees;
+- formalisation of StochasticGreedy and its approximation / query-complexity guarantees;
 
-- code extraction and empirical validation against executable baselines;
+- code extraction and small-scale empirical validation against executable baselines;
+
+- further polishing and packaging of the current development for a research-oriented formal-methods submission.
+
+Longer-term extensions may include:
 
 - further refinement of the complexity story for lazy and stochastic variants;
 
-- connecting the present submodular library to Isabelle’s existing matroid-related infrastructure;
+- connections to Isabelle’s existing matroid-related infrastructure;
 
 - additional concrete submodular instances and benchmark-style case studies.
 
@@ -168,7 +172,7 @@ Further natural next steps include:
 
 The broader goal of the project is not just to formalise one approximation theorem, but to build a modular Isabelle/HOL library for modern submodular optimisation algorithms and their analyses.
 
-Within that programme, the classical greedy development is the foundational theorem line. The LazyGreedy development should be viewed as the first substantial implementation-level / stateful extension beyond classical greedy, rather than as a wholly separate major approximation-theory line. The next major target for a more independent theorem contribution is StochasticGreedy.
+Within that programme, the classical greedy development is the foundational theorem line. The LazyGreedy development should be viewed as a completed stateful / implementation-level extension beyond classical greedy, rather than as a wholly separate major approximation-theory line. The next main target for a more independent theorem contribution is StochasticGreedy.
 ---
 
 Supervised and developed as part of an ongoing research project.

@@ -2,7 +2,7 @@
 
 ## 1. Current Status of the Formalisation
 
-The repository has now clearly moved beyond a “classical greedy only” stage. At the theory level, it already contains a completed foundational classical greedy development, together with a verified LazyGreedy extension at the implementation / state level, small executable baselines, concrete interpreted instances, and an initial oracle-cost framework.
+The repository has now clearly moved beyond a “classical greedy only” stage. At the theory level, it already contains a completed foundational classical greedy development, together with a completed LazyGreedy extension at the stateful / implementation level, small executable baselines, concrete interpreted instances, and an initial oracle-cost framework.
 
 ### 1.1 Core architecture
 
@@ -40,12 +40,13 @@ This line establishes:
 
 So the foundational classical theorem line is fully formalised.
 
-### 1.3 Verified LazyGreedy as a stateful extension beyond classical greedy
+### 1.3 Verified LazyGreedy as a completed stateful extension beyond classical greedy
 
-A stateful LazyGreedy development is now also in place.
+A verified LazyGreedy development is now also in place.
 
 Main ingredients:
 - `Algorithms/Lazy_Greedy_Stateful.thy`
+- `Algorithms/Lazy_Greedy_Oracle.thy`
 - `Proofs/Lazy_Greedy_Stateful_StepSpec.thy`
 - `Proofs/Lazy_Greedy_Stateful_Approx.thy`
 - `Proofs/Lazy_Greedy_Approx.thy`
@@ -53,7 +54,7 @@ Main ingredients:
 - `Complexity/Lazy_Greedy_TotalOracleCost.thy`
 - `Complexity/Lazy_Greedy_Compare_NaiveScan.thy`
 
-This development is best viewed not as a wholly separate major approximation-theory line, but as the first substantial implementation-level / stateful extension beyond the classical greedy foundation.
+This development is best viewed not as a wholly separate major approximation-theory line, but as the first completed stateful / implementation-level extension beyond the classical greedy foundation.
 
 Its current contribution has five main aspects.
 
@@ -64,7 +65,7 @@ A stateful lazy construction is defined explicitly, with internal state carrying
 The development tracks key structural facts directly at the level of the algorithmic state, making the lazy procedure a genuine formal object rather than an informal implementation trick.
 
 #### (c) Per-step correctness bridge
-`Lazy_Greedy_Stateful_StepSpec.thy` packages the lazy step into a greedy-style step specification. In particular, it shows that whenever the remaining set is nonempty, the lazy choice:
+`Proofs/Lazy_Greedy_Stateful_StepSpec.thy` packages the lazy step into a greedy-style step specification. In particular, it shows that whenever the remaining set is nonempty, the lazy choice:
 - belongs to `V - lazy_set i`,
 - is feasible as the next selected element,
 - and attains the maximum marginal gain over the current remaining candidates.
@@ -72,11 +73,14 @@ The development tracks key structural facts directly at the level of the algorit
 This is the key bridge from the stateful lazy implementation back to the reusable greedy approximation framework.
 
 #### (d) Inherited approximation guarantee
-Using that step-spec packaging, `Lazy_Greedy_Stateful_Approx.thy` recovers the same Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee for `lazy_set`.
+Using that step-spec packaging, `Proofs/Lazy_Greedy_Stateful_Approx.thy` recovers the same Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee for `lazy_set`.
 
-Thus the lazy construction is formally connected back to the same abstract guarantee as classical greedy, rather than being left as an unverified heuristic refinement.
+Thus the lazy construction is formally connected back to the same abstract guarantee as classical greedy, rather than being left merely as an implementation heuristic.
 
-#### (e) Oracle-cost layer
+#### (e) Oracle-style compatibility layer
+`Algorithms/Lazy_Greedy_Oracle.thy` provides an auxiliary oracle-style view of LazyGreedy, packaging lazy upper-bound tightening into a greedy-style oracle interface. Together with `Proofs/Lazy_Greedy_Approx.thy`, this gives a convenient theorem-facing compatibility layer around the main stateful development.
+
+#### (f) Oracle-cost layer
 The LazyGreedy development also includes an initial formal complexity layer:
 - per-round gain-evaluation accounting;
 - total oracle-cost upper bounds for a full run;
@@ -94,13 +98,15 @@ The repository includes several runnable small-instance theories:
 - `Experiments/Experiments_Coverage_Suboptimal.thy`
 - `Experiments/Experiments_Nonsubmodular_Counterexample.thy`
 - `Experiments/Lazy_vs_Greedy_Toy.thy`
+- `Experiments/Cost_Model.thy`
 
 These serve several purposes:
 - they provide tiny executable baselines;
 - they expose recorded outputs on concrete instances;
 - they illustrate that greedy can be strictly suboptimal even in the monotone submodular setting;
 - they show explicitly that once submodularity is dropped, the classical approximation guarantee can fail;
-- and they provide a small experimental playground for comparing naive greedy scanning with lazy refinements.
+- they provide a small experimental playground for comparing naive greedy scanning with lazy refinements;
+- and they include a lightweight cost-model helper for simple oracle-call conventions and scan-cost baselines.
 
 ### 1.5 Concrete instance layer
 
@@ -121,7 +127,7 @@ This concrete layer is useful both for validation and for communicating the abst
 
 At this point, the repository already supports the following picture:
 - a completed foundational classical greedy theorem line;
-- a verified LazyGreedy development as a substantial implementation-level / stateful extension beyond that foundation;
+- a completed LazyGreedy development as a stateful / implementation-level extension beyond that foundation;
 - small executable baselines and sanity-check examples;
 - reusable concrete interpreted instances;
 - and an initial formal oracle-cost layer.
@@ -134,15 +140,15 @@ It is therefore now better viewed as a modular Isabelle/HOL framework for submod
 
 The next stage of the project should deepen the present framework in a focused way rather than merely broaden it.
 
-### 2.1 Formalise StochasticGreedy as the next major theorem line
+### 2.1 Formalise StochasticGreedy as the next main theorem line
 
 The most immediate next target is `StochasticGreedy`.
 
 At this point, the development is in a much stronger position for such an extension than before, since the verified LazyGreedy development has already exercised the general pattern:
 
-algorithmic construction -> step packaging -> approximation transfer -> cost accounting.
+algorithmic construction -> correctness packaging -> approximation transfer -> cost accounting.
 
-A StochasticGreedy development would add a genuinely new dimension to the library. Beyond deterministic greedy-style reasoning, it would require a principled treatment of sampled candidate sets, expected progress, and query-complexity bounds. This makes it the natural next major theorem target for the project.
+A StochasticGreedy development would add a genuinely new dimension to the library. Beyond deterministic greedy-style reasoning, it would require a principled treatment of sampled candidate sets, expected progress, and query-complexity bounds. This makes it the natural next main theorem target for the project.
 
 A further variant such as `LazierThanLazyGreedy` remains a natural follow-up direction, but it is better viewed as a subsequent extension rather than an immediate parallel target.
 
@@ -158,12 +164,12 @@ This includes:
 
 The goal is not only to add more results, but also to make the current framework read as a mature and reusable formal library.
 
-### 2.3 Code extraction and empirical validation
+### 2.3 Code extraction and small-scale empirical validation
 
 Once the StochasticGreedy line and the surrounding interfaces are sufficiently stable, a natural next step is:
 - code extraction from the formal developments,
 - executable comparison against small baselines,
-- and empirical validation of the extracted implementations.
+- and small-scale empirical validation of the extracted implementations.
 
 This would connect the present formal theory more directly to algorithm engineering and provide a clearer bridge from abstract proofs to executable artefacts.
 
@@ -198,8 +204,8 @@ It would also be useful to add:
 
 The present project is increasingly best viewed not as a one-off formalisation, but as a small and growing Isabelle/HOL library for modern submodular optimisation.
 
-The completed classical greedy development provides the foundational theorem layer. The verified LazyGreedy development is the first substantial implementation-level / stateful extension beyond that foundation: it introduces explicit state, tracks algorithmic invariants, proves per-step correctness via a bridge back to greedy-style maximality, inherits the same approximation guarantee, and adds an initial oracle-cost layer.
+The completed classical greedy development provides the foundational theorem layer. The completed LazyGreedy development is the first substantial stateful / implementation-level extension beyond that foundation: it introduces explicit state, tracks algorithmic invariants, proves per-step correctness via a bridge back to greedy-style maximality, inherits the same approximation guarantee, and adds an initial oracle-cost layer.
 
-The next objective is therefore not merely to accumulate more algorithm names, but to deepen the library in a principled way: first by consolidating the current architecture, and then by extending it to a genuinely new major theorem target such as `StochasticGreedy`.
+The next objective is therefore not merely to accumulate more algorithm names, but to deepen the library in a principled way: first by consolidating the current architecture, and then by extending it to a genuinely new main theorem target such as `StochasticGreedy`.
 
 This makes the project a plausible base for a sustained sequence of follow-up developments, rather than a single isolated formal result.
