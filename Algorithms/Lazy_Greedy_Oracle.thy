@@ -134,7 +134,6 @@ proof (induction n arbitrary: ub)
   qed
 next
   case (Suc n ub)
-  (* 同样，直接从 Suc 提取前提 *)
   from Suc.prems have ubv: "ub_valid S A ub" by simp
   from Suc.prems have bound: "card (untight S A ub) \<le> Suc n" by simp
 
@@ -161,7 +160,6 @@ next
     have gt: "ub ?x > gain S ?x"
       using le_gx False by (meson eq_iff not_le order_le_less)
 
-    (* 修正 Ueq: 使用 auto 处理集合逻辑，并明确引用之前证明的引理 *)
     have Ueq: "untight S A (tighten S ub ?x) = untight S A ub - {?x}"
       using xA gt by (simp add: untight_tighten)
       
