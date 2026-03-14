@@ -83,13 +83,15 @@ lemma residual_card_le_k:
   using card_residual_opt_le_k[OF finOPT cardOPT]
   unfolding residual_card_def by simp
 
-lemma hits_residual_iff_not_misses [simp]:
+lemma hits_residual_iff_not_misses:
   "hits_residual OPT S xs \<longleftrightarrow> \<not> misses_residual OPT S xs"
-  unfolding hits_residual_def misses_residual_def by auto
+  unfolding hits_residual_def misses_residual_def
+  by auto
 
-lemma misses_residual_iff_not_hits [simp]:
+lemma misses_residual_iff_not_hits:
   "misses_residual OPT S xs \<longleftrightarrow> \<not> hits_residual OPT S xs"
-  unfolding hits_residual_def misses_residual_def by auto
+  unfolding hits_residual_def misses_residual_def
+  by auto
 
 lemma hits_residual_imp_sample_nonempty:
   assumes "hits_residual OPT S xs"
