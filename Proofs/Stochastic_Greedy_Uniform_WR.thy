@@ -1,5 +1,5 @@
 theory Stochastic_Greedy_Uniform_WR
-  imports Stochastic_Greedy_Weighted_Sampling
+  imports Stochastic_Greedy_Weighted_Sampling "HOL-Analysis.Analysis"
 begin
 
 section \<open>Uniform with-replacement sampling over the remaining set\<close>
@@ -27,6 +27,8 @@ is patched with the natural side-condition V - S \<noteq> {} \<or> s = 0.
 
 context Cardinality_Constraint
 begin
+
+
 
 subsection \<open>Concrete with-replacement list space\<close>
 
@@ -755,23 +757,30 @@ lemma uniform_wr_hit_prob_ge_hit_lb_linear:
   shows "uniform_wr_hit_prob OPT S s \<ge> hit_lb_linear s (residual_card OPT S)"
 proof (cases "k = 0")
   case True
-  then show ?thesis
-    using uniform_wr_hit_prob_nonneg[of OPT S s]
-    by (simp add: hit_lb_linear_def)
+  have lb0: "hit_lb_linear s (residual_card OPT S) = 0"
+  proof -
+    have "hit_lb_linear s (residual_card OPT S) =
+            (if k = 0 then 0
+             else alpha_stoch s * real (residual_card OPT S) / real k)"
+      unfolding hit_lb_linear_def
+      by simp
+    with True show ?thesis
+      by simp
+  qed
+  show ?thesis
+  using uniform_wr_hit_prob_nonneg[of OPT S s] lb0
+  by linarith
 next
   case False
-  let ?m = "residual_card OPT S"
-  let ?t = "real ?m / real k"
-  let ?c = "real s * real k / real (card V)"
+  note k_nz = False
 
-  have k_pos: "k > 0"
-    using False by simp
+  let ?m = "residual_card OPT S"
+
+  have k_pos: "0 < k"
+    using k_nz by simp
 
   have m_le_k: "?m \<le> k"
     using residual_card_le_k[OF assms(2,3)] .
-
-  have t_bounds: "?t \<in> {0..1}"
-    using m_le_k k_pos by auto
 
   have prob_ge_exp:
     "uniform_wr_hit_prob OPT S s \<ge> hit_lb_exp s ?m"
@@ -779,56 +788,251 @@ next
 
   have exp_ge_linear:
     "hit_lb_exp s ?m \<ge> hit_lb_linear s ?m"
-  proof -
-    have conv:
-      "exp ((1 - ?t) * 0 + ?t * (- ?c))
-       \<le> (1 - ?t) * exp 0 + ?t * exp (- ?c)"
-      using t_bounds
-      by (intro convex_onD[OF convex_on_exp]) auto
-
-    have secant:
-      "1 - exp (-(?t * ?c)) \<ge> ?t * (1 - exp (- ?c))"
-      using conv
-      by (simp add: algebra_simps)
-
-    have tc:
-      "?t * ?c = real s * real ?m / real (card V)"
-      using k_pos
-      by (simp add: field_simps)
-
-    have lhs_rewrite:
-      "hit_lb_exp s ?m = 1 - exp (-(?t * ?c))"
-      unfolding hit_lb_exp_def
-      using tc by simp
-
-    have rhs_rewrite:
-      "?t * (1 - exp (- ?c)) = hit_lb_linear s ?m"
-      using False
-      unfolding hit_lb_linear_def alpha_stoch_def
-      by (simp add: field_simps algebra_simps)
-
-    from secant
-    have "hit_lb_exp s ?m \<ge> hit_lb_linear s ?m"
-      using lhs_rewrite rhs_rewrite
+  proof (cases "?m = 0")
+    case True
+    then show ?thesis
       by simp
-    then show ?thesis .
-  qed
+  next
+    case False
+    note m_nz = False
+    have m_pos: "0 < ?m"
+      using m_nz by simp
+
+    show ?thesis
+    proof (cases "s = 0")
+      case True
+      then show ?thesis
+        by simp
+    next
+      case False
+      note s_nz = False
+      have s_pos: "0 < s"
+        using s_nz by simp
+
+      have diff_ne: "V - S \<noteq> {}"
+        using feas s_nz by auto
+
+      have V_ne: "V \<noteq> {}"
+        using diff_ne by auto
+
+      have cardV_pos: "0 < card V"
+        using V_ne finite_V
+        by (simp add: card_gt_0_iff)
+
+      let ?q = "exp (- (real s / real (card V)))"
+      let ?A = "sum (\<lambda>i. ?q ^ i) {..< ?m}"
+      let ?B = "sum (\<lambda>i. ?q ^ i) {?m..< k}"
+
+      have q_nonneg: "0 \<le> ?q"
+        by simp
+
+      have q_lt_1: "?q < 1"
+        using s_pos cardV_pos
+        by simp
+
+      have q_le_1: "?q \<le> 1"
+        using q_lt_1 by simp
+
+      have q_ne_1: "?q \<noteq> 1"
+        using q_lt_1 by linarith
+
+      have exp_pow_nat:
+        "(exp x)^n = exp (real n * x)"
+        for n :: nat and x :: real
+      proof (induction n)
+        case 0
+        show ?case by simp
+      next
+        case (Suc n)
+        have "(exp x) ^ Suc n = exp x * (exp x)^n"
+          by simp
+        also have "... = exp x * exp (real n * x)"
+          using Suc.IH by simp
+        also have "... = exp (x + real n * x)"
+          by (simp only: exp_add[symmetric])
+        also have "... = exp ((1 + real n) * x)"
+          by (simp add: algebra_simps)
+        also have "... = exp (real (Suc n) * x)"
+          by simp
+        finally show ?case .
+      qed
+
+      have qpow_m:
+        "?q ^ ?m = exp (-(real s * real ?m / real (card V)))"
+      proof -
+        have "?q ^ ?m = exp (real ?m * (-(real s / real (card V))))"
+          using exp_pow_nat[where n = ?m and x = "- (real s / real (card V))"]
+          by simp
+        also have "... = exp (-(real s * real ?m / real (card V)))"
+          using cardV_pos
+          by (simp add: field_simps)
+        finally show ?thesis .
+      qed
+
+      have qpow_k:
+        "?q ^ k = exp (-(real s * real k / real (card V)))"
+      proof -
+        have "?q ^ k = exp (real k * (-(real s / real (card V))))"
+          using exp_pow_nat[where n = k and x = "- (real s / real (card V))"]
+          by simp
+        also have "... = exp (-(real s * real k / real (card V)))"
+          using cardV_pos
+          by (simp add: field_simps)
+        finally show ?thesis .
+      qed
+
+     have sum_split0:
+        "sum (\<lambda>i. ?q ^ i) {0..< ?m} + sum (\<lambda>i. ?q ^ i) {?m..<k}
+         = sum (\<lambda>i. ?q ^ i) {0..<k}"
+        using m_le_k
+        by (intro sum.atLeastLessThan_concat) simp_all
+
+      have sum_split:
+        "?A + ?B = sum (\<lambda>i. ?q ^ i) {..<k}"
+        using sum_split0
+        by (simp add: atLeast0LessThan [symmetric])
+
+      have B_le:
+        "?B \<le> real (k - ?m) * ?q ^ (?m - 1)"
+      proof -
+        have "?B \<le> sum (\<lambda>i. ?q ^ (?m - 1)) {?m..<k}"
+        proof (rule sum_mono)
+          fix i
+          assume i: "i \<in> {?m..<k}"
+          then have le: "?m - 1 \<le> i"
+            using m_pos by auto
+          show "?q ^ i \<le> ?q ^ (?m - 1)"
+            using le q_nonneg q_le_1
+            by (intro power_decreasing) auto
+        qed
+        then show ?thesis
+          by simp
+      qed
+
+      have A_ge:
+        "real ?m * ?q ^ (?m - 1) \<le> ?A"
+      proof -
+        have "sum (\<lambda>i. ?q ^ (?m - 1)) {..< ?m} \<le> ?A"
+        proof (rule sum_mono)
+          fix i
+          assume i: "i \<in> {..< ?m}"
+          then have le: "i \<le> ?m - 1"
+            using m_pos by auto
+          show "?q ^ (?m - 1) \<le> ?q ^ i"
+            using le q_nonneg q_le_1
+            by (intro power_decreasing) auto
+        qed
+        then show ?thesis
+          by simp
+      qed
+
+      have mB_le:
+        "real ?m * ?B \<le> real (k - ?m) * ?A"
+      proof -
+        have "real ?m * ?B \<le> real ?m * (real (k - ?m) * ?q ^ (?m - 1))"
+          using B_le m_pos
+          by (intro mult_left_mono) simp_all
+        also have "... = real (k - ?m) * (real ?m * ?q ^ (?m - 1))"
+          by (simp add: algebra_simps)
+        also have "... \<le> real (k - ?m) * ?A"
+          using A_ge
+          by (intro mult_left_mono) simp_all
+        finally show ?thesis .
+      qed
+
+      have avg:
+        "real ?m * sum (\<lambda>i. ?q ^ i) {..<k} \<le> real k * ?A"
+      proof -
+        have "real ?m * sum (\<lambda>i. ?q ^ i) {..<k}
+            = real ?m * (?A + ?B)"
+          using sum_split[symmetric]
+          by simp
+        also have "... = real ?m * ?A + real ?m * ?B"
+          by (simp add: algebra_simps)
+        also have "... \<le> real ?m * ?A + real (k - ?m) * ?A"
+          using mB_le by linarith
+        also have "... = real k * ?A"
+          using m_le_k
+          by (simp add: algebra_simps)
+        finally show ?thesis .
+      qed
+
+      have geom_m:
+        "(1 - ?q) * ?A = 1 - ?q ^ ?m"
+        using q_ne_1
+        by (simp add: geometric_sum field_simps)
+
+      have geom_k:
+        "(1 - ?q) * sum (\<lambda>i. ?q ^ i) {..<k} = 1 - ?q ^ k"
+        using q_ne_1
+        by (simp add: geometric_sum field_simps)
+
+      have one_minus_q_pos: "0 < 1 - ?q"
+        using q_lt_1 by simp
+
+      have scaled:
+        "real ?m * (1 - ?q ^ k) \<le> real k * (1 - ?q ^ ?m)"
+      proof -
+        have h0:
+          "(1 - ?q) * (real ?m * sum (\<lambda>i. ?q ^ i) {..<k})
+           \<le> (1 - ?q) * (real k * ?A)"
+          using avg one_minus_q_pos
+          by (intro mult_left_mono) simp_all
+
+        have h1:
+          "real ?m * ((1 - ?q) * sum (\<lambda>i. ?q ^ i) {..<k})
+           \<le> real k * ((1 - ?q) * ?A)"
+          using h0
+          by (simp add: algebra_simps)
+
+        show ?thesis
+          using h1 geom_m geom_k
+          by simp
+      qed
+
+      have secant_q:
+        "1 - ?q ^ ?m \<ge> (real ?m / real k) * (1 - ?q ^ k)"
+        using scaled k_pos
+        by (simp add: field_simps)
+
+      have lhs_rewrite:
+        "hit_lb_exp s ?m = 1 - ?q ^ ?m"
+      proof -
+        have "hit_lb_exp s ?m = 1 - exp (-(real s * real ?m / real (card V)))"
+          unfolding hit_lb_exp_def
+          by simp
+        also have "... = 1 - ?q ^ ?m"
+          using qpow_m[symmetric]
+          by simp
+        finally show ?thesis .
+      qed
+
+      have rhs_rewrite:
+        "hit_lb_linear s ?m = (real ?m / real k) * (1 - ?q ^ k)"
+      proof -
+        have "hit_lb_linear s ?m
+            = (1 - exp (-(real s * real k / real (card V)))) * real ?m / real k"
+          using k_pos
+          unfolding hit_lb_linear_def alpha_stoch_def
+          by simp
+        also have "... = (1 - ?q ^ k) * real ?m / real k"
+          using qpow_k[symmetric]
+          by simp
+        also have "... = (real ?m / real k) * (1 - ?q ^ k)"
+          using k_pos
+          by simp
+        finally show ?thesis .
+      qed
+
+      show ?thesis
+        using secant_q lhs_rewrite rhs_rewrite
+        by simp
+      qed
+    qed
 
   from prob_ge_exp exp_ge_linear
   show ?thesis
     by linarith
 qed
-
-text \<open>
-After the base weighted locale is patched with the natural side-condition
-V - S \<noteq> {} \<or> s = 0, the intended interpretation should be:
-
-  sublocale uniform_wr: Stochastic_Greedy_Weighted_Hit_Model
-    V f k uniform_wr_space uniform_wr_prob
-
-with the final obligation discharged by uniform_wr_hit_prob_ge_hit_lb_linear.
-\<close>
-
-end
 
 end
