@@ -25,6 +25,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Proofs/Lazy_Greedy_Stateful_Approx"
     "Proofs/Lazy_Greedy_Stateful_StepSpec"
     "Proofs/Stochastic_Greedy_Sampling"
+    "Proofs/Stochastic_Greedy_Weighted_Sampling"
     "Proofs/Stochastic_Greedy_OneStep"
     "Proofs/Stochastic_Greedy_Approx"
 
