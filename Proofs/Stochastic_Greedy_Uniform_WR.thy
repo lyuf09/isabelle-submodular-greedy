@@ -28,8 +28,6 @@ is patched with the natural side-condition V - S \<noteq> {} \<or> s = 0.
 context Cardinality_Constraint
 begin
 
-
-
 subsection \<open>Concrete with-replacement list space\<close>
 
 fun wr_space_on :: "'a set \<Rightarrow> nat \<Rightarrow> 'a list set" where
@@ -748,7 +746,7 @@ next
   qed
 qed
 
-lemma uniform_wr_hit_prob_ge_hit_lb_linear:
+lemma uniform_wr_hit_prob_ge_hit_lb_linear_if_feasible:
   assumes "OPT \<subseteq> V"
   assumes "finite OPT"
   assumes "card OPT \<le> k"
@@ -1032,6 +1030,52 @@ next
 
   from prob_ge_exp exp_ge_linear
   show ?thesis
+    by linarith
+qed
+
+
+lemma uniform_wr_hit_prob_ge_hit_lb_linear:
+  assumes "OPT \<subseteq> V"
+  assumes "finite OPT"
+  assumes "card OPT \<le> k"
+  assumes "S \<subseteq> V"
+  shows "uniform_wr_hit_prob OPT S s \<ge> hit_lb_linear s (residual_card OPT S)"
+proof (cases "V - S \<noteq> {} \<or> s = 0")
+  case True
+  show ?thesis
+    by (rule uniform_wr_hit_prob_ge_hit_lb_linear_if_feasible[OF assms True])
+next
+  case False
+  have diff_empty: "V - S = {}"
+    using False by auto
+
+  have V_subset_S: "V \<subseteq> S"
+    using diff_empty by auto
+
+  have OPT_subset_S: "OPT \<subseteq> S"
+    using assms(1) V_subset_S by auto
+
+  have diff0: "OPT - S = {}"
+    using OPT_subset_S by auto
+
+  have fin_diff: "finite (OPT - S)"
+    using assms(2) by simp
+
+  have card_diff0: "card (OPT - S) = 0"
+    using diff0 fin_diff
+    by (simp add: card_eq_0_iff)
+
+  have res_card_0: "residual_card OPT S = 0"
+    unfolding residual_card_def residual_opt_def
+    using card_diff0
+    by simp
+
+  have lb0: "hit_lb_linear s (residual_card OPT S) = 0"
+    using res_card_0
+    by simp
+
+  show ?thesis
+    using uniform_wr_hit_prob_nonneg[of OPT S s] lb0
     by linarith
 qed
 

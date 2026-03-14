@@ -28,6 +28,7 @@ session Submodular_Greedy_Experiments = HOL +
     "Proofs/Stochastic_Greedy_Weighted_Sampling"
     "Proofs/Stochastic_Greedy_OneStep"
     "Proofs/Stochastic_Greedy_Approx"
+    "Proofs/Stochastic_Greedy_Uniform_WR"
 
     "Complexity/Lazy_Greedy_OracleCost"
     "Complexity/Lazy_Greedy_TotalOracleCost"
