@@ -24,8 +24,8 @@ locale Stochastic_Greedy_Weighted_Sampling =
     "xs \<in> sample_space S s \<Longrightarrow> length xs = s \<and> set xs \<subseteq> V - S"
   assumes sample_prob_nonneg:
     "xs \<in> sample_space S s \<Longrightarrow> 0 \<le> sample_prob S s xs"
-  assumes sample_mass_1:
-    "(\<Sum>xs\<in>sample_space S s. sample_prob S s xs) = 1"
+  assumes sample_mass_1_if_feasible:
+    "V - S \<noteq> {} \<or> s = 0 \<Longrightarrow> (\<Sum>xs\<in>sample_space S s. sample_prob S s xs) = 1"
 begin
 
 definition hit_event :: "'a set \<Rightarrow> 'a set \<Rightarrow> nat \<Rightarrow> 'a list set" where
@@ -51,6 +51,76 @@ lemma sample_space_mem_subset:
   assumes "xs \<in> sample_space S s"
   shows "set xs \<subseteq> V - S"
   using assms sample_space_mem by auto
+
+lemma sample_space_empty_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "sample_space S s = {}"
+proof (rule ccontr)
+  assume "sample_space S s \<noteq> {}"
+  then obtain xs where xs: "xs \<in> sample_space S s"
+    by blast
+  then have len: "length xs = s"
+    and sub: "set xs \<subseteq> V - S"
+    using sample_space_mem by auto
+  have VS: "V \<subseteq> S"
+    using assms(1) by auto
+  have "xs = []"
+  proof (rule ccontr)
+    assume "xs \<noteq> []"
+    then obtain x where "x \<in> set xs"
+      by (cases xs) auto
+    with sub have "x \<in> V - S"
+      by blast
+    then have "x \<in> V" and "x \<notin> S"
+      by auto
+    from VS \<open>x \<in> V\<close> have "x \<in> S"
+      by auto
+    with \<open>x \<notin> S\<close> show False
+      by contradiction
+  qed
+  with len assms(2) show False
+    by simp
+qed
+
+lemma sample_mass_zero_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "(\<Sum>xs\<in>sample_space S s. sample_prob S s xs) = 0"
+  using sample_space_empty_if_no_remaining[OF assms]
+  by simp
+
+lemma hit_event_empty_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "hit_event OPT S s = {}"
+  unfolding hit_event_def
+  using sample_space_empty_if_no_remaining[OF assms]
+  by auto
+
+lemma miss_event_empty_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "miss_event OPT S s = {}"
+  unfolding miss_event_def
+  using sample_space_empty_if_no_remaining[OF assms]
+  by auto
+
+lemma hit_prob_of_zero_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "hit_prob_of OPT S s = 0"
+  unfolding hit_prob_of_def
+  using hit_event_empty_if_no_remaining[OF assms]
+  by simp
+
+lemma miss_prob_of_zero_if_no_remaining:
+  assumes "V - S = {}"
+  assumes "s > 0"
+  shows "miss_prob_of OPT S s = 0"
+  unfolding miss_prob_of_def
+  using miss_event_empty_if_no_remaining[OF assms]
+  by simp
 
 lemma hit_event_memD:
   assumes "xs \<in> hit_event OPT S s"
@@ -142,7 +212,8 @@ proof (rule sum_nonneg)
 qed
 
 lemma hit_prob_of_plus_miss_prob_of:
-  "hit_prob_of OPT S s + miss_prob_of OPT S s = 1"
+  "hit_prob_of OPT S s + miss_prob_of OPT S s
+   = (\<Sum>xs\<in>sample_space S s. sample_prob S s xs)"
 proof -
   have
     "(\<Sum>xs\<in>hit_event OPT S s. sample_prob S s xs) +
@@ -155,46 +226,73 @@ proof -
     "... = (\<Sum>xs\<in>sample_space S s. sample_prob S s xs)"
     using hit_miss_union by simp
 
-  also have
-    "... = 1"
-    using sample_mass_1 by simp
-
   finally show ?thesis
     unfolding hit_prob_of_def miss_prob_of_def .
 qed
 
-lemma hit_prob_of_eq_1_minus_miss_prob_of:
-  "hit_prob_of OPT S s = 1 - miss_prob_of OPT S s"
-  using hit_prob_of_plus_miss_prob_of[of OPT S s]
+lemma hit_prob_of_plus_miss_prob_of_eq_1:
+  assumes "V - S \<noteq> {} \<or> s = 0"
+  shows "hit_prob_of OPT S s + miss_prob_of OPT S s = 1"
+  using hit_prob_of_plus_miss_prob_of
+        sample_mass_1_if_feasible[OF assms]
   by simp
 
+lemma hit_prob_of_eq_1_minus_miss_prob_of:
+  assumes "V - S \<noteq> {} \<or> s = 0"
+  shows "hit_prob_of OPT S s = 1 - miss_prob_of OPT S s"
+proof -
+  have h: "hit_prob_of OPT S s + miss_prob_of OPT S s = 1"
+    using hit_prob_of_plus_miss_prob_of_eq_1[OF assms] .
+  then show ?thesis
+    by linarith
+qed
+
 lemma miss_prob_of_eq_1_minus_hit_prob_of:
-  "miss_prob_of OPT S s = 1 - hit_prob_of OPT S s"
-  using hit_prob_of_plus_miss_prob_of[of OPT S s]
-  by (simp add: add.commute)
+  assumes "V - S \<noteq> {} \<or> s = 0"
+  shows "miss_prob_of OPT S s = 1 - hit_prob_of OPT S s"
+proof -
+  have h: "hit_prob_of OPT S s + miss_prob_of OPT S s = 1"
+    using hit_prob_of_plus_miss_prob_of_eq_1[OF assms] .
+  then show ?thesis
+    by linarith
+qed
 
 lemma hit_prob_of_le_1:
   "hit_prob_of OPT S s \<le> 1"
-proof -
+proof (cases "V - S \<noteq> {} \<or> s = 0")
+  case True
   have "hit_prob_of OPT S s = 1 - miss_prob_of OPT S s"
-    using hit_prob_of_plus_miss_prob_of[of OPT S s]
-    by simp
+    using hit_prob_of_eq_1_minus_miss_prob_of[OF True] .
   also have "... \<le> 1"
     using miss_prob_of_nonneg[of OPT S s]
     by simp
   finally show ?thesis .
+next
+  case False
+  then have "V - S = {}" and "s > 0"
+    by auto
+  then show ?thesis
+    using hit_prob_of_zero_if_no_remaining[of S s OPT]
+    by simp
 qed
 
 lemma miss_prob_of_le_1:
   "miss_prob_of OPT S s \<le> 1"
-proof -
+proof (cases "V - S \<noteq> {} \<or> s = 0")
+  case True
   have "miss_prob_of OPT S s = 1 - hit_prob_of OPT S s"
-    using hit_prob_of_plus_miss_prob_of[of OPT S s]
-    by (simp add: add.commute)
+    using miss_prob_of_eq_1_minus_hit_prob_of[OF True] .
   also have "... \<le> 1"
     using hit_prob_of_nonneg[of OPT S s]
     by simp
   finally show ?thesis .
+next
+  case False
+  then have "V - S = {}" and "s > 0"
+    by auto
+  then show ?thesis
+    using miss_prob_of_zero_if_no_remaining[of S s OPT]
+    by simp
 qed
 
 lemma hit_prob_of_bounds:
