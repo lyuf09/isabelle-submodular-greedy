@@ -1,5 +1,5 @@
 session Submodular_Greedy_Experiments = HOL +
-  sessions "HOL-Library"
+  sessions "HOL-Library" "HOL-Analysis"
 
   directories
     "Core"
