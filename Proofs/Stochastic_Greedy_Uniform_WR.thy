@@ -20,9 +20,6 @@ Accordingly, this theory focuses on:
   (2) the uniform probability assignment on that space,
   (3) exact hit / miss event formulas,
   (4) the intended lower-bound theorems.
-
-The final locale interpretation should be added after the base weighted locale
-is patched with the natural side-condition V - S \<noteq> {} \<or> s = 0.
 \<close>
 
 context Cardinality_Constraint

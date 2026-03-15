@@ -20,6 +20,7 @@ of the form @{term "S \<subseteq> V"}.
 \<close>
 
 lemma uniform_wr_mass_1_raw:
+  fixes S :: "'a set" and s :: nat
   assumes feas: "V - S \<noteq> {} \<or> s = 0"
   shows "(\<Sum>xs\<in>uniform_wr_space S s. uniform_wr_prob S s xs) = 1"
 proof -
