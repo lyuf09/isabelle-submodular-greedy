@@ -1,178 +1,247 @@
-# Isabelle Formalisation of Submodular Greedy Optimisation
+# Isabelle Formalization of Greedy Algorithms for Cardinality-Constrained Submodular Maximization
 
-This repository develops a modular Isabelle/HOL framework for reasoning about submodular maximisation algorithms, currently focused on monotone submodular functions under a cardinality constraint.
+This repository develops a modular Isabelle/HOL formalization of approximation guarantees for greedy-type algorithms under a cardinality constraint, with a current focus on:
 
-The development is organised as a reusable library rather than a single isolated proof. Core notions such as submodularity, monotonicity, feasibility constraints, greedy-step specifications, and oracle-cost accounting are separated via locales and auxiliary theory layers, so that further greedy variants can be added in a principled and reusable way.
+- the classical deterministic greedy algorithm,
+- lazy greedy variants,
+- stochastic greedy sampling layers,
+- oracle-cost models and comparison experiments,
+- small executable instances and exhaustive sanity checks.
 
-At present, the repository contains:
+The long-term goal is to build a reusable formal framework for proving approximation guarantees for modern submodular maximization algorithms in a way that is:
 
-- a completed foundational theorem line for the classical greedy algorithm, including a full formal proof of the Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee;
-- a completed stateful / implementation-level extension beyond classical greedy, namely a verified LazyGreedy development with explicit state, correctness bridges, inherited approximation guarantees, and an initial oracle-cost layer;
-- small executable toy instances, exhaustive baselines for tiny ground sets, and sanity-check counterexamples.
-
----
-
-## Repository Layout
-
-- `Core/Submodular_Base.thy`  
-  Core locales for finite monotone submodular set functions, marginal gains, feasibility, and cardinality constraints.
-
-- `Core/Oracle_Cost.thy`  
-  A basic oracle-cost model used to reason about gain evaluations and total oracle calls.
-
-- `Algorithms/Greedy_Submodular_Construct.thy`  
-  Formal construction of the classical greedy sequence and its structural invariants.
-
-- `Algorithms/Lazy_Greedy_Stateful.thy`  
-  A stateful LazyGreedy formulation with cached upper bounds and explicit algorithmic state.
-
-- `Algorithms/Lazy_Greedy_Oracle.thy`  
-  An auxiliary oracle-style LazyGreedy layer that packages lazy upper-bound tightening into a greedy-style oracle view, mainly for compatibility and theorem-facing reuse.
-
-- `Proofs/Greedy_Step_Spec.thy`  
-  A packaged step-spec interface for the classical greedy step.
-
-- `Proofs/Greedy_Approx_From_Spec.thy`  
-  Reusable approximation reasoning from an abstract greedy step specification.
-
-- `Proofs/Greedy_Submodular_Approx.thy`  
-  The main approximation analysis for classical greedy, culminating in the Nemhauser--Wolsey `(1 - 1/e)` guarantee.
-
-- `Proofs/Lazy_Greedy_Stateful_StepSpec.thy`  
-  Per-step correctness facts for the stateful LazyGreedy construction, showing that each lazy step still realises a valid argmax-style greedy choice over the remaining elements.
-
-- `Proofs/Lazy_Greedy_Stateful_Approx.thy`  
-  Approximation analysis for the stateful LazyGreedy construction, proving the same `(1 - 1/e)` guarantee via a correctness bridge back to the classical greedy-style step specification.
-
-- `Proofs/Lazy_Greedy_Approx.thy`  
-  A theorem-facing compatibility wrapper exposing the LazyGreedy approximation result in a convenient form.
-
-- `Complexity/Lazy_Greedy_OracleCost.thy`  
-  Per-round oracle-cost accounting for LazyGreedy.
-
-- `Complexity/Lazy_Greedy_TotalOracleCost.thy`  
-  Global oracle-cost bounds for the full LazyGreedy run.
-
-- `Complexity/Lazy_Greedy_Compare_NaiveScan.thy`  
-  Comparison lemmas relating LazyGreedy cost bounds to a naive scan baseline.
-
-- `Instances/Coverage_Setup.thy`  
-  A reusable coverage-function setup used as a concrete monotone submodular instance.
-
-- `Instances/Coverage_Interpretation_Toy.thy`  
-  Interpretation of the abstract theorem layer for a toy coverage objective.
-
-- `Instances/Coverage_Exhaustive_Bridge.thy`  
-  End-to-end bridge from the executable exhaustive optimum to the abstract `OPT_k` notion on the toy instance.
-
-- `Experiments/Experiments_Exhaustive.thy`  
-  Executable exhaustive baseline for very small finite instances.
-
-- `Experiments/Experiments_Exhaustive_Correctness.thy`  
-  Feasibility and optimality facts for the executable exhaustive baseline.
-
-- `Experiments/Experiments_Coverage_Example.thy`  
-  A tiny coverage example with recorded outputs and query counters.
-
-- `Experiments/Experiments_Coverage_Suboptimal.thy`  
-  A small monotone submodular example where greedy is strictly suboptimal.
-
-- `Experiments/Experiments_Nonsubmodular_Counterexample.thy`  
-  A monotone but non-submodular counterexample illustrating the necessity of submodularity.
-
-- `Experiments/Lazy_vs_Greedy_Toy.thy`  
-  A toy executable comparison between naive greedy scanning and a lazy refinement.
-
-- `Experiments/Cost_Model.thy`  
-  A small experimental cost-model helper defining simple oracle-call conventions and naive greedy scan cost baselines.
-
-- `Current_Status_and_Planned_Next_Steps.md`  
-  A research-oriented status note summarising what has been completed and what comes next.
+- mathematically transparent,
+- modular across algorithmic variants,
+- suitable for further extensions in complexity and executable experiments.
 
 ---
 
-## Main Formal Results
+## Main formalization themes
 
-### 1. Classical greedy foundation
-The repository contains a complete formalisation of the standard Nemhauser--Wolsey approximation theorem for monotone submodular maximisation under a cardinality constraint:
-- greedy is defined abstractly over a finite ground set;
-- the proof establishes the standard averaging lemma, gap recurrence, and final `(1 - 1/e)` approximation bound.
+We work in the setting of monotone submodular maximization under a cardinality constraint. The development currently covers:
 
-### 2. Verified LazyGreedy as a stateful extension
-The repository also contains a verified LazyGreedy development, positioned as the first completed stateful / implementation-level extension beyond classical greedy:
-- the algorithm maintains explicit state and cached upper bounds;
-- key invariants are tracked directly at the level of the algorithmic state;
-- per-step correctness is packaged through a bridge back to a greedy-style argmax specification;
-- the same Nemhauser--Wolsey `(1 - 1/e)` approximation guarantee is inherited for the lazy construction;
-- a basic formal oracle-cost accounting is provided, together with comparison lemmas against a naive scan baseline.
-
-### 3. Tiny executable baselines and sanity checks
-For small finite examples, the repository includes:
-- executable exhaustive optimisation baselines;
-- toy coverage instances;
-- explicit examples where greedy is suboptimal but still consistent with the approximation theorem;
-- explicit non-submodular counterexamples where the classical guarantee can fail.
+- abstract submodular infrastructure,
+- greedy construction and approximation proofs,
+- lazy greedy via step-spec / oracle interfaces,
+- stochastic greedy sampling and hit-probability lower-bound layers,
+- oracle-cost accounting for deterministic and lazy/stochastic variants,
+- concrete coverage-style instances and toy experiments.
 
 ---
 
-## Build
+## Repository structure
 
-To build everything from the repository root:
+```text
+Core/
+  Submodular_Base
+  Oracle_Cost
+
+Algorithms/
+  Greedy_Submodular_Construct
+  Lazy_Greedy_Stateful
+  Lazy_Greedy_Oracle
+  Stochastic_Greedy
+
+Proofs/
+  Greedy_Step_Spec
+  Greedy_Submodular_Approx
+  Greedy_Approx_From_Spec
+  Lazy_Greedy_Approx
+  Lazy_Greedy_Stateful_Approx
+  Lazy_Greedy_Stateful_StepSpec
+  Stochastic_Greedy_Sampling
+  Stochastic_Greedy_Weighted_Sampling
+  Stochastic_Greedy_OneStep
+  Stochastic_Greedy_Approx
+  Stochastic_Greedy_Uniform_WR
+
+Complexity/
+  Lazy_Greedy_OracleCost
+  Lazy_Greedy_TotalOracleCost
+  Lazy_Greedy_Compare_NaiveScan
+  Stochastic_Greedy_OracleCost
+
+Instances/
+  Coverage_Setup
+  Coverage_Interpretation_Toy
+  Coverage_Exhaustive_Bridge
+
+Experiments/
+  Cost_Model
+  Experiments_Exhaustive
+  Experiments_Coverage_Example
+  Experiments_Coverage_Suboptimal
+  Experiments_Nonsubmodular_Counterexample
+  Experiments_Exhaustive_Correctness
+  Lazy_vs_Greedy_Toy
+  Stochastic_vs_Greedy_Toy
+
+The main session is:
+
+```bash
+Submodular_Greedy_Experiments
+```
+
+---
+
+## Current formal results
+
+### 1. Classical greedy
+The repository contains a formal approximation proof for the classical cardinality-constrained greedy algorithm, following the standard Nemhauser-Wolsey gap-recurrence argument.
+
+This part provides the baseline construction and approximation infrastructure used by later algorithmic variants.
+
+### 2. Lazy greedy
+The lazy-greedy part is split into:
+- an algorithmic/stateful layer,
+- an oracle/step-spec abstraction layer,
+- an approximation transfer theorem from the abstract step specification,
+- oracle-cost and total-cost accounting theories.
+
+This yields a modular route from a lazy argmax oracle to the standard greedy approximation guarantee, while also supporting explicit comparison against naive scanning in the cost model.
+
+### 3. Stochastic greedy
+The stochastic-greedy development currently includes:
+- abstract sampling-space infrastructure,
+- weighted sampling interfaces,
+- one-step hit/miss analysis,
+- approximation-layer theories,
+- a concrete uniform with-replacement sampling model over the remaining set.
+
+In particular, the theory
+
+```bash
+Proofs/Stochastic_Greedy_Uniform_WR
+```
+now develops the concrete uniform with-replacement list model over V - S, including:
+
+- the concrete list space wr_space_on,
+- the induced uniform space uniform_wr_space,
+- the uniform probability uniform_wr_prob,
+- exact hit/miss event decompositions,
+- exact miss-event counting,
+- exact hit/miss probability formulas,
+- lower bounds connecting the concrete model to the abstract hit-probability layer.
+
+The current concrete theory proves the intended analytic lower bounds, including the exponential-type and linearized hit lower bounds, while explicitly recording the edge case that:
+
+- a genuine with-replacement model over V - S is incompatible with a global non-emptiness axiom when V - S = {} and s > 0.
+
+Accordingly, the final locale interpretation is intentionally postponed until the weighted sampling locale is patched with the natural side condition:
+
+```bash
+V - S ≠ {} ∨ s = 0
+```
+
+This means the concrete stochastic theory is already formalized and builds successfully, but one abstraction-layer patch is still needed before the final interpretation bridge is sealed completely.
+
+---
+
+## Executable / sanity-check components
+
+The repository also contains small concrete instances and experiments, including:
+
+- toy coverage interpretations,
+- exhaustive checks,
+- coverage examples,
+- suboptimality illustrations,
+- a nonsubmodular counterexample,
+- toy comparisons between lazy greedy and standard greedy,
+- toy comparisons between stochastic greedy and standard greedy.
+
+These are meant as lightweight validation / illustration layers rather than large-scale benchmarking.
+
+---
+
+## Build instructions
+
+A typical ROOT session looks like:
+
+```bash
+session Submodular_Greedy_Experiments = HOL +
+  sessions "HOL-Library" "HOL-Analysis"
+  ...
+```
+
+Note that:
+-HOL-Analysis is the session name used in ROOT,
+-while "HOL-Analysis.Analysis" is a theory import used inside .thy files.
+
+
+To build the session locally:
 
 ```bash
 isabelle build -D .
+
 ```
 
+To build the main session explicitly:
 
-For interactive work in Isabelle/jEdit, open the repository and select the session defined in ROOT (currently Submodular_Greedy_Experiments).
+```bash
+isabelle build -d . Submodular_Greedy_Experiments
+```
+
+---
+
+## Design philosophy
+This repository aims to keep the formalization:
+
+### 1. modular
+so that deterministic greedy, lazy greedy, and stochastic greedy can share infrastructure without collapsing into one monolithic proof file;
+
+### 2. algorithm-aware
+so that executable constructions, oracle models, and cost accounting are part of the formal story;
+
+### 3. research-oriented
+so that the project can support future extensions to more modern greedy variants and sharper complexity / approximation interfaces.
+
 
 ---
 
 ## Current Status
 
-This is an ongoing research-oriented development, but it is already substantially stronger than a minimal “classical greedy only” formalisation.
+At the moment:
 
-At present, the repository should be viewed as a reusable Isabelle/HOL framework for submodular greedy optimisation with:
+- the deterministic greedy baseline is formalized,
 
-- a completed foundational theorem line for classical greedy;
+- the lazy-greedy approximation and cost layers are formalized,
 
-- a verified LazyGreedy development as a substantial implementation-level / stateful extension beyond that foundation;
+- the stochastic-greedy framework is substantially developed,
 
-- reusable instance machinery for coverage objectives;
+- the concrete uniform with-replacement stochastic model now builds successfully,
 
-- executable toy experiments and exhaustive baselines;
+- the remaining main abstraction task is to patch the weighted sampling locale so that the final stochastic interpretation can be completed in a mathematically clean way.
 
-- an initial formal complexity layer based on oracle-call accounting.
+See also:
+
+```bash
+Current_Status_and_Planned_Next_Steps.md
+```
+
+for a more detailed progress summary and roadmap.
 
 ---
 
 ## Planned Next Steps
 
-The most immediate next direction is the formalisation of StochasticGreedy as the next main theorem line beyond the current classical-greedy foundation and LazyGreedy stateful extension.
+The most immediate next steps are:
 
-The primary near-term goals are:
+1. patch the abstract weighted sampling locale with the feasibility side condition
+V - S ≠ {} ∨ s = 0;
 
-- formalisation of StochasticGreedy and its approximation / query-complexity guarantees;
+2. complete the final interpretation from the concrete uniform with-replacement model to the abstract stochastic hit layer;
 
-- code extraction and small-scale empirical validation against executable baselines;
+3. package the end-to-end stochastic approximation statement as cleanly as the lazy-greedy part;
 
-- further polishing and packaging of the current development for a research-oriented formal-methods submission.
-
-Longer-term extensions may include:
-
-- further refinement of the complexity story for lazy and stochastic variants;
-
-- connections to Isabelle’s existing matroid-related infrastructure;
-
-- additional concrete submodular instances and benchmark-style case studies.
+4. continue with sharper cost / comparison statements and larger executable examples.
 
 ---
 
-## Positioning
+## Notes
 
-The broader goal of the project is not just to formalise one approximation theorem, but to build a modular Isabelle/HOL library for modern submodular optimisation algorithms and their analyses.
+This is an active research-style formalization project. Some theories are already in a relatively stable form; others are deliberately written as modular bridge layers so that abstraction boundaries can still be improved without rewriting the whole development.
+The repository therefore reflects both completed formal proofs and in-progress architectural refinement.
 
-Within that programme, the classical greedy development is the foundational theorem line. The LazyGreedy development should be viewed as a completed stateful / implementation-level extension beyond classical greedy, rather than as a wholly separate major approximation-theory line. The next main target for a more independent theorem contribution is StochasticGreedy.
 ---
 
 Supervised and developed as part of an ongoing research project.
