@@ -308,7 +308,15 @@ Correctness-oriented exhaustive validation utilities.
 Toy comparison layer for lazy greedy versus classical greedy.
 
 #### `Experiments/Stochastic_vs_Greedy_Toy`
-Current stochastic-versus-greedy toy experiment shell / lightweight placeholder for future small-scale stochastic executable validation. At present, the repository’s stochastic theorem-level contribution is stronger than its stochastic experiment layer; the experiment side remains intentionally lightweight.
+Lightweight executable toy sanity check for stochastic greedy versus classical greedy on the coverage instance. The current version uses one fixed deterministic trace for the stochastic execution layer and reports:
+
+- the stochastic selected set,
+- the achieved utility,
+- the gain-evaluation count,
+- the derived oracle-call count,
+- and simple budget / feasibility sanity checks.
+
+On the present toy instance, the fixed stochastic trace reaches the same value as greedy / optimum while using fewer gain evaluations and oracle calls. This file is intentionally lightweight: it is meant as an AFP-style executable sanity layer rather than a conference-style empirical study.
 
 ---
 
@@ -329,6 +337,7 @@ The stochastic greedy line now includes:
 - final approximation packaging up to the paper-facing `1 - 1/e - eps` form,
 - exact oracle-cost theorem packaging on the deterministic trace layer,
 - thin paper-facing paired packaging of approximation and oracle-budget statements.
+- a lightweight executable toy sanity check on the coverage instance, illustrating utility and oracle-count behaviour for a fixed stochastic trace.
 
 The main remaining limitation is not the lack of theorem-level stochastic approximation or cost results, but the current abstraction boundary: the final approximation theorem and the executable trace-level oracle-cost theorem are packaged side by side rather than unified as one single fully probabilistic run semantics.
 
@@ -348,6 +357,8 @@ For the deterministic stochastic trace layer, the repository proves exact theore
 - total gain evaluations are bounded by `k * s`,
 - the corresponding oracle-call budget is bounded by `gain_call_cost * k * s`,
 - epsilon-instantiated bounds are available using `sample_size_eps_ceil`.
+
+In addition, the repository now contains a small executable coverage-based sanity check showing, for one fixed stochastic trace, how the toy utility and oracle-count behaviour align with the expected budget discipline.
 
 ### Honest abstraction statement
 The present repository does not yet claim that the executable trace object and the abstract recurrence object are already a single unified probabilistic semantic entity. Instead, it gives a clear theorem-level side-by-side package:
@@ -415,11 +426,13 @@ In particular, the current stochastic line is no longer merely a proof sketch or
 
 The repository does contain executable and toy-experiment material, especially around coverage instances and greedy / lazy comparisons. However, the formal core of the project is stronger and more mature than the current experiment layer. This is deliberate: the main emphasis of the development is on reusable theorem infrastructure rather than large-scale empirical benchmarking.
 
-Future experiment work may strengthen:
+The repository already includes a lightweight stochastic-vs-greedy toy sanity check on the coverage instance. Future experiment work may strengthen:
 
-- stochastic-vs-greedy toy comparisons,
+- broader stochastic-vs-greedy toy comparisons,
 - parameter-sensitivity illustrations,
-- small executable oracle-count demonstrations aligned with the exact theorem-level budgets.
+- small families of executable oracle-count demonstrations aligned with the exact theorem-level budgets.
+
+In the current toy run, greedy returns [C, E] and the fixed stochastic trace returns [B, E]; both achieve value 4, while the stochastic run uses 4 gain evaluations / 8 oracle calls versus 9 / 18 for greedy.
 
 ---
 
