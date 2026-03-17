@@ -2,6 +2,7 @@ theory Stochastic_Greedy_Uniform_WR_Final
   imports
     Stochastic_Greedy_Uniform_WR_DeliverableA
     Stochastic_Greedy_Approx
+    "../Complexity/Stochastic_Greedy_OracleCost"
 begin
 
 section \<open>Final approximation wrapper for uniform WR StochasticGreedy\<close>
@@ -451,6 +452,99 @@ proof -
     by simp
   then show ?thesis
     by (simp add: exp_minus field_simps)
+qed
+
+
+subsection \<open>Thin paper-facing packaging with oracle budget\<close>
+
+text \<open>
+The current abstraction boundary separates:
+
+  • the approximation theorem, which is phrased for an abstract set-valued
+    state sequence A satisfying the established one-step value-update equation;
+
+  • the executable stochastic trace layer, whose oracle cost is counted via
+    stochastic_greedy_trace_oracle_calls.
+
+The following corollaries do not yet identify these two objects as the same
+semantic run. Rather, they package the two guarantees side by side under the
+same epsilon-driven sample-size discipline sample_size_eps_ceil eps.
+\<close>
+
+corollary uniform_wr_trace_gain_evals_le_eps_budget_size:
+  assumes trace_sz: "trace_sample_size (sample_size_eps_ceil eps) Rs"
+  shows
+    "stochastic_greedy_trace_gain_evals Rs \<le> stochastic_eps_budget eps"
+  using stochastic_greedy_trace_gain_evals_le_eps_budget_size[OF trace_sz] .
+
+corollary uniform_wr_trace_oracle_calls_le_eps_budget_size:
+  assumes trace_sz: "trace_sample_size (sample_size_eps_ceil eps) Rs"
+  shows
+    "stochastic_greedy_trace_oracle_calls Rs \<le> stochastic_eps_oracle_budget eps"
+  using stochastic_greedy_trace_oracle_calls_le_eps_budget_size[OF trace_sz] .
+
+theorem uniform_wr_AAAI_package:
+  fixes A  :: "nat \<Rightarrow> 'a set"
+    and Rs :: "'a list list"
+  assumes OPT_sub:  "OPT \<subseteq> V"
+  assumes OPT_fin:  "finite OPT"
+  assumes OPT_card: "card OPT \<le> k"
+  assumes k_pos:    "0 < k"
+  assumes k_le_V:   "k \<le> card V"
+  assumes A0:       "A 0 = {}"
+  assumes A_sub:    "\<And>i. A i \<subseteq> V"
+  assumes A_le_OPT: "\<And>i. f (A i) \<le> f OPT"
+  assumes step_eq:
+    "\<And>i. f (A (Suc i)) =
+          f (A i) + uniform_wr_weighted.expected_step_gain (A i) (sample_size_eps_ceil eps)"
+  assumes norm0:    "f {} = 0"
+  assumes eps:      "0 < eps" "eps < 1"
+  assumes trace_sz: "trace_sample_size (sample_size_eps_ceil eps) Rs"
+  shows
+    "f (A k) \<ge> (1 - exp (-1) - eps) * f OPT
+     \<and> stochastic_greedy_trace_oracle_calls Rs \<le> stochastic_eps_oracle_budget eps"
+proof
+  show "f (A k) \<ge> (1 - exp (-1) - eps) * f OPT"
+    using uniform_wr_value_bound_eps_AAAI[
+      where A = A,
+      OF OPT_sub OPT_fin OPT_card k_pos k_le_V A0 A_sub A_le_OPT step_eq norm0 eps
+    ]
+    by simp
+
+  show "stochastic_greedy_trace_oracle_calls Rs \<le> stochastic_eps_oracle_budget eps"
+    using uniform_wr_trace_oracle_calls_le_eps_budget_size[OF trace_sz] .
+qed
+
+corollary uniform_wr_AAAI_package_invexp:
+  fixes A  :: "nat \<Rightarrow> 'a set"
+    and Rs :: "'a list list"
+  assumes OPT_sub:  "OPT \<subseteq> V"
+  assumes OPT_fin:  "finite OPT"
+  assumes OPT_card: "card OPT \<le> k"
+  assumes k_pos:    "0 < k"
+  assumes k_le_V:   "k \<le> card V"
+  assumes A0:       "A 0 = {}"
+  assumes A_sub:    "\<And>i. A i \<subseteq> V"
+  assumes A_le_OPT: "\<And>i. f (A i) \<le> f OPT"
+  assumes step_eq:
+    "\<And>i. f (A (Suc i)) =
+          f (A i) + uniform_wr_weighted.expected_step_gain (A i) (sample_size_eps_ceil eps)"
+  assumes norm0:    "f {} = 0"
+  assumes eps:      "0 < eps" "eps < 1"
+  assumes trace_sz: "trace_sample_size (sample_size_eps_ceil eps) Rs"
+  shows
+    "f (A k) \<ge> (1 - 1 / exp 1 - eps) * f OPT
+     \<and> stochastic_greedy_trace_oracle_calls Rs \<le> stochastic_eps_oracle_budget eps"
+proof
+  show "f (A k) \<ge> (1 - 1 / exp 1 - eps) * f OPT"
+    using uniform_wr_value_bound_eps_AAAI_invexp[
+      where A = A,
+      OF OPT_sub OPT_fin OPT_card k_pos k_le_V A0 A_sub A_le_OPT step_eq norm0 eps
+    ]
+    by simp
+
+  show "stochastic_greedy_trace_oracle_calls Rs \<le> stochastic_eps_oracle_budget eps"
+    using uniform_wr_trace_oracle_calls_le_eps_budget_size[OF trace_sz] .
 qed
 
 end

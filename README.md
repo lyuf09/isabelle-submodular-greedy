@@ -1,285 +1,435 @@
 # Isabelle Formalization of Greedy Algorithms for Cardinality-Constrained Submodular Maximization
 
-This repository develops a modular Isabelle/HOL formalization of approximation guarantees for greedy-type algorithms under a cardinality constraint, with a current focus on:
+This repository develops a modular Isabelle/HOL formalization of approximation guarantees, executable layers, and oracle-cost accounting for greedy-style algorithms under a cardinality constraint, with a current focus on three main lines:
 
 - the classical deterministic greedy algorithm,
-- lazy greedy variants,
-- stochastic greedy sampling and approximation layers,
-- oracle-cost models and comparison experiments,
-- small executable instances and exhaustive sanity checks.
+- lazy greedy variants with stateful and oracle-oriented views,
+- stochastic greedy with a concrete uniform with-replacement sampling model.
 
-The long-term goal is to build a reusable formal framework for proving approximation guarantees for modern submodular maximization algorithms in a way that is:
+The long-term goal is to build a reusable Isabelle library for modern submodular maximization algorithms that is:
 
 - mathematically transparent,
 - modular across algorithmic variants,
-- suitable for further extensions in complexity and executable experiments.
+- explicit about abstraction boundaries,
+- reusable for both theorem proving and small executable sanity checks.
 
 ---
 
-## Main formalization themes
+## Main current contributions
 
-We work in the setting of monotone submodular maximization under a cardinality constraint.
+The current development includes the following main components.
 
-The development currently covers:
+### 1. Classical greedy baseline
 
-- abstract submodular infrastructure,
-- greedy construction and approximation proofs,
-- lazy greedy via step-spec / oracle interfaces,
-- stochastic greedy sampling, expected one-step, gap-recurrence, and final approximation layers,
-- oracle-cost accounting for deterministic, lazy, and stochastic variants,
-- concrete coverage-style instances and toy experiments.
+The repository contains a foundational formalization of the standard Nemhauser-Wolsey style approximation line for monotone non-negative submodular maximization under a cardinality constraint. The proof architecture is separated into:
 
----
+- construction / executable greedy layers,
+- abstract step-spec interfaces,
+- approximation theorems from those interfaces.
 
-## Repository structure
+This baseline provides the reusable backbone for later variants.
 
-'''text
-Core/
-  Submodular_Base
-  Oracle_Cost
+### 2. Lazy greedy line
 
-Algorithms/
-  Greedy_Submodular_Construct
-  Lazy_Greedy_Stateful
-  Lazy_Greedy_Oracle
-  Stochastic_Greedy
+The lazy greedy part of the repository develops:
 
-Proofs/
-  Greedy_Step_Spec
-  Greedy_Submodular_Approx
-  Greedy_Approx_From_Spec
-  Lazy_Greedy_Approx
-  Lazy_Greedy_Stateful_Approx
-  Lazy_Greedy_Stateful_StepSpec
-  Stochastic_Greedy_Sampling
-  Stochastic_Greedy_Weighted_Sampling
-  Stochastic_Greedy_OneStep
-  Stochastic_Greedy_Approx
-  Stochastic_Greedy_Uniform_WR
-  Stochastic_Greedy_Uniform_WR_Interpretation
-  Stochastic_Greedy_Expected_OneStep
-  Stochastic_Greedy_Gap_Bridge
-  Stochastic_Greedy_Uniform_WR_DeliverableA
-  Stochastic_Greedy_Uniform_WR_Final
+- a stateful executable lazy greedy layer,
+- an oracle-oriented lazy greedy view,
+- step-spec packaging for lazy selection rules,
+- approximation theorems inherited from the abstract greedy framework,
+- oracle-cost accounting,
+- comparison against naive full-scan greedy.
 
-Complexity/
-  Lazy_Greedy_OracleCost
-  Lazy_Greedy_TotalOracleCost
-  Lazy_Greedy_Compare_NaiveScan
-  Stochastic_Greedy_OracleCost
+This gives a structured formal treatment of lazy evaluation as an algorithmic refinement of the classical greedy baseline.
 
-Instances/
-  Coverage_Setup
-  Coverage_Interpretation_Toy
-  Coverage_Exhaustive_Bridge
+### 3. Stochastic greedy line
 
-Experiments/
-  Cost_Model
-  Experiments_Exhaustive
-  Experiments_Coverage_Example
-  Experiments_Coverage_Suboptimal
-  Experiments_Nonsubmodular_Counterexample
-  Experiments_Exhaustive_Correctness
-  Lazy_vs_Greedy_Toy
-  Stochastic_vs_Greedy_Toy
-'''
+The stochastic greedy part now contains a complete theorem-level line for the standard monotone non-negative submodular cardinality-constrained setting, based on a concrete uniform with-replacement sampling model over the remaining set.
 
-The main session is:
+The repository now includes:
 
-'''text
-Submodular_Greedy_Experiments
-'''
+- a deterministic trace layer for stochastic greedy execution,
+- exact gain-evaluation counters at the algorithm level,
+- sampling lemmas and weighted-sampling abstractions,
+- one-step expected-gain lower bounds,
+- recurrence-based approximation packaging,
+- a concrete uniform with-replacement bridge,
+- a final k-step approximation wrapper,
+- exact oracle-cost theorems for the stochastic trace layer,
+- a thin paper-facing packaging that places approximation and oracle budget guarantees side by side under the same epsilon-driven sample-size discipline.
+
+At the current abstraction boundary, the executable stochastic algorithm is still represented by a deterministic trace layer, while the approximation side is phrased via abstract state-sequence / recurrence packaging. The final stochastic wrapper is therefore honest about this separation: it packages the approximation guarantee and the trace-level oracle-cost guarantee together, but does not yet identify them as a single fully probabilistic run semantics.
 
 ---
 
-## Current formal results
+## Current mathematical scope
 
-### 1. Classical greedy
+The repository currently focuses on:
 
-The repository contains a formal approximation proof for the classical cardinality-constrained greedy algorithm, following the standard Nemhauser-Wolsey gap-recurrence argument.
+- finite ground sets,
+- monotone non-negative submodular objectives,
+- cardinality constraints,
+- deterministic greedy,
+- lazy greedy,
+- stochastic greedy with uniform with-replacement sampling over the remaining set.
 
-This part provides the baseline construction and approximation infrastructure used by later algorithmic variants.
+The present development does not yet aim to formalize:
 
-### 2. Lazy greedy
-
-The lazy-greedy development is split into:
-
-- an algorithmic/stateful layer,
-- an oracle/step-spec abstraction layer,
-- an approximation transfer theorem from the abstract step specification,
-- oracle-cost and total-cost accounting theories.
-
-This yields a modular route from a lazy argmax oracle to the standard greedy approximation guarantee, while also supporting explicit comparison against naive scanning in the cost model.
-
-### 3. Stochastic greedy
-
-The stochastic-greedy development now includes:
-
-- abstract sampling-space infrastructure,
-- weighted sampling interfaces,
-- one-step hit/miss analysis,
-- a concrete uniform with-replacement sampling model over the remaining set,
-- a completed interpretation layer from the concrete uniform model to the abstract weighted / hit-probability interfaces,
-- an expected one-step gain layer,
-- a recurrence-based approximation layer,
-- a concrete first-hit symmetry bridge for the uniform with-replacement model,
-- a final k-step approximation wrapper yielding an end-to-end stochastic approximation theorem line.
-
-In particular, the theory `Proofs/Stochastic_Greedy_Uniform_WR` develops the concrete uniform with-replacement list model over `V - S`, including:
-
-- the concrete list space `wr_space_on`,
-- the induced uniform space `uniform_wr_space`,
-- the uniform probability `uniform_wr_prob`,
-- exact hit/miss event decompositions,
-- exact miss-event counting,
-- exact hit/miss probability formulas,
-- exponential-type and linearized lower bounds on hit probability.
-
-The theory `Proofs/Stochastic_Greedy_Uniform_WR_Interpretation` then connects this concrete model to the abstract weighted-sampling and weighted-hit locales.
-
-The theory `Proofs/Stochastic_Greedy_Expected_OneStep` packages the expectation layer on top of the deterministic one-step bridge, including:
-
-- expected-step-gain definitions,
-- hit/miss decomposition of expected gain,
-- lower bounds by weighted hit-event averages,
-- reusable lower-bound templates of the form
-  `expected_step_gain ≥ hit_prob_of × c`.
-
-The theory `Proofs/Stochastic_Greedy_Approx` isolates the approximation algebra:
-
-- multiplicative gap-contraction templates,
-- closed-form recurrence solving via `stoch_gap_factor`,
-- reusable approximation-from-recurrence statements.
-
-The theory `Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA` supplies the missing concrete one-step bridge for the uniform with-replacement model. Its main contributions include:
-
-- the first residual-hit selector,
-- deterministic residual-gap lower bounds,
-- a symmetry / equal-probability argument for the first residual-optimal hit,
-- the concrete expected one-step lower bound
-  `expected_step_gain ≥ (alpha_stoch s / k) * gap`,
-- the corresponding epsilon-parameterized one-step corollary.
-
-Finally, `Proofs/Stochastic_Greedy_Uniform_WR_Final` packages this bridge into a final k-step theorem line. In the current architecture, this final layer is stated for any set-valued state sequence satisfying the appropriate value-update and feasibility conditions. This yields:
-
-- a generic alpha-version value lower bound,
-- an exponential-form epsilon corollary,
-- an AAAI-style bound of the form
-  `1 - 1 / exp 1 - eps`.
-
-In other words, the repository now contains a completed concrete stochastic approximation theorem line for the uniform with-replacement model, within the present abstraction boundary of the development.
+- matroid or general independence constraints,
+- heavy empirical evaluation,
+- a fully unified probabilistic operational semantics linking the executable stochastic trace and the abstract approximation recurrence in one single semantic object.
 
 ---
 
-## Executable / sanity-check components
+## Session structure
 
-The repository also contains small concrete instances and experiments, including:
+The repository is organized into the following directories:
 
-- toy coverage interpretations,
-- exhaustive checks,
-- coverage examples,
-- suboptimality illustrations,
-- a nonsubmodular counterexample,
-- toy comparisons between lazy greedy and standard greedy,
-- toy comparisons between stochastic greedy and standard greedy.
+- `Core`
+- `Algorithms`
+- `Proofs`
+- `Instances`
+- `Experiments`
+- `Complexity`
 
-These are meant as lightweight validation / illustration layers rather than large-scale benchmarking.
+The main session currently contains the following theories:
+
+```text
+Core/Submodular_Base
+Core/Oracle_Cost
+
+Algorithms/Greedy_Submodular_Construct
+Algorithms/Lazy_Greedy_Stateful
+Algorithms/Lazy_Greedy_Oracle
+Algorithms/Stochastic_Greedy
+
+Proofs/Greedy_Step_Spec
+Proofs/Greedy_Submodular_Approx
+Proofs/Greedy_Approx_From_Spec
+Proofs/Lazy_Greedy_Approx
+Proofs/Lazy_Greedy_Stateful_Approx
+Proofs/Lazy_Greedy_Stateful_StepSpec
+Proofs/Stochastic_Greedy_Sampling
+Proofs/Stochastic_Greedy_Weighted_Sampling
+Proofs/Stochastic_Greedy_OneStep
+Proofs/Stochastic_Greedy_Approx
+Proofs/Stochastic_Greedy_Uniform_WR
+Proofs/Stochastic_Greedy_Gap_Bridge
+Proofs/Stochastic_Greedy_Uniform_WR_Interpretation
+Proofs/Stochastic_Greedy_Expected_OneStep
+Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA
+Proofs/Stochastic_Greedy_Uniform_WR_Final
+
+Complexity/Lazy_Greedy_OracleCost
+Complexity/Lazy_Greedy_TotalOracleCost
+Complexity/Lazy_Greedy_Compare_NaiveScan
+Complexity/Stochastic_Greedy_OracleCost
+
+Instances/Coverage_Setup
+Instances/Coverage_Interpretation_Toy
+Instances/Coverage_Exhaustive_Bridge
+
+Experiments/Cost_Model
+Experiments/Experiments_Exhaustive
+Experiments/Experiments_Coverage_Example
+Experiments/Experiments_Coverage_Suboptimal
+Experiments/Experiments_Nonsubmodular_Counterexample
+Experiments/Experiments_Exhaustive_Correctness
+Experiments/Lazy_vs_Greedy_Toy
+Experiments/Stochastic_vs_Greedy_Toy
+```
 
 ---
 
-## Build instructions
+## Detailed theory guide
 
-A typical ROOT session looks like:
+### Core
 
-'''text
-session Submodular_Greedy_Experiments = HOL +
-  sessions "HOL-Library" "HOL-Analysis"
-  ...
-'''
+#### `Core/Submodular_Base`
+Foundational locale and basic lemmas for finite-ground-set submodular maximization under a cardinality constraint. This is the main mathematical base used throughout the repository.
 
-Note that:
+#### `Core/Oracle_Cost`
+Basic oracle-cost conventions and cost-model parameters used by later complexity theories. This separates algorithmic counting from paper-facing oracle-cost accounting.
 
-- `HOL-Analysis` is the session name used in `ROOT`,
-- while `HOL-Analysis.Analysis` is a theory import used inside `.thy` files.
+---
 
-To build the session locally:
+### Algorithms
 
-'''text
+#### `Algorithms/Greedy_Submodular_Construct`
+Core deterministic greedy construction layer. This theory provides the baseline greedy iteration, the set-valued construction story, and the basic executable backbone used by the classical approximation line.
+
+#### `Algorithms/Lazy_Greedy_Stateful`
+Stateful lazy greedy execution layer. This theory formalizes lazy candidate management at the algorithm level and serves as the main executable stateful lazy layer.
+
+#### `Algorithms/Lazy_Greedy_Oracle`
+Oracle-oriented lazy greedy interface. This theory provides a lazy argmax oracle view suitable for reuse by the abstract step-spec approximation framework.
+
+#### `Algorithms/Stochastic_Greedy`
+Deterministic trace layer for stochastic greedy. The algorithm is parameterized by an explicit trace of sampled candidate lists rather than by probability directly. This theory now also contains the cost-facing counting interface:
+
+- sampled candidate pools,
+- deterministic one-step and multi-step trace execution,
+- feasibility invariants,
+- exact per-step gain-evaluation counters,
+- exact trace-level total gain-evaluation counters,
+- sample-size discipline predicates (`trace_sample_bound`, `trace_sample_size`),
+- exact theorem-level bounds of the form “total gain evaluations are at most `k * s`”.
+
+This is the main executable / cost-facing interface for the stochastic line.
+
+---
+
+### Proofs: classical greedy
+
+#### `Proofs/Greedy_Step_Spec`
+Abstract step-spec interface for greedy-style progress statements. This theory packages the one-step assumptions needed to derive approximation guarantees.
+
+#### `Proofs/Greedy_Submodular_Approx`
+Classical greedy approximation infrastructure for monotone submodular maximization under a cardinality constraint. This is the main deterministic approximation backbone.
+
+#### `Proofs/Greedy_Approx_From_Spec`
+Reusable bridge from step-spec assumptions to approximation guarantees. This makes the classical approximation line modular and reusable for later algorithmic variants.
+
+---
+
+### Proofs: lazy greedy
+
+#### `Proofs/Lazy_Greedy_Approx`
+Approximation theorem line for lazy greedy using the oracle-oriented lazy selection rule inside the abstract greedy approximation framework.
+
+#### `Proofs/Lazy_Greedy_Stateful_Approx`
+Approximation theorem line for the stateful lazy greedy layer.
+
+#### `Proofs/Lazy_Greedy_Stateful_StepSpec`
+Step-spec packaging for the stateful lazy greedy construction. This theory connects the stateful algorithmic layer to the abstract approximation infrastructure.
+
+---
+
+### Proofs: stochastic greedy
+
+#### `Proofs/Stochastic_Greedy_Sampling`
+Sampling-lemma layer for stochastic greedy. This theory develops the core probability-side inequalities needed for hit / miss style arguments and alpha-style sampling parameters.
+
+#### `Proofs/Stochastic_Greedy_Weighted_Sampling`
+Abstract weighted-sampling interface for stochastic greedy one-step analysis. This theory isolates the sampling assumptions needed by later expected-gain arguments.
+
+#### `Proofs/Stochastic_Greedy_OneStep`
+Core one-step theorem layer for stochastic greedy. This theory develops the deterministic and probabilistic ingredients needed for one-step progress statements.
+
+#### `Proofs/Stochastic_Greedy_Approx`
+Abstract recurrence and approximation packaging for stochastic greedy. This theory provides the main recurrence-level infrastructure for final approximation theorems.
+
+#### `Proofs/Stochastic_Greedy_Uniform_WR`
+Concrete uniform with-replacement sampling development over the remaining set. This is the main concrete stochastic model currently used in the repository.
+
+#### `Proofs/Stochastic_Greedy_Gap_Bridge`
+Bridge theory connecting one-step stochastic progress statements to the gap-recurrence viewpoint used in the final approximation line.
+
+#### `Proofs/Stochastic_Greedy_Uniform_WR_Interpretation`
+Interpretation layer instantiating the abstract stochastic framework with the concrete uniform with-replacement model.
+
+#### `Proofs/Stochastic_Greedy_Expected_OneStep`
+Expected one-step gain packaging. This theory sits between the lower-level one-step / sampling material and the final recurrence-level approximation theorems.
+
+#### `Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA`
+Concrete central bridge for the mathematically core part of stochastic Deliverable A. This theory packages the uniform with-replacement one-step theorem into the concrete alpha-over-k progress form that drives the final approximation line.
+
+#### `Proofs/Stochastic_Greedy_Uniform_WR_Final`
+Final approximation wrapper for the uniform with-replacement stochastic greedy line. This theory now contains:
+
+- the generic alpha-version final theorem,
+- the closed-form exponential bound at `i = k`,
+- the paper-facing `1 - 1/e - eps` style theorem,
+- thin paper-facing packaging that places the approximation guarantee together with the trace-level oracle-budget guarantee under the same epsilon-driven sample-size discipline.
+
+This is currently the main final stochastic wrapper for theorem-level presentation.
+
+---
+
+### Complexity
+
+#### `Complexity/Lazy_Greedy_OracleCost`
+Per-step oracle-cost accounting for lazy greedy.
+
+#### `Complexity/Lazy_Greedy_TotalOracleCost`
+Total oracle-cost theorems for lazy greedy over a full run.
+
+#### `Complexity/Lazy_Greedy_Compare_NaiveScan`
+Comparison theorems showing how lazy greedy oracle usage relates to naive full-scan greedy.
+
+#### `Complexity/Stochastic_Greedy_OracleCost`
+Formal oracle-cost theorem file for stochastic greedy. This theory is no longer just a skeleton. It now contains:
+
+- paper-facing `k * s` total budget packaging,
+- oracle-budget versions derived from `gain_call_cost`,
+- exact per-step oracle-call upper bounds,
+- exact trace-level oracle-call upper bounds,
+- exact final `k`-step oracle-call bounds,
+- epsilon-instantiated oracle-budget corollaries using `sample_size_eps_ceil`.
+
+Together with `Algorithms/Stochastic_Greedy`, this closes the theorem-level stochastic cost story at the current development stage.
+
+---
+
+### Instances
+
+#### `Instances/Coverage_Setup`
+Coverage-style instance setup used for toy experiments and executable sanity checks.
+
+#### `Instances/Coverage_Interpretation_Toy`
+Toy interpretation of the coverage setup for executable examples and small-scale experiments.
+
+#### `Instances/Coverage_Exhaustive_Bridge`
+Bridge between coverage instances and exhaustive validation / comparison layers.
+
+---
+
+### Experiments
+
+#### `Experiments/Cost_Model`
+Shared experiment-facing cost conventions and simple paper-facing cost parameters.
+
+#### `Experiments/Experiments_Exhaustive`
+Exhaustive experiment / sanity-check layer over small finite instances.
+
+#### `Experiments/Experiments_Coverage_Example`
+Concrete coverage-based example runs.
+
+#### `Experiments/Experiments_Coverage_Suboptimal`
+Coverage examples illustrating suboptimal choices or comparison phenomena.
+
+#### `Experiments/Experiments_Nonsubmodular_Counterexample`
+Counterexample-oriented experiment layer showing why the target assumptions matter.
+
+#### `Experiments/Experiments_Exhaustive_Correctness`
+Correctness-oriented exhaustive validation utilities.
+
+#### `Experiments/Lazy_vs_Greedy_Toy`
+Toy comparison layer for lazy greedy versus classical greedy.
+
+#### `Experiments/Stochastic_vs_Greedy_Toy`
+Current stochastic-versus-greedy toy experiment shell / lightweight placeholder for future small-scale stochastic executable validation. At present, the repository’s stochastic theorem-level contribution is stronger than its stochastic experiment layer; the experiment side remains intentionally lightweight.
+
+---
+
+## Current status by line
+
+### Classical greedy
+The classical deterministic greedy theorem line is stable and serves as the foundational baseline.
+
+### Lazy greedy
+The lazy greedy line includes algorithmic execution, approximation theorems, and oracle-cost comparison theorems, and is already relatively mature.
+
+### Stochastic greedy
+The stochastic greedy line now includes:
+
+- deterministic trace execution,
+- concrete uniform with-replacement sampling,
+- one-step expected-gain bridge,
+- final approximation packaging up to the paper-facing `1 - 1/e - eps` form,
+- exact oracle-cost theorem packaging on the deterministic trace layer,
+- thin paper-facing paired packaging of approximation and oracle-budget statements.
+
+The main remaining limitation is not the lack of theorem-level stochastic approximation or cost results, but the current abstraction boundary: the final approximation theorem and the executable trace-level oracle-cost theorem are packaged side by side rather than unified as one single fully probabilistic run semantics.
+
+---
+
+## What is already formalized for stochastic greedy
+
+At the current stage, the repository already formalizes the following core stochastic story.
+
+### Mathematical approximation side
+For the concrete uniform with-replacement model, the repository proves a final expected-value approximation theorem of AAAI-style form, under the standard monotone non-negative submodular + cardinality assumptions and the epsilon-driven sample-size discipline.
+
+### Cost side
+For the deterministic stochastic trace layer, the repository proves exact theorem-level bounds showing that:
+
+- per-step gain evaluations are controlled by the sampled pool size,
+- total gain evaluations are bounded by `k * s`,
+- the corresponding oracle-call budget is bounded by `gain_call_cost * k * s`,
+- epsilon-instantiated bounds are available using `sample_size_eps_ceil`.
+
+### Honest abstraction statement
+The present repository does not yet claim that the executable trace object and the abstract recurrence object are already a single unified probabilistic semantic entity. Instead, it gives a clear theorem-level side-by-side package:
+
+- final approximation theorem for the abstract state-sequence view,
+- final oracle-budget theorem for the executable trace view,
+- shared epsilon-driven parameterization tying the two together in a paper-facing way.
+
+---
+
+## Build
+
+The repository is intended to be built as an Isabelle session.
+
+A standard build command is:
+
+```text
 isabelle build -D .
-'''
+```
 
-To build the main session explicitly:
-
-'''text
-isabelle build -d . Submodular_Greedy_Experiments
-'''
+If you prefer to build the main session explicitly, use the session name declared in the project `ROOT` file.
 
 ---
 
-## Design philosophy
+## Suggested reading order
 
-This repository aims to keep the formalization:
+A reasonable reading order for the main formal story is:
 
-### 1. Modular
+1. `Core/Submodular_Base`
+2. `Algorithms/Greedy_Submodular_Construct`
+3. `Proofs/Greedy_Step_Spec`
+4. `Proofs/Greedy_Submodular_Approx`
+5. `Algorithms/Lazy_Greedy_Stateful`
+6. `Proofs/Lazy_Greedy_Stateful_StepSpec`
+7. `Proofs/Lazy_Greedy_Stateful_Approx`
+8. `Algorithms/Stochastic_Greedy`
+9. `Proofs/Stochastic_Greedy_Sampling`
+10. `Proofs/Stochastic_Greedy_Weighted_Sampling`
+11. `Proofs/Stochastic_Greedy_OneStep`
+12. `Proofs/Stochastic_Greedy_Expected_OneStep`
+13. `Proofs/Stochastic_Greedy_Approx`
+14. `Proofs/Stochastic_Greedy_Uniform_WR`
+15. `Proofs/Stochastic_Greedy_Uniform_WR_Interpretation`
+16. `Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA`
+17. `Complexity/Stochastic_Greedy_OracleCost`
+18. `Proofs/Stochastic_Greedy_Uniform_WR_Final`
 
-Deterministic greedy, lazy greedy, and stochastic greedy share infrastructure without collapsing into one monolithic proof file.
-
-### 2. Algorithm-aware
-
-Executable constructions, oracle models, and cost accounting are treated as part of the formal story rather than as external commentary.
-
-### 3. Research-oriented
-
-The project is designed to support further extensions to more modern greedy variants and sharper complexity / approximation interfaces.
-
----
-
-## Current status
-
-At the moment:
-
-- the deterministic greedy baseline is formalized,
-- the lazy-greedy approximation and cost layers are formalized,
-- the stochastic-greedy framework includes sampling, interpretation, expected one-step, recurrence, and concrete final approximation layers,
-- the concrete uniform with-replacement stochastic model is connected to the abstract weighted / hit-probability interfaces,
-- the concrete one-step bridge and the final k-step approximation wrapper for the uniform with-replacement stochastic model are formalized,
-- the repository now contains a completed AAAI-style stochastic approximation theorem line for the current abstraction boundary.
-
-What remains is no longer the basic stochastic theorem line itself, but rather further packaging and extensions, such as:
-
-- sharpening cost/comparison statements,
-- improving the connection to more explicit run semantics if desired,
-- expanding executable validations,
-- preparing the development for AFP-style presentation and submission.
-
-See also:
-
-`Current_Status_and_Planned_Next_Steps.md`
-
-for a more detailed progress summary and roadmap.
+This order follows the project’s actual layering from foundational locale material to algorithmic layers, then to approximation theorems, cost accounting, and final packaging.
 
 ---
 
-## Planned next steps
+## Intended near-term use
 
-The most immediate next steps are:
+The current repository is already suitable as the basis for:
 
-1. clean up and package the completed stochastic theorem line for presentation quality;
-2. strengthen the oracle-cost and comparison story around the stochastic variant;
-3. continue with larger executable examples and cleaner experiment packaging;
-4. prepare the overall development for AFP-style packaging and submission;
-5. explore further extensions beyond the current uniform with-replacement theorem line.
+- AFP-style cleanup and submission preparation,
+- a conference-oriented writeup built on the same formal core,
+- further strengthening of lightweight experiments and presentation layers.
 
----
-
-## Notes
-
-This is an active research-style formalization project.
-
-Some theories are already in a relatively stable form; others are deliberately written as modular bridge layers so that abstraction boundaries can still be improved without rewriting the whole development.
-
-The repository therefore reflects both completed formal proofs and ongoing architectural refinement.
+In particular, the current stochastic line is no longer merely a proof sketch or skeleton: it now contains a concrete theorem-level approximation story, a formal theorem-level oracle-cost story, and a thin final packaging suitable for paper-facing exposition.
 
 ---
 
-Supervised and developed as part of an ongoing research project.
+## Notes on experiments
+
+The repository does contain executable and toy-experiment material, especially around coverage instances and greedy / lazy comparisons. However, the formal core of the project is stronger and more mature than the current experiment layer. This is deliberate: the main emphasis of the development is on reusable theorem infrastructure rather than large-scale empirical benchmarking.
+
+Future experiment work may strengthen:
+
+- stochastic-vs-greedy toy comparisons,
+- parameter-sensitivity illustrations,
+- small executable oracle-count demonstrations aligned with the exact theorem-level budgets.
+
+---
+
+## Summary
+
+This repository currently provides a modular Isabelle/HOL formalization of:
+
+- classical greedy approximation guarantees,
+- lazy greedy algorithmic and oracle-cost refinements,
+- stochastic greedy approximation and oracle-cost guarantees under a concrete uniform with-replacement model,
+- executable toy-instance support and small sanity-check infrastructure.
+
+The development is designed not only to formalize individual theorems, but also to build a reusable proof architecture for modern submodular greedy algorithms.

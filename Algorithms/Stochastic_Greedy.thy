@@ -70,6 +70,11 @@ proof -
     using is_arg_maxD_le[OF chosen yA] .
 qed
 
+lemma sampled_candidates_subset_set:
+  "sampled_candidates A xs \<subseteq> set xs"
+  unfolding sampled_candidates_def
+  by auto
+
 end
 
 context Cardinality_Constraint
@@ -230,6 +235,143 @@ corollary stochastic_greedy_trace_card_le:
   "card (stochastic_greedy_trace Rs) \<le> k"
   unfolding stochastic_greedy_trace_def
   using stochastic_run_trace_card_le[of "{}" k Rs] by simp
+
+subsection \<open>Cost-facing counters\<close>
+
+definition stoch_step_gain_evals :: "'a set \<Rightarrow> 'a list \<Rightarrow> nat" where
+  "stoch_step_gain_evals S xs = card (sampled_candidates (V - S) xs)"
+
+fun stoch_run_trace_gain_evals :: "nat \<Rightarrow> 'a set \<Rightarrow> 'a list list \<Rightarrow> nat" where
+  "stoch_run_trace_gain_evals 0 S Rs = 0"
+| "stoch_run_trace_gain_evals (Suc t) S [] = 0"
+| "stoch_run_trace_gain_evals (Suc t) S (R # Rs) =
+     stoch_step_gain_evals S R +
+     stoch_run_trace_gain_evals t (stochastic_step_from S R) Rs"
+
+definition stochastic_greedy_trace_gain_evals :: "'a list list \<Rightarrow> nat" where
+  "stochastic_greedy_trace_gain_evals Rs = stoch_run_trace_gain_evals k {} Rs"
+
+definition trace_sample_bound :: "nat \<Rightarrow> 'a list list \<Rightarrow> bool" where
+  "trace_sample_bound s Rs \<longleftrightarrow> (\<forall>xs \<in> set Rs. length xs \<le> s)"
+
+definition trace_sample_size :: "nat \<Rightarrow> 'a list list \<Rightarrow> bool" where
+  "trace_sample_size s Rs \<longleftrightarrow> (\<forall>xs \<in> set Rs. length xs = s)"
+
+lemma trace_sample_size_imp_bound:
+  assumes "trace_sample_size s Rs"
+  shows "trace_sample_bound s Rs"
+  using assms
+  unfolding trace_sample_size_def trace_sample_bound_def
+  by auto
+
+lemma card_set_le_length:
+  "card (set xs) \<le> length xs"
+proof (induction xs)
+  case Nil
+  show ?case by simp
+next
+  case (Cons a xs)
+  show ?case
+  proof (cases "a \<in> set xs")
+    case True
+    have "card (insert a (set xs)) = card (set xs)"
+      using True by (simp add: insert_absorb)
+    also have "... \<le> length xs"
+      using Cons.IH by simp
+    also have "... \<le> Suc (length xs)"
+      by simp
+    finally show ?thesis by simp
+  next
+    case False
+    have "card (insert a (set xs)) = Suc (card (set xs))"
+      using False by simp
+    also have "... \<le> Suc (length xs)"
+      using Cons.IH by simp
+    finally show ?thesis by simp
+  qed
+qed
+
+lemma stoch_step_gain_evals_le_length:
+  "stoch_step_gain_evals S xs \<le> length xs"
+proof -
+  have sub: "sampled_candidates (V - S) xs \<subseteq> set xs"
+    by (rule sampled_candidates_subset_set)
+  have "card (sampled_candidates (V - S) xs) \<le> card (set xs)"
+    using sub by (intro card_mono) simp_all
+  also have "... \<le> length xs"
+    by (rule card_set_le_length)
+  finally show ?thesis
+    unfolding stoch_step_gain_evals_def .
+qed
+
+lemma stoch_step_gain_evals_le:
+  assumes "length xs \<le> s"
+  shows "stoch_step_gain_evals S xs \<le> s"
+  using stoch_step_gain_evals_le_length[of S xs] assms
+  by linarith
+
+lemma trace_sample_boundD:
+  assumes "trace_sample_bound s Rs"
+  assumes "xs \<in> set Rs"
+  shows "length xs \<le> s"
+  using assms
+  unfolding trace_sample_bound_def
+  by auto
+
+lemma stoch_run_trace_gain_evals_le:
+  assumes "trace_sample_bound s Rs"
+  shows "stoch_run_trace_gain_evals t S Rs \<le> t * s"
+  using assms
+proof (induction t arbitrary: S Rs)
+  case 0
+  show ?case by simp
+next
+  case (Suc t)
+  show ?case
+  proof (cases Rs)
+    case Nil
+    then show ?thesis by simp
+  next
+    case (Cons R Rs')
+    have lenR: "length R \<le> s"
+      using Suc.prems Cons
+      unfolding trace_sample_bound_def
+      by auto
+    have tail_bound: "trace_sample_bound s Rs'"
+      using Suc.prems Cons
+      unfolding trace_sample_bound_def
+      by auto
+    have step_le: "stoch_step_gain_evals S R \<le> s"
+      using stoch_step_gain_evals_le[OF lenR] .
+    have tail_le:
+      "stoch_run_trace_gain_evals t (stochastic_step_from S R) Rs' \<le> t * s"
+      using Suc.IH[OF tail_bound] .
+    have "stoch_run_trace_gain_evals (Suc t) S (R # Rs') =
+            stoch_step_gain_evals S R +
+            stoch_run_trace_gain_evals t (stochastic_step_from S R) Rs'"
+      by simp
+    also have "... \<le> s + t * s"
+      using step_le tail_le by linarith
+    also have "... = Suc t * s"
+      by simp
+    finally show ?thesis
+      using Cons by simp
+  qed
+qed
+
+corollary stochastic_greedy_trace_gain_evals_le:
+  assumes "trace_sample_bound s Rs"
+  shows "stochastic_greedy_trace_gain_evals Rs \<le> k * s"
+  unfolding stochastic_greedy_trace_gain_evals_def
+  using stoch_run_trace_gain_evals_le[OF assms, of k "{}"]
+  by simp
+
+corollary stochastic_greedy_trace_gain_evals_le_size:
+  assumes "trace_sample_size s Rs"
+  shows "stochastic_greedy_trace_gain_evals Rs \<le> k * s"
+  using stochastic_greedy_trace_gain_evals_le
+  using trace_sample_size_imp_bound assms
+  by blast
 
 end
 
