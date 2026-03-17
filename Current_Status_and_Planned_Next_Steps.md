@@ -1,271 +1,230 @@
 # Current Status and Planned Next Steps
 
-## 1. Current Status of the Formalisation
-
-The repository has now clearly moved beyond a “classical greedy only” stage. At this point it contains:
-
-- a completed classical greedy approximation line,
-- a completed lazy-greedy approximation line with stateful and oracle-level structure,
-- oracle-cost layers for lazy and stochastic variants,
-- concrete interpreted instances and executable toy experiments,
-- and a substantially expanded stochastic-greedy line.
-
-The overall development is no longer best viewed as a single theorem formalisation. It is better understood as a growing Isabelle/HOL framework for approximation proofs of greedy-type algorithms for cardinality-constrained submodular maximization.
+This note summarizes the current status of the Isabelle/HOL formalization project on greedy algorithms for cardinality-constrained submodular maximization, with particular attention to the newly completed stochastic-greedy milestone.
 
 ---
 
-## 2. High-Level Structure
+## Executive summary
 
-The current design is intentionally modular.
+The repository now contains:
 
-### 2.1 Core layer
+- a formal deterministic greedy baseline,
+- a modular lazy-greedy approximation and oracle-cost development,
+- a concrete uniform with-replacement stochastic-greedy theorem line that reaches a final AAAI-style approximation statement.
 
-Theories in `Core/` provide the abstract base layer for finite monotone submodular set functions, gains, feasibility, and oracle-cost bookkeeping.
+The major recent milestone is that the stochastic development has moved beyond:
 
-This layer is shared by all later algorithmic variants.
+- sampling-space infrastructure,
+- interpretation to weighted-hit abstractions,
+- expected one-step templates,
+- and abstract gap-bridge packaging,
 
-### 2.2 Algorithm layer
+and now includes a completed concrete bridge and final wrapper for the uniform with-replacement model.
 
-Theories in `Algorithms/` define the executable or stateful algorithmic objects, including:
-
-- classical greedy construction,
-- lazy-greedy stateful machinery,
-- lazy oracle views,
-- stochastic greedy sampling-level constructions.
-
-### 2.3 Proof layer
-
-Theories in `Proofs/` contain the main approximation and bridge results, including:
-
-- the classical greedy approximation line,
-- the step-spec abstraction used to transfer lazy-greedy approximation results,
-- stochastic sampling and hit/miss infrastructure,
-- expected one-step stochastic results,
-- recurrence-level approximation lemmas,
-- and an abstract stochastic gap-bridge layer.
-
-### 2.4 Concrete instances and experiments
-
-Theories in `Instances/` and `Experiments/` provide:
-
-- toy coverage-style interpretations,
-- exhaustive sanity checks,
-- small executable comparison experiments,
-- counterexample-style illustrations outside the intended submodular setting.
-
-### 2.5 Complexity / oracle-cost layer
-
-Theories in `Complexity/` formalize oracle-cost accounting and comparison results for lazy and stochastic variants.
+This means that the main mathematical content originally identified as “Deliverable A” is now complete within the current abstraction boundary of the development.
 
 ---
 
-## 3. Completed and Stable Components
+## What has been completed
 
-### 3.1 Classical greedy
+### 1. Deterministic greedy baseline
 
-The classical deterministic greedy line is completed.
+The classical cardinality-constrained greedy approximation proof is formalized using the standard Nemhauser-Wolsey gap-recurrence route.
 
-This includes:
+This supplies:
 
-- the construction layer,
-- the standard Nemhauser-Wolsey style approximation proof,
-- and the reusable approximation infrastructure that later variants build on.
+- the basic greedy construction layer,
+- deterministic approximation infrastructure,
+- reusable monotonicity / submodularity lemmas used later by lazy and stochastic variants.
 
-At this point, the classical line is no longer the main blocker for the project.
+### 2. Lazy greedy line
 
-### 3.2 Lazy greedy
+The lazy-greedy line is formalized in a modular way through:
 
-The lazy-greedy line is also in a strong state.
+- a stateful algorithm layer,
+- an oracle / step-spec interface,
+- an approximation transfer theorem,
+- oracle-cost and total-cost accounting theories.
 
-It now contains:
+This part is already structurally close to a polished reusable component.
 
-- a stateful algorithmic formulation,
-- a lazy-oracle abstraction,
-- a step-spec interface,
-- transfer results from abstract step specifications to approximation guarantees,
-- and oracle-cost / total-cost theories.
+### 3. Stochastic greedy line
 
-This part already has the shape of a reusable library component rather than an isolated one-off proof.
-
-### 3.3 Concrete instances and executable checks
-
-The repository already contains a nontrivial “interpretation + executable sanity check” layer via coverage-style examples and small toy experiments.
-
-These components are useful both for validation and for demonstrating that the development is not purely abstract.
-
----
-
-## 4. Status of the StochasticGreedy Line
-
-The stochastic line has advanced substantially compared with its earlier sampling-only stage.
-
-### 4.1 Sampling and weighted interfaces
-
-The development already includes:
+The stochastic-greedy part now contains the following full chain:
 
 - abstract sampling-space infrastructure,
-- weighted sampling locales,
-- hit / miss event decomposition,
-- and lower-bound interfaces for hit probability.
+- weighted-sampling interfaces,
+- hit/miss probability analysis,
+- a concrete uniform with-replacement model on the remaining set,
+- interpretation into the abstract weighted-hit framework,
+- expected one-step gain infrastructure,
+- recurrence-based approximation algebra,
+- a concrete first-hit symmetry bridge,
+- a final k-step approximation wrapper.
 
-### 4.2 Concrete uniform with-replacement model
+Concretely, the newly completed theories are:
 
-A concrete uniform with-replacement list model over the remaining set `V - S` has been formalized.
+- `Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA`
+- `Proofs/Stochastic_Greedy_Uniform_WR_Final`
 
-This includes:
-
-- the concrete list space,
-- uniform probabilities,
-- exact hit / miss probability formulas,
-- exact miss-event counting,
-- exponential-type lower bounds,
-- and linearized hit-probability lower bounds.
-
-### 4.3 Interpretation layer
-
-The concrete uniform with-replacement model is now connected to the abstract weighted-sampling and weighted-hit locales through a dedicated interpretation layer.
-
-This is an important milestone, because the stochastic line is no longer only a collection of concrete counting lemmas: it now feeds into the abstract proof architecture.
-
-### 4.4 Expected one-step layer
-
-A dedicated expectation layer has now been added.
-
-This packages:
-
-- the definition of sampled one-step gain,
-- the definition of expected one-step gain,
-- hit / miss decomposition of expected gain,
-- lower bounds by weighted hit-event averages,
-- and reusable lower-bound templates of the form
-
-  `expected_step_gain ≥ hit_prob_of × c`.
-
-This fills the main gap left open by the earlier deterministic one-step file.
-
-### 4.5 Approximation recurrence layer
-
-A separate approximation layer has now been added for the stochastic line.
-
-This layer isolates:
-
-- multiplicative gap-contraction templates,
-- recurrence-solving lemmas based on `stoch_gap_factor`,
-- and reusable approximation-from-recurrence statements.
-
-So the recurrence algebra is no longer merely planned; it has now been formalized as a reusable component.
-
-### 4.6 Abstract gap-bridge layer
-
-A further abstraction layer has been added to package the assumptions under which one-step lower bounds imply a stochastic gap recurrence and then a closed-form lower bound on value.
-
-This layer does not yet constitute the final fully concrete end-to-end stochastic theorem for a specific run semantics, but it makes the remaining gap very explicit.
+These theories add the missing concrete bridge and final theorem line for the uniform with-replacement stochastic model.
 
 ---
 
-## 5. What Has Changed Conceptually
+## What the new stochastic milestone achieves
 
-Earlier in the project, the stochastic line was blocked mainly at the level of sampling abstractions and concrete-model integration.
+The new development proves a concrete expected one-step lower bound of the form
 
-That is no longer the right way to describe the status.
+- `expected_step_gain ≥ (alpha_stoch s / k) * gap`
 
-The main stochastic bottleneck has now moved upward:
+for the uniform with-replacement model.
 
-- the sampling layer exists,
-- the concrete uniform model exists,
-- the interpretation layer exists,
-- the expected one-step layer exists,
-- the recurrence solver exists,
-- and the abstract gap-bridge layer exists.
+It then packages this into a k-step approximation wrapper and derives:
 
-What remains is no longer “build the stochastic infrastructure”.  
-What remains is to instantiate the final abstract bridge into a concrete end-to-end stochastic approximation theorem.
+- a generic alpha-version value lower bound,
+- an epsilon-parameterized exponential-form final bound,
+- an AAAI-style approximation statement of the form
+  `1 - 1 / exp 1 - eps`.
 
-This is a much narrower and more mature remaining task.
+In other words, the stochastic development is no longer “abstractly ready in principle” but now contains a completed end-to-end theorem line for a concrete sampling model.
 
 ---
 
-## 6. Current Best Description of the Project
+## Important scope clarification
 
-At the present stage, the repository is best described as:
+The final stochastic theorem is currently packaged at the level of a set-valued state sequence satisfying:
 
-- a completed classical greedy formalisation,
-- a completed lazy-greedy formalisation with cost layers,
-- a substantially developed stochastic-greedy framework with interpretation, expected one-step, recurrence, and abstract gap-bridge components,
-- plus concrete instances and executable experiments.
+- feasibility (`A i ⊆ V`),
+- value domination by `OPT`,
+- the expected one-step update equation.
 
-In other words, the project has already crossed the boundary from “formalising one approximation proof” into “building a reusable Isabelle/HOL submodular-greedy library architecture”.
+This matches the current abstraction boundary of the repository.
 
----
+So the present milestone should be understood as:
 
-## 7. Remaining Main Tasks
+- a completed concrete stochastic approximation theorem line for the uniform with-replacement model,
+- packaged through the current recurrence / state-sequence interface,
 
-Although substantial progress has been made, the project is not fully closed yet.
+rather than as a fully probabilistic run-semantics formalization of the executable stochastic algorithm.
 
-### 7.1 Main stochastic theorem instantiation
-
-The main remaining technical task is:
-
-- instantiate the abstract stochastic gap bridge into a fully concrete end-to-end stochastic approximation theorem.
-
-This is currently the most important open item on the stochastic side.
-
-### 7.2 Final stochastic theorem packaging
-
-Once the concrete end-to-end theorem is in place, the stochastic line should be packaged more cleanly as a finished theorem line, comparable in clarity to the lazy-greedy part.
-
-That includes:
-
-- clearer top-level theorem endpoints,
-- cleaner dependency presentation,
-- and a more polished narrative in the proof document.
-
-### 7.3 Documentation and repository narrative alignment
-
-Some repository-level narrative still reflects an earlier stage of the project.
-
-These descriptions should be updated so that the README and status notes match the current theory graph, especially for the stochastic line.
-
-### 7.4 AFP-oriented cleanup
-
-Even once the theory side is finished, the repository will still need AFP-oriented cleanup, including:
-
-- final scope decisions,
-- document preparation,
-- theory-narrative polishing,
-- submission-style packaging,
-- and final build / document checks.
+This is an intentional architectural choice and not a missing mathematical gap in the present theorem line.
 
 ---
 
-## 8. Immediate Next Steps
+## Repository status by area
 
-The most immediate next steps are therefore:
+### Stable / largely completed components
 
-1. instantiate the abstract stochastic gap bridge into a concrete end-to-end approximation theorem;
-2. expose that theorem as the clean stochastic endpoint of the current library;
-3. update the repository narrative so that it matches the current formal state of the code;
-4. begin AFP-oriented cleanup once the stochastic endpoint is concretely sealed.
+- `Core/Submodular_Base`
+- `Algorithms/Greedy_Submodular_Construct`
+- `Proofs/Greedy_Submodular_Approx`
+- `Proofs/Greedy_Approx_From_Spec`
+- lazy-greedy approximation and cost theories
+- concrete stochastic Deliverable-A bridge
+- concrete stochastic final wrapper for the uniform WR model
+
+### Mature but still good candidates for polishing
+
+- stochastic approximation packaging
+- stochastic comparison / cost presentation
+- documentation and naming consistency across stochastic files
+- experiment-facing organization
+
+### Open extension directions
+
+- stronger oracle-cost stories for stochastic variants
+- more explicit run-semantics integration if desired
+- larger executable validations / experiments
+- possible extensions beyond the present uniform WR theorem line
 
 ---
 
-## 9. Longer-Term Direction
+## Current interpretation of Deliverable A
 
-After the current stochastic line is sealed more concretely, the development is well positioned for several future directions, including:
+The original Deliverable A goal was to formalize the main stochastic-greedy approximation theorem line corresponding to the standard cardinality-constrained monotone-submodular setting.
 
-- stronger stochastic complexity / oracle-cost comparisons,
-- additional executable case studies,
-- further greedy variants beyond the current deterministic / lazy / stochastic triad,
-- and paper / archive packaging aimed at AFP and later publication venues.
+That milestone is now considered complete in the following sense:
+
+- the hard concrete one-step bridge is formalized,
+- the bridge has been connected to the recurrence solver,
+- the final approximation wrapper has been proved,
+- an AAAI-style epsilon theorem statement has been derived.
+
+So, at the level of theorem content, Deliverable A is complete.
+
+What remains is not “finishing Deliverable A” but rather:
+
+- packaging,
+- polishing,
+- strengthening related auxiliary stories,
+- and deciding how far to push the development toward AFP-style presentation and future extensions.
 
 ---
 
-## 10. Summary
+## Immediate next steps
 
-The current repository status can be summarized as follows:
+### 1. Packaging and cleanup
 
-- classical greedy: completed;
-- lazy greedy: completed at the main approximation level, with cost layers;
-- stochastic greedy: substantially developed, with the remaining work now concentrated in the final concrete gap-bridge instantiation rather than in basic infrastructure.
+The highest-priority near-term task is to clean and package the stochastic theorem line:
 
-This means the project is now much closer to “final theorem-line completion plus packaging” than to “early-stage framework construction”.
+- remove obviously redundant assumptions where appropriate,
+- standardize theorem naming and comments,
+- trim helper lemmas that can be made more local or more reusable,
+- make the final theorem narrative easier to read for external reviewers.
+
+### 2. README / project narrative update
+
+The repository description should now reflect that the stochastic line is no longer merely abstract or partial.
+
+In particular, the README should describe:
+
+- the new Deliverable-A bridge theory,
+- the new final wrapper,
+- the existence of a completed concrete stochastic theorem line for the uniform WR model.
+
+### 3. Cost / comparison story
+
+A natural technical next step is to strengthen the stochastic comparison side:
+
+- oracle-count presentation,
+- explicit comparison against deterministic greedy / lazy greedy,
+- cleaner cost-oriented statements around the current stochastic model.
+
+### 4. AFP-style preparation
+
+The project is now much closer to a coherent submission-grade narrative.
+
+Important preparation tasks include:
+
+- reorganizing the stochastic files into a cleaner final hierarchy if needed,
+- checking imports and dependency minimality,
+- improving comment style and theorem statements,
+- reducing ad hoc proof-engineering leftovers where possible.
+
+---
+
+## Medium-term research directions
+
+Beyond immediate cleanup, the development could naturally continue in several directions:
+
+1. a cleaner run-semantics connection for the stochastic algorithm;
+2. stronger cost / complexity packaging;
+3. broader experiment layers;
+4. extensions to additional stochastic or hybrid greedy variants;
+5. further modularization for publication / AFP presentation quality.
+
+---
+
+## Bottom line
+
+At present, the project contains:
+
+- a completed deterministic baseline,
+- a strong lazy-greedy line,
+- and now a completed concrete stochastic approximation theorem line for the uniform with-replacement model.
+
+This marks a substantial transition in the repository:
+
+the stochastic part is no longer merely an abstract scaffold, but an actual completed theorem line with a final approximation statement.
+
+The project is therefore moving from “core theorem development” into “packaging, refinement, and presentation-quality polishing”.

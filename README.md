@@ -25,7 +25,7 @@ The development currently covers:
 - abstract submodular infrastructure,
 - greedy construction and approximation proofs,
 - lazy greedy via step-spec / oracle interfaces,
-- stochastic greedy sampling, expected one-step, and gap-recurrence layers,
+- stochastic greedy sampling, expected one-step, gap-recurrence, and final approximation layers,
 - oracle-cost accounting for deterministic, lazy, and stochastic variants,
 - concrete coverage-style instances and toy experiments.
 
@@ -33,7 +33,7 @@ The development currently covers:
 
 ## Repository structure
 
-```text
+'''text
 Core/
   Submodular_Base
   Oracle_Cost
@@ -59,6 +59,8 @@ Proofs/
   Stochastic_Greedy_Uniform_WR_Interpretation
   Stochastic_Greedy_Expected_OneStep
   Stochastic_Greedy_Gap_Bridge
+  Stochastic_Greedy_Uniform_WR_DeliverableA
+  Stochastic_Greedy_Uniform_WR_Final
 
 Complexity/
   Lazy_Greedy_OracleCost
@@ -80,13 +82,13 @@ Experiments/
   Experiments_Exhaustive_Correctness
   Lazy_vs_Greedy_Toy
   Stochastic_vs_Greedy_Toy
-```
+'''
 
 The main session is:
 
-```
+'''text
 Submodular_Greedy_Experiments
-```
+'''
 
 ---
 
@@ -100,7 +102,7 @@ This part provides the baseline construction and approximation infrastructure us
 
 ### 2. Lazy greedy
 
-The lazy-greedy part is split into:
+The lazy-greedy development is split into:
 
 - an algorithmic/stateful layer,
 - an oracle/step-spec abstraction layer,
@@ -120,7 +122,8 @@ The stochastic-greedy development now includes:
 - a completed interpretation layer from the concrete uniform model to the abstract weighted / hit-probability interfaces,
 - an expected one-step gain layer,
 - a recurrence-based approximation layer,
-- an abstract gap-bridge layer packaging the assumptions needed for final stochastic closed-form guarantees.
+- a concrete first-hit symmetry bridge for the uniform with-replacement model,
+- a final k-step approximation wrapper yielding an end-to-end stochastic approximation theorem line.
 
 In particular, the theory `Proofs/Stochastic_Greedy_Uniform_WR` develops the concrete uniform with-replacement list model over `V - S`, including:
 
@@ -148,7 +151,23 @@ The theory `Proofs/Stochastic_Greedy_Approx` isolates the approximation algebra:
 - closed-form recurrence solving via `stoch_gap_factor`,
 - reusable approximation-from-recurrence statements.
 
-Finally, `Proofs/Stochastic_Greedy_Gap_Bridge` packages the remaining abstract bridge from one-step lower bounds to gap recurrences and resulting value lower bounds. At the current stage, this bridge is formulated abstractly rather than yet being fully instantiated as a concrete end-to-end stochastic theorem for a particular run semantics.
+The theory `Proofs/Stochastic_Greedy_Uniform_WR_DeliverableA` supplies the missing concrete one-step bridge for the uniform with-replacement model. Its main contributions include:
+
+- the first residual-hit selector,
+- deterministic residual-gap lower bounds,
+- a symmetry / equal-probability argument for the first residual-optimal hit,
+- the concrete expected one-step lower bound
+  `expected_step_gain ≥ (alpha_stoch s / k) * gap`,
+- the corresponding epsilon-parameterized one-step corollary.
+
+Finally, `Proofs/Stochastic_Greedy_Uniform_WR_Final` packages this bridge into a final k-step theorem line. In the current architecture, this final layer is stated for any set-valued state sequence satisfying the appropriate value-update and feasibility conditions. This yields:
+
+- a generic alpha-version value lower bound,
+- an exponential-form epsilon corollary,
+- an AAAI-style bound of the form
+  `1 - 1 / exp 1 - eps`.
+
+In other words, the repository now contains a completed concrete stochastic approximation theorem line for the uniform with-replacement model, within the present abstraction boundary of the development.
 
 ---
 
@@ -172,11 +191,11 @@ These are meant as lightweight validation / illustration layers rather than larg
 
 A typical ROOT session looks like:
 
-```text
+'''text
 session Submodular_Greedy_Experiments = HOL +
   sessions "HOL-Library" "HOL-Analysis"
   ...
-```
+'''
 
 Note that:
 
@@ -185,15 +204,15 @@ Note that:
 
 To build the session locally:
 
-```
+'''text
 isabelle build -D .
-```
+'''
 
 To build the main session explicitly:
 
-```
+'''text
 isabelle build -d . Submodular_Greedy_Experiments
-```
+'''
 
 ---
 
@@ -221,9 +240,17 @@ At the moment:
 
 - the deterministic greedy baseline is formalized,
 - the lazy-greedy approximation and cost layers are formalized,
-- the stochastic-greedy framework has progressed beyond a sampling-only layer and now includes interpretation, expected one-step, recurrence, and abstract gap-bridge theories,
+- the stochastic-greedy framework includes sampling, interpretation, expected one-step, recurrence, and concrete final approximation layers,
 - the concrete uniform with-replacement stochastic model is connected to the abstract weighted / hit-probability interfaces,
-- the main remaining stochastic task is to instantiate the abstract gap bridge into a fully concrete end-to-end stochastic approximation theorem.
+- the concrete one-step bridge and the final k-step approximation wrapper for the uniform with-replacement stochastic model are formalized,
+- the repository now contains a completed AAAI-style stochastic approximation theorem line for the current abstraction boundary.
+
+What remains is no longer the basic stochastic theorem line itself, but rather further packaging and extensions, such as:
+
+- sharpening cost/comparison statements,
+- improving the connection to more explicit run semantics if desired,
+- expanding executable validations,
+- preparing the development for AFP-style presentation and submission.
 
 See also:
 
@@ -237,10 +264,11 @@ for a more detailed progress summary and roadmap.
 
 The most immediate next steps are:
 
-1. instantiate the abstract stochastic gap bridge into a concrete end-to-end approximation theorem;
-2. package the final stochastic approximation statement as cleanly as the lazy-greedy part;
-3. continue with sharper cost / comparison statements and larger executable examples;
-4. prepare the overall development for AFP-style packaging and submission.
+1. clean up and package the completed stochastic theorem line for presentation quality;
+2. strengthen the oracle-cost and comparison story around the stochastic variant;
+3. continue with larger executable examples and cleaner experiment packaging;
+4. prepare the overall development for AFP-style packaging and submission;
+5. explore further extensions beyond the current uniform with-replacement theorem line.
 
 ---
 
