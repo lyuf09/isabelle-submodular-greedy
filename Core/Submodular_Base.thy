@@ -53,37 +53,6 @@ proof -
   thus ?thesis by (simp add: gain_def)
 qed
 
-text \<open>
-  Diminishing-returns (DR) form of submodularity.
-
-  This definition is included as an alternative interface to the lattice-based
-  submodularity assumption used throughout the current development.
-  At present, we do not establish the equivalence between the two formulations.
-
-  The DR form is often more convenient when reasoning about algorithmic variants
-  such as LazyGreedy or StochasticGreedy, while the lattice-based formulation
-  aligns more naturally with classical submodular calculus on sets.
-
-  Proving equivalence between these formulations is deferred and left as a
-  potential future extension of the framework.
-\<close>
-definition dr_submodular_on :: "'a set \<Rightarrow> ('a set \<Rightarrow> real) \<Rightarrow> bool" where
-  "dr_submodular_on W g \<longleftrightarrow>
-     (\<forall>A\<subseteq>W. \<forall>B\<subseteq>W. A \<subseteq> B \<longrightarrow>
-        (\<forall>i\<in>W - B. g (A \<union> {i}) - g A \<ge> g (B \<union> {i}) - g B))"
-
-abbreviation dr_submodular_f :: bool where
-  "dr_submodular_f \<equiv> dr_submodular_on V f"
-
-lemma dr_submodular_fD:
-  assumes dr: "dr_submodular_f"
-      and A: "A \<subseteq> V" and B: "B \<subseteq> V" and AB: "A \<subseteq> B"
-      and i: "i \<in> V - B"
-  shows "gain A i \<ge> gain B i"
-  using dr A B AB i
-  unfolding dr_submodular_on_def gain_def
-  by simp
-
 end
 
 
