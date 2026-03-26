@@ -1,21 +1,21 @@
 # Isabelle Formalization of Greedy Algorithms for Cardinality-Constrained Submodular Maximization
 
-This repository develops an Isabelle/HOL formalization of deterministic greedy algorithms for monotone non-negative submodular maximization under a cardinality constraint on a finite ground set.
+This repository contains an Isabelle/HOL formalization of deterministic greedy algorithms for monotone non-negative submodular maximization under a cardinality constraint on a finite ground set.
 
-The current AFP-oriented session proves the classical approximation guarantee for deterministic greedy, namely the finite-step bound `1 - (1 - 1/k)^k` and hence the standard corollary `1 - 1/e`. It also formalizes a stateful lazy greedy variant and shows that it satisfies the same abstract greedy specification, so that it inherits the same approximation guarantee.
+The main formal result is the classical approximation guarantee for deterministic greedy: the finite-step bound `1 - (1 - 1/k)^k`, and therefore the standard corollary `1 - 1/e`. The development also includes a stateful lazy greedy variant and shows that it satisfies the same abstract greedy step specification, so it inherits the same approximation guarantee.
 
-## Current AFP-oriented scope
+## Scope
 
-The current AFP-oriented session focuses on:
+The present development focuses on:
 - finite ground sets,
 - monotone non-negative submodular set functions,
 - cardinality constraints,
 - deterministic greedy,
 - lazy greedy as a deterministic refinement of the greedy baseline.
 
-It does **not** include the stochastic line, executable experiments, or instance-specific auxiliary material.
+It does not include stochastic greedy, executable experiments, or instance-specific auxiliary material.
 
-## Session
+## AFP session
 
 The AFP-oriented session is:
 
@@ -48,7 +48,7 @@ The development is organized into three layers.
 ### 1. Core mathematical layer
 `Core/Submodular_Base` provides the main locale and basic lemmas for finite-ground-set monotone submodular maximization under a cardinality constraint.
 
-`Core/Oracle_Cost` provides the oracle-cost layer used by the current development.
+`Core/Oracle_Cost` provides the oracle-cost layer used in the current development.
 
 ### 2. Algorithm layer
 `Algorithms/Greedy_Submodular_Construct` formalizes the deterministic greedy construction.
@@ -64,20 +64,10 @@ The development is organized into three layers.
 
 `Proofs/Lazy_Greedy_Approx`, `Proofs/Lazy_Greedy_Stateful_StepSpec`, and `Proofs/Lazy_Greedy_Stateful_Approx` show that the lazy greedy variant fits the same abstract framework and therefore inherits the same guarantee.
 
-## Repository status
-
-The repository still contains additional material outside the current AFP-oriented session, including stochastic greedy developments, complexity/accounting files, executable examples, and experimental files.
-
-These are not part of the current AFP session.
-
 ## Build
 
-To build the current AFP-oriented session, run:
+To build the AFP session, run:
 
 ```bash
 isabelle build -D . Submodular_Greedy_AFP
 ```
-
-## Current goal
-
-The current goal of the AFP-oriented session is to package a reusable Isabelle/HOL core for deterministic greedy approximation under a cardinality constraint, together with a lazy greedy refinement proved through the same abstract specification.
