@@ -305,14 +305,14 @@ text \<open>
 \<close>
 
 lemma feasible_set_k_nonempty:
-  "{} \<in> feasible_set_k"
-  by (simp add: feasible_set_k_def feasible_def)
+  "feasible {}"
+  by (simp add: feasible_def)
 
 lemma feasible_set_k_finite:
-  "finite feasible_set_k"
+  "finite {S. feasible S}"
 proof -
-  have "feasible_set_k \<subseteq> Pow V"
-    by (auto simp: feasible_set_k_def feasible_def)
+  have "{S. feasible S} \<subseteq> Pow V"
+    by (auto simp: feasible_def)
   moreover have "finite (Pow V)"
     using finite_V by simp
   ultimately show ?thesis
@@ -357,34 +357,39 @@ text \<open>
 
 definition OPT_set :: "'a set" where
   "OPT_set =
-     (SOME X. X \<in> feasible_set_k \<and> (\<forall>Y\<in>feasible_set_k. f Y \<le> f X))"
+     (SOME X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X))"
 
 lemma exists_max_feasible:
-  "\<exists>X. X \<in> feasible_set_k \<and> (\<forall>Y\<in>feasible_set_k. f Y \<le> f X)"
+  "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
 proof -
-  have nonempty: "feasible_set_k \<noteq> {}"
+  have nonempty: "{S. feasible S} \<noteq> {}"
     using feasible_set_k_nonempty by auto
   from finite_has_maximal[OF feasible_set_k_finite nonempty]
-  show ?thesis
+  obtain X where X_in: "X \<in> {S. feasible S}"
+    and X_max: "\<forall>Y\<in>{S. feasible S}. f Y \<le> f X"
+    by blast
+  hence "feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
+    by auto
+  thus ?thesis
     by blast
 qed
 
 lemma OPT_set_props:
-  shows OPT_set_in: "OPT_set \<in> feasible_set_k"
-    and OPT_set_max: "\<forall>Y\<in>feasible_set_k. f Y \<le> f OPT_set"
+  shows OPT_set_in: "feasible OPT_set"
+    and OPT_set_max: "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
 proof -
   from exists_max_feasible
-  obtain X where X_in: "X \<in> feasible_set_k"
-    and X_max: "\<forall>Y\<in>feasible_set_k. f Y \<le> f X"
+  obtain X where X_in: "feasible X"
+    and X_max: "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X"
     by blast
   then have ex_spec:
-    "\<exists>X. X \<in> feasible_set_k \<and> (\<forall>Y\<in>feasible_set_k. f Y \<le> f X)"
+    "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
     by blast
   from someI_ex[OF ex_spec]
-  have "OPT_set \<in> feasible_set_k \<and> (\<forall>Y\<in>feasible_set_k. f Y \<le> f OPT_set)"
+  have "feasible OPT_set \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set)"
     unfolding OPT_set_def by simp
-  then show "OPT_set \<in> feasible_set_k"
-    and "\<forall>Y\<in>feasible_set_k. f Y \<le> f OPT_set"
+  then show "feasible OPT_set"
+    and "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
     by auto
 qed
 
@@ -392,9 +397,9 @@ definition OPT_k :: real where
   "OPT_k = f OPT_set"
 
 lemma exists_opt_set:
-  "\<exists>X\<in>feasible_set_k. f X = OPT_k"
+  "\<exists>X. feasible X \<and> f X = OPT_k"
 proof -
-  have "OPT_set \<in> feasible_set_k"
+  have "feasible OPT_set"
     by (rule OPT_set_in)
   moreover have "f OPT_set = OPT_k"
     unfolding OPT_k_def by simp
@@ -403,10 +408,10 @@ proof -
 qed
 
 lemma OPT_k_upper_bound:
-  assumes "S \<in> feasible_set_k"
+  assumes "feasible S"
   shows "f S \<le> OPT_k"
 proof -
-  have "\<forall>Y\<in>feasible_set_k. f Y \<le> f OPT_set"
+  have "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
     by (rule OPT_set_max)
   with assms have "f S \<le> f OPT_set"
     by auto
@@ -440,10 +445,10 @@ proof -
   let ?S = "greedy_set i"
   let ?R = "V - ?S"
 
-  obtain X where X_in: "X \<in> feasible_set_k" and X_opt: "f X = OPT_k"
+  obtain X where X_feas: "feasible X" and X_opt: "f X = OPT_k"
     using exists_opt_set by blast
-  from X_in have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
-    unfolding feasible_set_k_def feasible_def by auto
+  from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
+    unfolding feasible_def by auto
 
   have S_sub': "?S \<subseteq> V"
     using S_sub .
@@ -502,20 +507,20 @@ qed
 
 text \<open>Greedy sets are feasible whenever their size is at most \<open>k\<close>.\<close>
 lemma feasible_set_k_subset:
-  assumes "S \<in> feasible_set_k"
+  assumes "feasible S"
   shows "S \<subseteq> V" "card S \<le> k"
-  using assms unfolding feasible_set_k_def feasible_def by auto
+  using assms unfolding feasible_def by auto
 
 lemma greedy_set_feasible:
   assumes S_sub: "greedy_set i \<subseteq> V"
       and card_le_i: "card (greedy_set i) \<le> i"
       and i_le_k: "i \<le> k"
-  shows "greedy_set i \<in> feasible_set_k"
+  shows "feasible (greedy_set i)"
 proof -
   have "card (greedy_set i) \<le> k"
     using card_le_i i_le_k by (meson order_trans)
   with S_sub show ?thesis
-    unfolding feasible_set_k_def feasible_def by auto
+    unfolding feasible_def by auto
 qed
 
 text \<open>The gap is non-negative along the greedy sequence.\<close>
@@ -525,7 +530,7 @@ lemma gap_nonneg:
       and i_le_k: "i \<le> k"
   shows "0 \<le> gap i"
 proof -
-  have S_feas: "greedy_set i \<in> feasible_set_k"
+  have S_feas: "feasible (greedy_set i)"
     using greedy_set_feasible[OF S_sub card_le_i i_le_k] .
   have "f (greedy_set i) \<le> OPT_k"
     using OPT_k_upper_bound[OF S_feas] .
@@ -739,7 +744,7 @@ subsection \<open>Non-negativity of OPT and approximation ratio\<close>
 text \<open>\<open>OPT_k\<close> is non-negative because \<open>f {} = 0\<close> is a feasible value.\<close>
 lemma OPT_k_nonneg: "0 \<le> OPT_k"
 proof -
-  have "{} \<in> feasible_set_k"
+  have "feasible {}"
     by (rule feasible_set_k_nonempty)
   then have "f {} \<le> OPT_k"
     by (rule OPT_k_upper_bound)

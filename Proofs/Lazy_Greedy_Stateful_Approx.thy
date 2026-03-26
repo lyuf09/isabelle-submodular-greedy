@@ -101,7 +101,7 @@ qed
 
 lemma lazy_set_feasible:
   assumes "i \<le> k"
-  shows "lazy_set i \<in> feasible_set_k"
+  shows "feasible (lazy_set i)"
 proof -
   have sub: "lazy_set i \<subseteq> V" by simp
   have card_le_k: "card (lazy_set i) \<le> k"
@@ -115,7 +115,7 @@ lemma gapL_nonneg:
   assumes "i \<le> k"
   shows "0 \<le> gapL i"
 proof -
-  have feas: "lazy_set i \<in> feasible_set_k"
+  have feas: "feasible (lazy_set i)"
     using lazy_set_feasible[OF assms] .
   have ub: "f (lazy_set i) \<le> OPT_k"
     using Greedy_Some.OPT_k_upper_bound[OF feas] by simp
@@ -132,11 +132,11 @@ proof -
   have S_sub: "lazy_set i \<subseteq> V" by simp
   have cardS_lt_k: "card (lazy_set i) < k" using card_lazy_lt_k[OF i_lt_k] .
 
-    obtain X where X_in: "X \<in> feasible_set_k" and X_opt: "f X = OPT_k"
+    obtain X where X_feas: "feasible X" and X_opt: "f X = OPT_k"
       using Greedy_Some.exists_opt_set by blast
 
-    from X_in have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
-      unfolding feasible_set_k_def feasible_def by auto
+    from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
+      unfolding feasible_def by auto
 
     from Greedy_Some.marginal_gain_lower_bound[OF S_sub X_sub k_le cardS_lt_k cardX_le_k]
     obtain e where e_in: "e \<in> V - lazy_set i"
