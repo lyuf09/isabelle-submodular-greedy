@@ -304,11 +304,11 @@ text \<open>
   \<open>OPT_k\<close> as the maximum value of \<open>f\<close> over this family.
 \<close>
 
-lemma feasible_set_k_nonempty:
+lemma feasible_nonempty:
   "feasible {}"
   by (simp add: feasible_def)
 
-lemma feasible_set_k_finite:
+lemma finite_feasible_family:
   "finite {S. feasible S}"
 proof -
   have "{S. feasible S} \<subseteq> Pow V"
@@ -363,8 +363,8 @@ lemma exists_max_feasible:
   "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
 proof -
   have nonempty: "{S. feasible S} \<noteq> {}"
-    using feasible_set_k_nonempty by auto
-  from finite_has_maximal[OF feasible_set_k_finite nonempty]
+    using feasible_nonempty by auto
+  from finite_has_maximal[OF finite_feasible_family nonempty]
   obtain X where X_in: "X \<in> {S. feasible S}"
     and X_max: "\<forall>Y\<in>{S. feasible S}. f Y \<le> f X"
     by blast
@@ -506,7 +506,7 @@ proof -
 qed
 
 text \<open>Greedy sets are feasible whenever their size is at most \<open>k\<close>.\<close>
-lemma feasible_set_k_subset:
+lemma feasibleD:
   assumes "feasible S"
   shows "S \<subseteq> V" "card S \<le> k"
   using assms unfolding feasible_def by auto
@@ -745,7 +745,7 @@ text \<open>\<open>OPT_k\<close> is non-negative because \<open>f {} = 0\<close>
 lemma OPT_k_nonneg: "0 \<le> OPT_k"
 proof -
   have "feasible {}"
-    by (rule feasible_set_k_nonempty)
+    by (rule feasible_nonempty)
   then have "f {} \<le> OPT_k"
     by (rule OPT_k_upper_bound)
   thus ?thesis

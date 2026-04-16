@@ -55,7 +55,6 @@ qed
 
 end
 
-
 locale Cardinality_Constraint = Submodular_Func +
   fixes k :: nat
   assumes k_le_cardV: "k \<le> card V"
@@ -63,13 +62,6 @@ begin
 
 definition feasible :: "'a set \<Rightarrow> bool" where
   "feasible S \<longleftrightarrow> S \<subseteq> V \<and> card S \<le> k"
-
-definition feasible_set_k :: "'a set set" where
-  "feasible_set_k = {S. feasible S}"
-
-lemma feasible_iff_mem_feasible_set_k:
-  "feasible S \<longleftrightarrow> S \<in> feasible_set_k"
-  by (simp add: feasible_def feasible_set_k_def)
 
 end
 

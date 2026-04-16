@@ -14,7 +14,7 @@ text \<open>
     (1) the OPT_k infrastructure from Greedy_Submodular_Approx, and
     (2) the packaged per-step step-spec lemmas from Lazy_Greedy_Stateful_StepSpec.
 \<close>
-
+ 
 context Cardinality_Constraint
 begin
 
@@ -108,7 +108,7 @@ proof -
     using card_lazy_le_i assms by (rule le_trans)
   show ?thesis
     using sub card_le_k
-    by (simp add: feasible_set_k_def feasible_def)
+    by (simp add: feasible_def)
 qed
 
 lemma gapL_nonneg:
@@ -270,6 +270,17 @@ proof -
   show "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
     using base_bound coeff_mono by (meson order_trans)
 qed
+
+text \<open>
+  Legacy compatibility theorem name for the lazy greedy approximation result.
+  The main theorem-facing result in this theory is
+  @{thm [source] lazy_stateful_approximation}.
+\<close>
+
+theorem lazy_oracle_greedy_approximation:
+  assumes "k > 0" "k \<le> card V"
+  shows "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
+  using lazy_stateful_approximation[OF assms] .
 
 end
 
