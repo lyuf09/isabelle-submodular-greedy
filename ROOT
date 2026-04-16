@@ -16,5 +16,6 @@ session Submodular_Greedy_AFP = HOL +
     "Proofs/Greedy_Step_Spec"
     "Proofs/Greedy_Submodular_Approx"
     "Proofs/Greedy_Approx_From_Spec"
+    "Proofs/Lazy_Greedy_Oracle_Approx"
     "Proofs/Lazy_Greedy_Stateful_StepSpec"
     "Proofs/Lazy_Greedy_Stateful_Approx"

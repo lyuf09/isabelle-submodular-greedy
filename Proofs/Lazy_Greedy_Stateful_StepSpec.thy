@@ -2,6 +2,15 @@ theory Lazy_Greedy_Stateful_StepSpec
   imports "../Algorithms/Lazy_Greedy_Stateful"
 begin
 
+text \<open>
+  Sequence-level lemmas for the verified stateful lazy run.
+
+  This theory packages the per-iteration facts needed by the approximation proof,
+  such as membership and maximal-gain properties of lazy_choice i and the update
+  equation for lazy_set (Suc i). It is not an instance of the stateless locale
+  Greedy_Step_Oracle; instead it exposes properties of the concrete verified run.
+\<close>
+
 context Cardinality_Constraint
 begin
 

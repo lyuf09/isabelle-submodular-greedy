@@ -5,14 +5,15 @@ theory Lazy_Greedy_Stateful_Approx
 begin
 
 text \<open>
-  Approximation guarantee for the verified stateful LazyGreedy construction
-  (Lazy_Greedy_Stateful), viewed as a substantial implementation-level / stateful
-  extension beyond classical greedy. We show that lazy_set inherits the classical
-  Nemhauser–Wolsey (1 - 1/e) guarantee via a correctness bridge back to the
-  reusable greedy-step specification. The proof follows the standard gap-recurrence
-  argument, using:
-    (1) the OPT_k infrastructure from Greedy_Submodular_Approx, and
-    (2) the packaged per-step step-spec lemmas from Lazy_Greedy_Stateful_StepSpec.
+  Approximation guarantee for the verified stateful LazyGreedy construction.
+  This theory treats the stateful lazy algorithm as a separate implementation-level
+  refinement line. It reuses the OPT_k and submodular infrastructure from
+  Greedy_Submodular_Approx, together with the per-iteration lemmas packaged in
+  Lazy_Greedy_Stateful_StepSpec, and proves its own gap recurrence for lazy_set.
+
+  In particular, this theory does not instantiate the stateless step-spec locale
+  Greedy_Step_Oracle. Instead, it works directly with the verified lazy run
+  and its sequence-level properties.
 \<close>
  
 context Cardinality_Constraint
@@ -270,17 +271,6 @@ proof -
   show "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
     using base_bound coeff_mono by (meson order_trans)
 qed
-
-text \<open>
-  Legacy compatibility theorem name for the lazy greedy approximation result.
-  The main theorem-facing result in this theory is
-  @{thm [source] lazy_stateful_approximation}.
-\<close>
-
-theorem lazy_oracle_greedy_approximation:
-  assumes "k > 0" "k \<le> card V"
-  shows "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
-  using lazy_stateful_approximation[OF assms] .
 
 end
 

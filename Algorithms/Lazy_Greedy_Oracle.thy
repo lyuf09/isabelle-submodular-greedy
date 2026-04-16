@@ -258,19 +258,6 @@ lemma argmax_gain_lazy_max:
   unfolding argmax_gain_lazy_def
   by (rule lazy_argmax_gain_max[OF assms ub_valid_gain])
 
-interpretation Greedy_LazyOracle: Greedy_Setup V f k argmax_gain_lazy
-proof
-  fix S :: "'a set" and A :: "'a set"
-  assume fin: "finite A" and ne: "A \<noteq> {}"
-  show "argmax_gain_lazy S A \<in> A"
-    using argmax_gain_lazy_mem[OF fin ne] .
-next
-  fix S :: "'a set" and A :: "'a set"
-  assume fin: "finite A" and ne: "A \<noteq> {}"
-  show "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain_lazy S A)"
-    using argmax_gain_lazy_max[OF fin ne] .
-qed
-
 end
 
 end

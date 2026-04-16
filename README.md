@@ -2,7 +2,7 @@
 
 This repository contains an Isabelle/HOL formalization of deterministic greedy algorithms for monotone non-negative submodular maximization under a cardinality constraint on a finite ground set.
 
-The main formal result is the classical Nemhauser–Wolsey approximation guarantee for deterministic greedy: the finite-step bound `1 - (1 - 1/k)^k`, and hence the standard corollary `1 - 1/e`. The development also includes a verified stateful lazy greedy variant and shows that it satisfies the same abstract greedy step specification, so it inherits the same approximation guarantee.
+The main formal result is the classical Nemhauser–Wolsey approximation guarantee for deterministic greedy: the finite-step bound `1 - (1 - 1/k)^k`, and hence the standard corollary `1 - 1/e`. The development also includes a verified stateful lazy greedy variant. This line reuses the classical OPT_k and submodular infrastructure, together with packaged per-iteration lemmas for the lazy run, and proves the same approximation guarantee via a separate stateful gap-recurrence argument.
 
 ## Scope
 
@@ -58,7 +58,7 @@ The development is organized into three layers.
 
 `Proofs/Greedy_Submodular_Approx` and `Proofs/Greedy_Approx_From_Spec` establish the classical deterministic greedy approximation guarantee.
 
-`Proofs/Lazy_Greedy_Stateful_StepSpec` and `Proofs/Lazy_Greedy_Stateful_Approx` show that the verified stateful lazy greedy construction fits the same abstract framework and therefore inherits the same guarantee.
+`Proofs/Lazy_Greedy_Stateful_StepSpec` packages the per-iteration facts of the verified stateful lazy run. `Proofs/Lazy_Greedy_Stateful_Approx` then combines these facts with the classical core infrastructure to prove the same approximation guarantee for `lazy_set`.
 
 ## Build
 
