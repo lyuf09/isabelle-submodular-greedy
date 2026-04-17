@@ -37,7 +37,6 @@ Algorithms/Lazy_Greedy_Oracle
 Proofs/Greedy_Step_Spec
 Proofs/Greedy_Submodular_Approx
 Proofs/Greedy_Approx_From_Spec
-Proofs/Lazy_Greedy_Oracle_Approx
 Proofs/Lazy_Greedy_Stateful_StepSpec
 Proofs/Lazy_Greedy_Stateful_Approx
 ```
@@ -56,15 +55,13 @@ The AFP-oriented development is organized into three layers.
 
 `Algorithms/Lazy_Greedy_Stateful` formalizes the verified stateful lazy greedy algorithm.
 
-`Algorithms/Lazy_Greedy_Oracle` provides the lazy oracle layer used to connect lazy selection to the abstract greedy-step view.
+`Algorithms/Lazy_Greedy_Oracle` provides backend lazy-selection machinery based on cached upper bounds, reused by the verified stateful lazy greedy development.
 
 ### Proof layer
 
 `Proofs/Greedy_Step_Spec` isolates the abstract one-step greedy specification used by the approximation argument.
 
 `Proofs/Greedy_Submodular_Approx` proves the classical finite-step approximation bound for deterministic greedy, and `Proofs/Greedy_Approx_From_Spec` packages the generic approximation transfer from the step specification.
-
-`Proofs/Lazy_Greedy_Oracle_Approx` connects the lazy oracle layer to the same approximation framework.
 
 `Proofs/Lazy_Greedy_Stateful_StepSpec` packages the per-iteration facts for the verified stateful lazy run, and `Proofs/Lazy_Greedy_Stateful_Approx` proves the corresponding approximation guarantee for `lazy_set`.
 
