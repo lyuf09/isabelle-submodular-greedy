@@ -103,34 +103,6 @@ text \<open>
   a telescoping upper bound over a finite disjoint set.
 \<close>
 
-text \<open>Diminishing returns: marginal gain decreases as the base set grows.\<close>
-lemma gain_decreasing:
-  assumes "S \<subseteq> T" "T \<subseteq> V" "x \<in> V" "x \<notin> T"
-  shows "gain S x \<ge> gain T x"
-proof -
-  have Sx_sub_V: "S \<union> {x} \<subseteq> V"
-    using assms(1,2,3) by auto
-
-  from submodular_f[OF Sx_sub_V assms(2)]
-  have subm:
-    "f ((S \<union> {x}) \<union> T) + f ((S \<union> {x}) \<inter> T)
-       \<le> f (S \<union> {x}) + f T" .
-
-  have "(S \<union> {x}) \<union> T = T \<union> {x}"
-    using assms(1) by auto
-  moreover have "(S \<union> {x}) \<inter> T = S"
-    using assms(1,4) by auto
-  ultimately have
-    "f (T \<union> {x}) + f S \<le> f (S \<union> {x}) + f T"
-    using subm by simp
-
-  hence "f (S \<union> {x}) - f S \<ge> f (T \<union> {x}) - f T"
-    by linarith
-
-  thus ?thesis
-    by (simp add: gain_def)
-qed
-
 subsection \<open>Main averaging lemma\<close>
 
 text \<open>
@@ -295,29 +267,6 @@ proof -
   qed
 qed
 
-
-subsection \<open>Feasible sets and the optimal value OPT\<close>
-
-text \<open>
-  We collect all feasible sets of cardinality at most \<open>k\<close> and define
-  \<open>OPT_k\<close> as the maximum value of \<open>f\<close> over this family.
-\<close>
-
-lemma feasible_nonempty:
-  "feasible {}"
-  by (simp add: feasible_def)
-
-lemma finite_feasible_family:
-  "finite {S. feasible S}"
-proof -
-  have "{S. feasible S} \<subseteq> Pow V"
-    by (auto simp: feasible_def)
-  moreover have "finite (Pow V)"
-    using finite_V by simp
-  ultimately show ?thesis
-    by (rule finite_subset)
-qed
-
 subsection \<open>Existence of maximal element in finite sets\<close>
 
 text \<open>
@@ -361,16 +310,13 @@ definition OPT_set :: "'a set" where
 lemma exists_max_feasible:
   "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
 proof -
-  have nonempty: "{S. feasible S} \<noteq> {}"
-    using feasible_nonempty by auto
-  from finite_has_maximal[OF finite_feasible_family nonempty]
-  obtain X where X_in: "X \<in> {S. feasible S}"
-    and X_max: "\<forall>Y\<in>{S. feasible S}. f Y \<le> f X"
+  from finite_has_maximal[OF finite_feasible_family feasible_family_nonempty]
+  obtain X where X_feas: "X \<in> Collect feasible"
+    and X_max: "\<forall>Y \<in> Collect feasible. f Y \<le> f X"
     by blast
-  hence "feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
-    by auto
-  thus ?thesis
-    by blast
+  have "feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
+    using X_feas X_max by auto
+  thus ?thesis ..
 qed
 
 lemma OPT_set_props:
@@ -505,10 +451,6 @@ proof -
 qed
 
 text \<open>Greedy sets are feasible whenever their size is at most \<open>k\<close>.\<close>
-lemma feasibleD:
-  assumes "feasible S"
-  shows "S \<subseteq> V" "card S \<le> k"
-  using assms unfolding feasible_def by auto
 
 lemma greedy_set_feasible:
   assumes S_sub: "greedy_set i \<subseteq> V"
@@ -744,7 +686,7 @@ text \<open>\<open>OPT_k\<close> is non-negative because \<open>f {} = 0\<close>
 lemma OPT_k_nonneg: "0 \<le> OPT_k"
 proof -
   have "feasible {}"
-    by (rule feasible_nonempty)
+    by (rule feasible_empty)
   then have "f {} \<le> OPT_k"
     by (rule OPT_k_upper_bound)
   thus ?thesis

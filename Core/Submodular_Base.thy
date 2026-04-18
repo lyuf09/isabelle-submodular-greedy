@@ -53,6 +53,35 @@ proof -
   thus ?thesis by (simp add: gain_def)
 qed
 
+text \<open>Diminishing returns for single-element marginal gains.\<close>
+lemma gain_decreasing:
+  assumes "S \<subseteq> T" "T \<subseteq> V" "x \<in> V" "x \<notin> T"
+  shows "gain S x \<ge> gain T x"
+proof -
+  have Sx_sub_V: "insert x S \<subseteq> V"
+    using assms by auto
+
+  have subm:
+    "f (insert x (S \<union> T)) + f (insert x S \<inter> T) \<le> f (insert x S) + f T"
+    using submodular_f[OF Sx_sub_V assms(2)]
+    by simp
+
+  have inter_eq: "insert x S \<inter> T = S"
+    using assms by auto
+
+  have union_eq: "insert x (S \<union> T) = insert x T"
+    using assms by auto
+
+  from subm have "f S + f (insert x T) \<le> f T + f (insert x S)"
+    by (simp add: inter_eq union_eq)
+
+  hence "f (insert x S) - f S \<ge> f (insert x T) - f T"
+    by linarith
+
+  thus ?thesis
+    by (simp add: gain_def)
+qed
+
 end
 
 locale Cardinality_Constraint = Submodular_Func +
@@ -62,6 +91,40 @@ begin
 
 definition feasible :: "'a set \<Rightarrow> bool" where
   "feasible S \<longleftrightarrow> S \<subseteq> V \<and> card S \<le> k"
+
+lemma feasibleI:
+  assumes "S \<subseteq> V" "card S \<le> k"
+  shows "feasible S"
+  using assms unfolding feasible_def by auto
+
+lemma feasibleD:
+  assumes "feasible S"
+  shows "S \<subseteq> V" "card S \<le> k"
+  using assms unfolding feasible_def by auto
+
+lemma feasible_empty[simp]: "feasible {}"
+  unfolding feasible_def by auto
+
+lemma feasible_family_nonempty: "Collect feasible \<noteq> {}"
+proof -
+  have "\<exists>S. feasible S"
+  proof
+    show "feasible {}" by (rule feasible_empty)
+  qed
+  then show ?thesis by auto
+qed
+
+lemma finite_feasible_family: "finite {S. feasible S}"
+proof -
+  have "{S. feasible S} \<subseteq> Pow V"
+    by (auto simp: feasible_def)
+  moreover have "finite (Pow V)"
+    using finite_V by simp
+  ultimately show ?thesis
+    by (rule finite_subset)
+qed
+
+end
 
 end
 

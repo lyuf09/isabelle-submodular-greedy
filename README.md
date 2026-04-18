@@ -2,30 +2,32 @@
 
 This repository contains an Isabelle/HOL formalization of monotone non-negative submodular maximization under a cardinality constraint on a finite ground set.
 
+## Main result
+
 The main formal result is the classical Nemhauser–Wolsey approximation guarantee for deterministic greedy: after `k` steps, the greedy solution satisfies the finite-step bound `1 - (1 - 1/k)^k`, and hence also the standard corollary `1 - 1/e`.
 
-The development also includes a verified lazy greedy line. Rather than treating lazy greedy as a separate approximation theory, the repository formalizes it as a deterministic refinement of the greedy baseline and proves the same approximation guarantee within the same overall framework.
+The development also includes a verified lazy greedy refinement. The lazy algorithm is formalized within the same deterministic framework and shown to satisfy the same approximation guarantee.
 
 ## Scope
 
-The current AFP-oriented development focuses on:
+This AFP-oriented branch focuses on:
 - finite ground sets,
 - monotone non-negative submodular set functions,
 - cardinality constraints,
 - deterministic greedy,
-- lazy greedy as a deterministic refinement of greedy.
+- lazy greedy as a verified deterministic refinement.
 
 It does not include stochastic greedy, executable experiments, or instance-specific auxiliary material.
 
 ## AFP session
 
-The AFP-oriented session is:
+The AFP session is:
 
 ```text
 Submodular_Greedy_AFP
 ```
 
-It currently includes the following theories:
+It contains the following theories:
 
 ```text
 Core/Submodular_Base
@@ -55,15 +57,20 @@ The AFP-oriented development is organized into three layers.
 
 `Algorithms/Lazy_Greedy_Stateful` formalizes the verified stateful lazy greedy algorithm.
 
-`Algorithms/Lazy_Greedy_Oracle` provides backend lazy-selection machinery based on cached upper bounds, reused by the verified stateful lazy greedy development.
+`Algorithms/Lazy_Greedy_Oracle` provides the lazy-selection backend based on cached upper bounds that is reused by the verified lazy greedy development.
 
 ### Proof layer
 
 `Proofs/Greedy_Step_Spec` isolates the abstract one-step greedy specification used by the approximation argument.
 
-`Proofs/Greedy_Submodular_Approx` proves the classical finite-step approximation bound for deterministic greedy, and `Proofs/Greedy_Approx_From_Spec` packages the generic approximation transfer from the step specification.
+`Proofs/Greedy_Submodular_Approx` proves the classical finite-step approximation bound for deterministic greedy.
 
-`Proofs/Lazy_Greedy_Stateful_StepSpec` packages the per-iteration facts for the verified stateful lazy run, and `Proofs/Lazy_Greedy_Stateful_Approx` proves the corresponding approximation guarantee for `lazy_set`.
+`Proofs/Greedy_Approx_From_Spec` packages the generic transfer from the step specification to the approximation guarantee.
+
+`Proofs/Lazy_Greedy_Stateful_StepSpec` packages the per-iteration facts for the verified stateful lazy run.
+
+`Proofs/Lazy_Greedy_Stateful_Approx` proves the corresponding approximation guarantee for `lazy_set`.
+
 
 ## Build
 

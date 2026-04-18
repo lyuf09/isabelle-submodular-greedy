@@ -11,36 +11,6 @@ record 'a lg_state =
 context Cardinality_Constraint
 begin
 
-subsection "Diminishing returns (reused for ub validity across iterations)"
-
-lemma gain_decreasing:
-  assumes "S \<subseteq> T" "T \<subseteq> V" "x \<in> V" "x \<notin> T"
-  shows "gain S x \<ge> gain T x"
-proof -
-  have Sx_sub_V: "S \<union> {x} \<subseteq> V"
-    using assms(1,2,3) by auto
-
-  from submodular_f[OF Sx_sub_V assms(2)]
-  have subm:
-    "f ((S \<union> {x}) \<union> T) + f ((S \<union> {x}) \<inter> T)
-       \<le> f (S \<union> {x}) + f T" .
-
-  have "(S \<union> {x}) \<union> T = T \<union> {x}"
-    using assms(1) by auto
-  moreover have "(S \<union> {x}) \<inter> T = S"
-    using assms(1,4) by auto
-  ultimately have
-    "f (T \<union> {x}) + f S \<le> f (S \<union> {x}) + f T"
-    using subm by simp
-
-  hence "f (S \<union> {x}) - f S \<ge> f (T \<union> {x}) - f T"
-    by linarith
-
-  thus ?thesis
-    by (simp add: gain_def)
-qed
-
-
 subsection "State (selected set + cached upper bounds)"
 
 definition init_ub :: "'a \<Rightarrow> real" where
