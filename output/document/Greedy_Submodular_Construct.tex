@@ -1,0 +1,2171 @@
+%
+\begin{isabellebody}%
+\setisabellecontext{Greedy{\isacharunderscore}{\kern0pt}Submodular{\isacharunderscore}{\kern0pt}Construct}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isakeywordONE{theory}\isamarkupfalse%
+\ Greedy{\isacharunderscore}{\kern0pt}Submodular{\isacharunderscore}{\kern0pt}Construct\isanewline
+\ \ \isakeywordTWO{imports}\ {\isachardoublequoteopen}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isacharslash}{\kern0pt}Core{\isacharslash}{\kern0pt}Submodular{\isacharunderscore}{\kern0pt}Base{\isachardoublequoteclose}\isanewline
+\isakeywordTWO{begin}%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsection{Greedy construction%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+This theory sets up the greedy construction for monotone submodular
+  maximization under a cardinality constraint. We fix a finite ground set
+  \isa{V}, a budget \isa{k}, and a non-negative monotone submodular function
+  \isa{f} over subsets of \isa{V}. The greedy sequence starts from the empty set
+  and repeatedly adds an element with the largest marginal gain
+  (ties broken arbitrarily).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\begin{isamarkuptext}%
+Locale \isa{Greedy{\isacharunderscore}{\kern0pt}Setup} encapsulates this standard setting. All subsequent
+  definitions and lemmas are expressed relative to a fixed ground set \isa{V},
+  budget \isa{k}, and set function \isa{f} satisfying the usual assumptions
+  (finiteness, non-negativity, monotonicity, and submodularity).%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsubsection{Preliminaries on finite maximizers%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\begin{isamarkuptext}%
+Finite arg-max via the standard maximality predicate.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max{\isacharunderscore}{\kern0pt}in{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{fixes}\ g\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}b{\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}linorder{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{assumes}\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ {\isachardoublequoteopen}{\isasymexists}x{\isasymin}A{\isachardot}{\kern0pt}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ g\ {\isacharparenleft}{\kern0pt}{\isasymlambda}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ img{\isacharunderscore}{\kern0pt}fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\kern0pt}g\ {\isacharbackquote}{\kern0pt}\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ fin\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ img{\isacharunderscore}{\kern0pt}ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}g\ {\isacharbackquote}{\kern0pt}\ A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ ne\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}M\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}Max\ {\isacharparenleft}{\kern0pt}g\ {\isacharbackquote}{\kern0pt}\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ M{\isacharunderscore}{\kern0pt}in{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharquery}{\kern0pt}M\ {\isasymin}\ g\ {\isacharbackquote}{\kern0pt}\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ Max{\isacharunderscore}{\kern0pt}in{\isacharbrackleft}{\kern0pt}OF\ img{\isacharunderscore}{\kern0pt}fin\ img{\isacharunderscore}{\kern0pt}ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{obtain}\isamarkupfalse%
+\ x\ \isakeywordTWO{where}\ xA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}x\ {\isasymin}\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ gx{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}g\ x\ {\isacharequal}{\kern0pt}\ {\isacharquery}{\kern0pt}M{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ no{\isacharunderscore}{\kern0pt}better{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymnot}\ {\isacharparenleft}{\kern0pt}{\isasymexists}y{\isachardot}{\kern0pt}\ y\ {\isasymin}\ A\ {\isasymand}\ g\ y\ {\isachargreater}{\kern0pt}\ g\ x{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \ \ \isakeywordTHREE{assume}\isamarkupfalse%
+\ ex{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}y{\isachardot}{\kern0pt}\ y\ {\isasymin}\ A\ {\isasymand}\ g\ y\ {\isachargreater}{\kern0pt}\ g\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{obtain}\isamarkupfalse%
+\ y\ \isakeywordTWO{where}\ yA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}y\ {\isasymin}\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ gy{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}g\ y\ {\isachargreater}{\kern0pt}\ g\ x{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}g\ y\ {\isasymle}\ Max\ {\isacharparenleft}{\kern0pt}g\ {\isacharbackquote}{\kern0pt}\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ Max{\isacharunderscore}{\kern0pt}ge{\isacharunderscore}{\kern0pt}iff{\isacharbrackleft}{\kern0pt}OF\ img{\isacharunderscore}{\kern0pt}fin\ img{\isacharunderscore}{\kern0pt}ne{\isacharbrackright}{\kern0pt}\ yA\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \ \ \isakeywordONE{hence}\isamarkupfalse%
+\ gy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}gx{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}g\ y\ {\isasymle}\ g\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ gx{\isacharparenright}{\kern0pt}\isanewline
+\isanewline
+\ \ \ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ gx{\isacharunderscore}{\kern0pt}lt{\isacharunderscore}{\kern0pt}gy{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}g\ x\ {\isacharless}{\kern0pt}\ g\ y{\isachardoublequoteclose}\ \isakeywordONE{using}\isamarkupfalse%
+\ gy\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ gx{\isacharunderscore}{\kern0pt}lt{\isacharunderscore}{\kern0pt}gy\ gy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}gx\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}meson\ less{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}not{\isacharunderscore}{\kern0pt}le{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ g\ {\isacharparenleft}{\kern0pt}{\isasymlambda}z{\isachardot}{\kern0pt}\ z\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max{\isacharunderscore}{\kern0pt}def\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ xA\ no{\isacharunderscore}{\kern0pt}better\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isakeywordTHREE{thus}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ xA\ \isakeywordONE{by}\isamarkupfalse%
+\ blast\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordONE{lemma}\isamarkupfalse%
+\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}maxD{\isacharunderscore}{\kern0pt}le{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{fixes}\ f\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}b\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a{\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}linorder{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ f\ P\ x{\isachardoublequoteclose}\ {\isachardoublequoteopen}P\ y{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ {\isachardoublequoteopen}f\ y\ {\isasymle}\ f\ x{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ assms\isanewline
+\ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max{\isacharunderscore}{\kern0pt}linorder{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Abstract setup for the greedy algorithm:
+  a finite ground set V, a budget k, and a non-negative monotone
+  submodular function f with f {} = 0.
+
+  This theory focuses on the greedy construction and basic structural
+  properties, without yet proving approximation guarantees.%
+\end{isamarkuptext}\isamarkuptrue%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+%
+\isatagdocument
+%
+\isamarkupsection{Concrete argmax oracle for marginal gain%
+}
+\isamarkuptrue%
+%
+\endisatagdocument
+{\isafolddocument}%
+%
+\isadelimdocument
+%
+\endisadelimdocument
+\isakeywordONE{context}\isamarkupfalse%
+\ Submodular{\isacharunderscore}{\kern0pt}Func\isanewline
+\isakeywordTWO{begin}\isanewline
+\isanewline
+\isakeywordONE{definition}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a\ set\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a{\isachardoublequoteclose}\ \isakeywordTWO{where}\isanewline
+\ \ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ {\isacharparenleft}{\kern0pt}SOME\ x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymand}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}y{\isachardot}{\kern0pt}\ y\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isanewline
+\isakeywordONE{lemma}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}mem{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ exB{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}x{\isasymin}A{\isachardot}{\kern0pt}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}y{\isachardot}{\kern0pt}\ y\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max{\isacharunderscore}{\kern0pt}in{\isacharbrackleft}{\kern0pt}OF\ fin\ ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ ex{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymand}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}y{\isachardot}{\kern0pt}\ y\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ exB\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}def\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ someI{\isacharunderscore}{\kern0pt}ex{\isacharbrackleft}{\kern0pt}OF\ ex{\isacharbrackright}{\kern0pt}\ \isakeywordONE{by}\isamarkupfalse%
+\ blast\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordONE{lemma}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}max{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\ \isakeywordTWO{and}\ yA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}y\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ {\isachardoublequoteopen}gain\ S\ y\ {\isasymle}\ gain\ S\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ exB{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}x{\isasymin}A{\isachardot}{\kern0pt}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}z{\isachardot}{\kern0pt}\ z\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max{\isacharunderscore}{\kern0pt}in{\isacharbrackleft}{\kern0pt}OF\ fin\ ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ ex{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymexists}x{\isachardot}{\kern0pt}\ x\ {\isasymin}\ A\ {\isasymand}\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}z{\isachardot}{\kern0pt}\ z\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ exB\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ chosen{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}max\ {\isacharparenleft}{\kern0pt}gain\ S{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}{\isasymlambda}z{\isachardot}{\kern0pt}\ z\ {\isasymin}\ A{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}def\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ someI{\isacharunderscore}{\kern0pt}ex{\isacharbrackleft}{\kern0pt}OF\ ex{\isacharbrackright}{\kern0pt}\ \isakeywordONE{by}\isamarkupfalse%
+\ blast\isanewline
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ is{\isacharunderscore}{\kern0pt}arg{\isacharunderscore}{\kern0pt}maxD{\isacharunderscore}{\kern0pt}le{\isacharbrackleft}{\kern0pt}OF\ chosen\ yA{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordTWO{end}\isamarkupfalse%
+\isanewline
+\isanewline
+\isakeywordONE{locale}\isamarkupfalse%
+\ Greedy{\isacharunderscore}{\kern0pt}Setup\ {\isacharequal}{\kern0pt}\ Cardinality{\isacharunderscore}{\kern0pt}Constraint\ V\ f\ k\isanewline
+\ \ \isakeywordTWO{for}\ V\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\ \isakeywordTWO{and}\ f\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set\ {\isasymRightarrow}\ real{\isachardoublequoteclose}\ \isakeywordTWO{and}\ k\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ nat\ {\isacharplus}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{fixes}\ argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a\ set\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{assumes}\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}mem{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}finite\ A\ {\isasymLongrightarrow}\ A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isasymLongrightarrow}\ argmax{\isacharunderscore}{\kern0pt}gain\ S\ A\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{assumes}\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}max{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}finite\ A\ {\isasymLongrightarrow}\ A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isasymLongrightarrow}\ {\isasymforall}y{\isasymin}A{\isachardot}{\kern0pt}\ gain\ S\ y\ {\isasymle}\ gain\ S\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ S\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isakeywordTWO{begin}%
+\begin{isamarkuptext}%
+Greedy construction: start from \isa{{\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}} and, as long as there are remaining
+  elements, add one with maximum marginal gain.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{fun}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}nat\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\ \isakeywordTWO{where}\isanewline
+\ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isadigit{0}}\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+{\isacharbar}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ {\isacharparenleft}{\kern0pt}let\ S\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ in\isanewline
+\ \ \ \ \ \ if\ V\ {\isacharminus}{\kern0pt}\ S\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}\ then\ S\ else\ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ S\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+Greedy sets are always subsets of the ground set \isa{V}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}V{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ V{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}induction\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isadigit{0}}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ IH{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ V{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ fact\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ True\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordTHREE{thus}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ IH\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ finA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}V\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ inA{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ \ \ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymin}\ V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}mem{\isacharbrackleft}{\kern0pt}OF\ finA\ False{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \ \ \isakeywordONE{hence}\isamarkupfalse%
+\ inV{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymin}\ V{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \ \ \isakeywordONE{from}\isamarkupfalse%
+\ IH\ inV\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isacharbraceright}{\kern0pt}\ {\isasymsubseteq}\ V{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \ \ \isakeywordONE{with}\isamarkupfalse%
+\ False\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+If a genuinely new element is inserted, the cardinality increases by one.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}step{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharplus}{\kern0pt}\ {\isadigit{1}}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}S\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}A\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ {\isacharquery}{\kern0pt}S{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}x\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharquery}{\kern0pt}S\ {\isacharquery}{\kern0pt}A{\isachardoublequoteclose}\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ finS{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharquery}{\kern0pt}S{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}V\ finite{\isacharunderscore}{\kern0pt}V\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}meson\ finite{\isacharunderscore}{\kern0pt}subset{\isacharparenright}{\kern0pt}\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ finA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharquery}{\kern0pt}A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}V\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ x{\isacharunderscore}{\kern0pt}in{\isacharunderscore}{\kern0pt}A{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharquery}{\kern0pt}x\ {\isasymin}\ {\isacharquery}{\kern0pt}A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}mem{\isacharbrackleft}{\kern0pt}OF\ finA\ ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordONE{hence}\isamarkupfalse%
+\ x{\isacharunderscore}{\kern0pt}notin{\isacharunderscore}{\kern0pt}S{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharquery}{\kern0pt}x\ {\isasymnotin}\ {\isacharquery}{\kern0pt}S{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ suc{\isacharunderscore}{\kern0pt}def{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ {\isacharparenleft}{\kern0pt}let\ S\ {\isacharequal}{\kern0pt}\ {\isacharquery}{\kern0pt}S\ in\isanewline
+\ \ \ \ \ \ \ \ if\ V\ {\isasymsubseteq}\ S\ then\ S\ else\ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ S\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{from}\isamarkupfalse%
+\ ne\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ {\isacharquery}{\kern0pt}S\ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}{\isacharquery}{\kern0pt}x{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ suc{\isacharunderscore}{\kern0pt}def\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{hence}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ insert\ {\isacharquery}{\kern0pt}x\ {\isacharquery}{\kern0pt}S{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordTHREE{thus}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finS\ x{\isacharunderscore}{\kern0pt}notin{\isacharunderscore}{\kern0pt}S\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+If the remainder is empty, the greedy set stays unchanged.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}idle{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ assms\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+State transition: when the remainder is non-empty, \isa{Sᵢ} evolves by adding
+  the arg-max element.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ state{\isacharunderscore}{\kern0pt}transition{\isacharunderscore}{\kern0pt}nonempty{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}{\isadigit{0}}\ {\isacharless}{\kern0pt}\ i{\isachardoublequoteclose}\ \isakeywordTWO{and}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{obtain}\isamarkupfalse%
+\ j\ \isakeywordTWO{where}\ ij{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}i\ {\isacharequal}{\kern0pt}\ Suc\ j{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\kern0pt}{\isadigit{1}}{\isacharparenright}{\kern0pt}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ i{\isacharparenright}{\kern0pt}\ auto\isanewline
+\isanewline
+\ \ \isakeywordONE{from}\isamarkupfalse%
+\ assms{\isacharparenleft}{\kern0pt}{\isadigit{2}}{\isacharparenright}{\kern0pt}\ ij\ \isakeywordONE{have}\isamarkupfalse%
+\ rem{\isacharunderscore}{\kern0pt}ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ j\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ def{\isacharunderscore}{\kern0pt}suc{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ j{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ {\isacharparenleft}{\kern0pt}let\ S\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ j\ in\isanewline
+\ \ \ \ \ \ \ \ if\ V\ {\isasymsubseteq}\ S\ then\ S\ else\ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ S\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{from}\isamarkupfalse%
+\ rem{\isacharunderscore}{\kern0pt}ne\ \isakeywordONE{have}\isamarkupfalse%
+\isanewline
+\ \ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ j{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ greedy{\isacharunderscore}{\kern0pt}set\ j\ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ j{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ j{\isacharparenright}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ def{\isacharunderscore}{\kern0pt}suc\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\isanewline
+\ \ \isakeywordONE{with}\isamarkupfalse%
+\ ij\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+At most one new element is added in each greedy step.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ card{\isacharunderscore}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}i{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ i{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}induction\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isadigit{0}}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ True\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}idle{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{with}\isamarkupfalse%
+\ Suc{\isachardot}{\kern0pt}IH\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharplus}{\kern0pt}\ {\isadigit{1}}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ False\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}step{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{with}\isamarkupfalse%
+\ Suc{\isachardot}{\kern0pt}IH\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+If \isa{i\ {\isasymle}\ k} then \isa{card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ k} (used later in the gap bound).%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ card{\isacharunderscore}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}k{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}i\ {\isasymle}\ k{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ k{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ card{\isacharunderscore}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}i\ assms\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}meson\ le{\isacharunderscore}{\kern0pt}trans{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+If \isa{card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ t{\isacharparenright}{\kern0pt}\ {\isacharless}{\kern0pt}\ card\ V}, then the remainder \isa{V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ t}
+  is non-empty.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ remainder{\isacharunderscore}{\kern0pt}nonempty{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}ltV{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ t{\isacharparenright}{\kern0pt}\ {\isacharless}{\kern0pt}\ card\ V{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ t\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{assume}\isamarkupfalse%
+\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ t\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ vsub{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ t{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ auto\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ ssub{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ t\ {\isasymsubseteq}\ V{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}V{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{from}\isamarkupfalse%
+\ ssub\ vsub\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ t\ {\isacharequal}{\kern0pt}\ V{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ subset{\isacharunderscore}{\kern0pt}antisym{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{with}\isamarkupfalse%
+\ assms\ \isakeywordTHREE{show}\isamarkupfalse%
+\ False\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Under \isa{k\ {\isasymle}\ card\ V}, the greedy transition up to step \isa{k} always adds a new
+  element.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ state{\isacharunderscore}{\kern0pt}transition{\isacharunderscore}{\kern0pt}upto{\isacharunderscore}{\kern0pt}k{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}{\isadigit{0}}\ {\isacharless}{\kern0pt}\ i{\isachardoublequoteclose}\ {\isachardoublequoteopen}i\ {\isasymle}\ k{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isasymle}\ i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ card{\isacharunderscore}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}i\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{also}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}\ {\isacharless}{\kern0pt}\ k{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ assms{\isacharparenleft}{\kern0pt}{\isadigit{1}}{\isacharcomma}{\kern0pt}{\isadigit{2}}{\isacharparenright}{\kern0pt}\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{also}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}\ {\isasymle}\ card\ V{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ k{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}cardV\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{finally}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ ltV{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharless}{\kern0pt}\ card\ V{\isachardoublequoteclose}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ rem{\isacharunderscore}{\kern0pt}ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}i\ {\isacharminus}{\kern0pt}\ {\isadigit{1}}{\isacharparenright}{\kern0pt}\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ remainder{\isacharunderscore}{\kern0pt}nonempty{\isacharunderscore}{\kern0pt}if{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}ltV{\isacharbrackleft}{\kern0pt}OF\ ltV{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ state{\isacharunderscore}{\kern0pt}transition{\isacharunderscore}{\kern0pt}nonempty{\isacharbrackleft}{\kern0pt}OF\ assms{\isacharparenleft}{\kern0pt}{\isadigit{1}}{\isacharparenright}{\kern0pt}\ rem{\isacharunderscore}{\kern0pt}ne{\isacharbrackright}{\kern0pt}{\isacharparenright}{\kern0pt}\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Intermediate greedy states as a list \isa{{\isacharbrackleft}{\kern0pt}S₀{\isacharcomma}{\kern0pt}{\isasymdots}{\isacharcomma}{\kern0pt}Sₙ{\isacharbrackright}{\kern0pt}}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{definition}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}nat\ {\isasymRightarrow}\ {\isacharprime}{\kern0pt}a\ set\ list{\isachardoublequoteclose}\ \isakeywordTWO{where}\isanewline
+\ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}sequence\ n\ {\isacharequal}{\kern0pt}\ map\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharbrackleft}{\kern0pt}{\isadigit{0}}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isacharless}{\kern0pt}Suc\ n{\isacharbrackright}{\kern0pt}{\isachardoublequoteclose}%
+\begin{isamarkuptext}%
+Indexing lemma for the sequence representation.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}nth{\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}i\ {\isasymle}\ n{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}sequence\ n\ {\isacharbang}{\kern0pt}\ i\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ i{\isacharunderscore}{\kern0pt}lt{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}i\ {\isacharless}{\kern0pt}\ Suc\ n{\isachardoublequoteclose}\ \isakeywordONE{using}\isamarkupfalse%
+\ assms\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isacharparenleft}{\kern0pt}map\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharbrackleft}{\kern0pt}{\isadigit{0}}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isacharless}{\kern0pt}Suc\ n{\isacharbrackright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharbang}{\kern0pt}\ i\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}{\isacharbrackleft}{\kern0pt}{\isadigit{0}}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isacharless}{\kern0pt}Suc\ n{\isacharbrackright}{\kern0pt}\ {\isacharbang}{\kern0pt}\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ i{\isacharunderscore}{\kern0pt}lt\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ only{\isacharcolon}{\kern0pt}\ nth{\isacharunderscore}{\kern0pt}map\ length{\isacharunderscore}{\kern0pt}upt{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{also}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ i{\isacharunderscore}{\kern0pt}lt\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ only{\isacharcolon}{\kern0pt}\ nth{\isacharunderscore}{\kern0pt}upt\ add{\isacharunderscore}{\kern0pt}{\isadigit{0}}{\isacharunderscore}{\kern0pt}left{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{finally}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ only{\isacharcolon}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Every greedy state is finite.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}set{\isacharunderscore}{\kern0pt}finite\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}V\ finite{\isacharunderscore}{\kern0pt}V\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}meson\ finite{\isacharunderscore}{\kern0pt}subset{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+One-step monotonicity: \isa{Sᵢ\ {\isasymsubseteq}\ Sᵢ₊₁}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}mono{\isacharunderscore}{\kern0pt}Suc{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}auto\ simp{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Chain monotonicity: if \isa{i\ {\isasymle}\ j} then \isa{Sᵢ\ {\isasymsubseteq}\ Sⱼ}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}chain{\isacharunderscore}{\kern0pt}mono{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}i\ {\isasymle}\ j{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ j{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ assms\isanewline
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}induction\ j\ arbitrary{\isacharcolon}{\kern0pt}\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isadigit{0}}\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}Suc\ j\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}case\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ {\isachardoublequoteopen}i\ {\isasymle}\ j{\isachardoublequoteclose}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \ \ \isakeywordONE{with}\isamarkupfalse%
+\ Suc{\isachardot}{\kern0pt}IH\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ j{\isachardoublequoteclose}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordONE{also}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}{\isachardot}{\kern0pt}\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ j{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}mono{\isacharunderscore}{\kern0pt}Suc{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{finally}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \isakeywordONE{hence}\isamarkupfalse%
+\ {\isachardoublequoteopen}i\ {\isacharequal}{\kern0pt}\ Suc\ j{\isachardoublequoteclose}\ \isakeywordONE{using}\isamarkupfalse%
+\ Suc{\isachardot}{\kern0pt}prems\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \ \ \isakeywordTHREE{thus}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Cardinality is non-decreasing along the greedy sequence.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}mono{\isacharcolon}{\kern0pt}\isanewline
+\ \ {\isachardoublequoteopen}i\ {\isasymle}\ j\ {\isasymLongrightarrow}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ j{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}meson\ greedy{\isacharunderscore}{\kern0pt}chain{\isacharunderscore}{\kern0pt}mono\ greedy{\isacharunderscore}{\kern0pt}set{\isacharunderscore}{\kern0pt}finite\ finite{\isacharunderscore}{\kern0pt}subset\ card{\isacharunderscore}{\kern0pt}mono{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+A compact bound in one line: \isa{card\ Sᵢ\ {\isasymle}\ min\ i\ {\isacharparenleft}{\kern0pt}card\ V{\isacharparenright}{\kern0pt}} for all \isa{i}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}card{\isacharunderscore}{\kern0pt}min{\isacharcolon}{\kern0pt}\isanewline
+\ \ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ min\ i\ {\isacharparenleft}{\kern0pt}card\ V{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ A{\isadigit{1}}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ card{\isacharunderscore}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}le{\isacharunderscore}{\kern0pt}i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ A{\isadigit{2}}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}card\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymle}\ card\ V{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ V{\isachardoublequoteclose}\ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}V\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordONE{have}\isamarkupfalse%
+\ sub{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymsubseteq}\ V{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}subset{\isacharunderscore}{\kern0pt}V{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordONE{from}\isamarkupfalse%
+\ fin\ sub\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ card{\isacharunderscore}{\kern0pt}mono{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}cases\ {\isachardoublequoteopen}i\ {\isasymle}\ card\ V{\isachardoublequoteclose}{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ True\isanewline
+\ \ \ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{using}\isamarkupfalse%
+\ A{\isadigit{1}}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ min{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordTHREE{case}\isamarkupfalse%
+\ False\isanewline
+\ \ \ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\ \isakeywordONE{using}\isamarkupfalse%
+\ A{\isadigit{2}}\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ min{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Length and endpoints of the intermediate sequence.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}length\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ {\isachardoublequoteopen}length\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}sequence\ n{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ Suc\ n{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}{\isadigit{0}}\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}sequence\ n\ {\isacharbang}{\kern0pt}\ {\isadigit{0}}\ {\isacharequal}{\kern0pt}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}nth{\isacharbrackleft}{\kern0pt}of\ {\isadigit{0}}\ n{\isacharbrackright}{\kern0pt}\ \isakeywordONE{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}last\ {\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}sequence\ n\ {\isacharbang}{\kern0pt}\ n\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ n{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+\ \ %
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{using}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}sequence{\isacharunderscore}{\kern0pt}nth\ \isakeywordONE{by}\isamarkupfalse%
+\ simp%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+At a non-empty remainder, the chosen element is new and lies in \isa{V\ {\isacharminus}{\kern0pt}\ S}.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ chosen{\isacharunderscore}{\kern0pt}in{\isacharunderscore}{\kern0pt}remainder{\isacharunderscore}{\kern0pt}nonempty{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ rem{\isacharunderscore}{\kern0pt}ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{defines}\ x{\isacharunderscore}{\kern0pt}def{\isacharcolon}{\kern0pt}\ \ {\isachardoublequoteopen}x\ {\isasymequiv}\ argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}x\ {\isasymin}\ V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\ {\isachardoublequoteopen}x\ {\isasymnotin}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ finA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ finite{\isacharunderscore}{\kern0pt}V\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ xinA{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isasymin}\ V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}mem{\isacharbrackleft}{\kern0pt}OF\ finA\ rem{\isacharunderscore}{\kern0pt}ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}x\ {\isasymin}\ V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ x{\isacharunderscore}{\kern0pt}def\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ xinA{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{then}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}x\ {\isasymnotin}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+Increment shape at a non-empty step: \isa{Sᵢ₊₁} is obtained by inserting
+  the arg-max element into \isa{Sᵢ}. This is often useful in counting arguments.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}increment{\isacharunderscore}{\kern0pt}nonempty{\isacharbrackleft}{\kern0pt}simp{\isacharbrackright}{\kern0pt}{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ rem{\isacharunderscore}{\kern0pt}ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ \ \ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ not{\isacharunderscore}{\kern0pt}subset{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isasymnot}\ V\ {\isasymsubseteq}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ rem{\isacharunderscore}{\kern0pt}ne\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Diff{\isacharunderscore}{\kern0pt}eq{\isacharunderscore}{\kern0pt}empty{\isacharunderscore}{\kern0pt}iff{\isacharparenright}{\kern0pt}\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ def{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ {\isacharparenleft}{\kern0pt}let\ S\ {\isacharequal}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ in\isanewline
+\ \ \ \ \ \ \ \ if\ V\ {\isasymsubseteq}\ S\ then\ S\ else\ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ S\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ S{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{unfolding}\isamarkupfalse%
+\ def\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ not{\isacharunderscore}{\kern0pt}subset\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ Let{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\begin{isamarkuptext}%
+One-step update of the objective value along the greedy sequence.%
+\end{isamarkuptext}\isamarkuptrue%
+\isakeywordONE{lemma}\isamarkupfalse%
+\ greedy{\isacharunderscore}{\kern0pt}step{\isacharunderscore}{\kern0pt}f{\isacharunderscore}{\kern0pt}eq{\isacharcolon}{\kern0pt}\isanewline
+\ \ \isakeywordTWO{assumes}\ {\isachardoublequoteopen}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTWO{shows}\isanewline
+\ \ \ \ {\isachardoublequoteopen}f\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ f\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharplus}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ \ \ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\ {\isacharminus}{\kern0pt}\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}S\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ i{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{let}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}x\ {\isacharequal}{\kern0pt}\ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharquery}{\kern0pt}S\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ {\isacharquery}{\kern0pt}S{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\isanewline
+\ \ \isakeywordONE{have}\isamarkupfalse%
+\ gs{\isacharunderscore}{\kern0pt}Suc{\isacharcolon}{\kern0pt}\isanewline
+\ \ \ \ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\isanewline
+\ \ \ \ \ \ \ insert\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}V\ {\isacharminus}{\kern0pt}\ greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ i{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ assms\ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}rule\ greedy{\isacharunderscore}{\kern0pt}increment{\isacharunderscore}{\kern0pt}nonempty{\isacharparenright}{\kern0pt}\isanewline
+\isanewline
+\ \ \isakeywordONE{hence}\isamarkupfalse%
+\ {\isachardoublequoteopen}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ {\isacharquery}{\kern0pt}S\ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}{\isacharquery}{\kern0pt}x{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isanewline
+\ \ \isakeywordONE{hence}\isamarkupfalse%
+\ {\isachardoublequoteopen}f\ {\isacharparenleft}{\kern0pt}greedy{\isacharunderscore}{\kern0pt}set\ {\isacharparenleft}{\kern0pt}Suc\ i{\isacharparenright}{\kern0pt}{\isacharparenright}{\kern0pt}\ {\isacharequal}{\kern0pt}\ f\ {\isacharparenleft}{\kern0pt}{\isacharquery}{\kern0pt}S\ {\isasymunion}\ {\isacharbraceleft}{\kern0pt}{\isacharquery}{\kern0pt}x{\isacharbraceright}{\kern0pt}{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\ \ \isakeywordONE{also}\isamarkupfalse%
+\ \isakeywordONE{have}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymdots}\ {\isacharequal}{\kern0pt}\ f\ {\isacharquery}{\kern0pt}S\ {\isacharplus}{\kern0pt}\ gain\ {\isacharquery}{\kern0pt}S\ {\isacharquery}{\kern0pt}x{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ {\isacharparenleft}{\kern0pt}simp\ add{\isacharcolon}{\kern0pt}\ gain{\isacharunderscore}{\kern0pt}def{\isacharparenright}{\kern0pt}\isanewline
+\ \ \isakeywordONE{finally}\isamarkupfalse%
+\ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isacharquery}{\kern0pt}thesis\isanewline
+\ \ \ \ \isakeywordONE{by}\isamarkupfalse%
+\ simp\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordTWO{end}\isamarkupfalse%
+\isanewline
+\isanewline
+\isakeywordONE{context}\isamarkupfalse%
+\ Cardinality{\isacharunderscore}{\kern0pt}Constraint\isanewline
+\isakeywordTWO{begin}\isanewline
+\isanewline
+\isakeywordONE{interpretation}\isamarkupfalse%
+\ Greedy{\isacharunderscore}{\kern0pt}Concrete{\isacharcolon}{\kern0pt}\ Greedy{\isacharunderscore}{\kern0pt}Setup\ V\ f\ k\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\isanewline
+%
+\isadelimproof
+%
+\endisadelimproof
+%
+\isatagproof
+\isakeywordONE{proof}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{fix}\isamarkupfalse%
+\ S\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\ \isakeywordTWO{and}\ A\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTHREE{assume}\isamarkupfalse%
+\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}mem{\isacharbrackleft}{\kern0pt}OF\ fin\ ne{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\isakeywordONE{next}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordTHREE{fix}\isamarkupfalse%
+\ S\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\ \isakeywordTWO{and}\ A\ {\isacharcolon}{\kern0pt}{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}{\isacharprime}{\kern0pt}a\ set{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTHREE{assume}\isamarkupfalse%
+\ fin{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}finite\ A{\isachardoublequoteclose}\ \isakeywordTWO{and}\ ne{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}A\ {\isasymnoteq}\ {\isacharbraceleft}{\kern0pt}{\isacharbraceright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}{\isasymforall}y{\isasymin}A{\isachardot}{\kern0pt}\ gain\ S\ y\ {\isasymle}\ gain\ S\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \isakeywordONE{proof}\isamarkupfalse%
+\isanewline
+\ \ \ \ \isakeywordTHREE{fix}\isamarkupfalse%
+\ y\isanewline
+\ \ \ \ \isakeywordTHREE{assume}\isamarkupfalse%
+\ yA{\isacharcolon}{\kern0pt}\ {\isachardoublequoteopen}y\ {\isasymin}\ A{\isachardoublequoteclose}\isanewline
+\ \ \ \ \isakeywordTHREE{show}\isamarkupfalse%
+\ {\isachardoublequoteopen}gain\ S\ y\ {\isasymle}\ gain\ S\ {\isacharparenleft}{\kern0pt}argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some\ S\ A{\isacharparenright}{\kern0pt}{\isachardoublequoteclose}\isanewline
+\ \ \ \ \ \ \isakeywordONE{using}\isamarkupfalse%
+\ argmax{\isacharunderscore}{\kern0pt}gain{\isacharunderscore}{\kern0pt}some{\isacharunderscore}{\kern0pt}max{\isacharbrackleft}{\kern0pt}OF\ fin\ ne\ yA{\isacharbrackright}{\kern0pt}\ \isakeywordONE{{\isachardot}{\kern0pt}}\isamarkupfalse%
+\isanewline
+\ \ \isakeywordONE{qed}\isamarkupfalse%
+\isanewline
+\isakeywordONE{qed}\isamarkupfalse%
+%
+\endisatagproof
+{\isafoldproof}%
+%
+\isadelimproof
+\isanewline
+%
+\endisadelimproof
+\isanewline
+\isakeywordTWO{end}\isamarkupfalse%
+\isanewline
+%
+\isadelimtheory
+\isanewline
+%
+\endisadelimtheory
+%
+\isatagtheory
+\isakeywordTWO{end}\isamarkupfalse%
+%
+\endisatagtheory
+{\isafoldtheory}%
+%
+\isadelimtheory
+%
+\endisadelimtheory
+%
+\end{isabellebody}%
+\endinput
+%:%file=~/isabelle-submodular-greedy/Algorithms/Greedy_Submodular_Construct.thy%:%
+%:%10=1%:%
+%:%11=1%:%
+%:%12=2%:%
+%:%13=3%:%
+%:%27=5%:%
+%:%39=8%:%
+%:%40=9%:%
+%:%41=10%:%
+%:%42=11%:%
+%:%43=12%:%
+%:%44=13%:%
+%:%48=17%:%
+%:%49=18%:%
+%:%50=19%:%
+%:%51=20%:%
+%:%60=23%:%
+%:%72=25%:%
+%:%74=29%:%
+%:%75=29%:%
+%:%76=30%:%
+%:%77=31%:%
+%:%78=32%:%
+%:%85=33%:%
+%:%86=33%:%
+%:%87=34%:%
+%:%88=34%:%
+%:%89=35%:%
+%:%90=35%:%
+%:%91=35%:%
+%:%92=36%:%
+%:%93=36%:%
+%:%94=37%:%
+%:%95=37%:%
+%:%96=37%:%
+%:%97=38%:%
+%:%98=39%:%
+%:%99=39%:%
+%:%100=40%:%
+%:%101=40%:%
+%:%102=41%:%
+%:%103=41%:%
+%:%104=41%:%
+%:%105=42%:%
+%:%106=42%:%
+%:%107=42%:%
+%:%108=43%:%
+%:%109=43%:%
+%:%110=44%:%
+%:%111=45%:%
+%:%112=45%:%
+%:%113=46%:%
+%:%114=46%:%
+%:%115=47%:%
+%:%116=47%:%
+%:%117=48%:%
+%:%118=48%:%
+%:%119=48%:%
+%:%120=48%:%
+%:%121=49%:%
+%:%122=50%:%
+%:%123=50%:%
+%:%124=51%:%
+%:%125=51%:%
+%:%126=51%:%
+%:%127=52%:%
+%:%128=52%:%
+%:%129=53%:%
+%:%130=53%:%
+%:%131=54%:%
+%:%132=55%:%
+%:%133=55%:%
+%:%134=55%:%
+%:%135=55%:%
+%:%136=56%:%
+%:%137=56%:%
+%:%138=57%:%
+%:%139=57%:%
+%:%140=57%:%
+%:%141=58%:%
+%:%142=58%:%
+%:%143=59%:%
+%:%144=60%:%
+%:%145=60%:%
+%:%146=61%:%
+%:%147=61%:%
+%:%148=62%:%
+%:%149=62%:%
+%:%150=62%:%
+%:%151=63%:%
+%:%152=63%:%
+%:%153=64%:%
+%:%154=64%:%
+%:%155=64%:%
+%:%156=65%:%
+%:%162=65%:%
+%:%165=66%:%
+%:%166=67%:%
+%:%167=67%:%
+%:%168=68%:%
+%:%169=69%:%
+%:%170=70%:%
+%:%173=71%:%
+%:%177=71%:%
+%:%178=71%:%
+%:%179=72%:%
+%:%180=72%:%
+%:%189=75%:%
+%:%190=76%:%
+%:%191=77%:%
+%:%192=78%:%
+%:%193=79%:%
+%:%194=80%:%
+%:%203=83%:%
+%:%213=85%:%
+%:%214=85%:%
+%:%215=86%:%
+%:%216=87%:%
+%:%217=88%:%
+%:%218=88%:%
+%:%219=89%:%
+%:%220=90%:%
+%:%221=91%:%
+%:%222=92%:%
+%:%223=92%:%
+%:%224=93%:%
+%:%225=94%:%
+%:%232=95%:%
+%:%233=95%:%
+%:%234=96%:%
+%:%235=96%:%
+%:%236=97%:%
+%:%237=97%:%
+%:%238=97%:%
+%:%239=98%:%
+%:%240=99%:%
+%:%241=99%:%
+%:%242=100%:%
+%:%243=100%:%
+%:%244=100%:%
+%:%245=101%:%
+%:%246=102%:%
+%:%247=102%:%
+%:%248=103%:%
+%:%249=103%:%
+%:%250=104%:%
+%:%251=104%:%
+%:%252=104%:%
+%:%253=105%:%
+%:%259=105%:%
+%:%262=106%:%
+%:%263=107%:%
+%:%264=107%:%
+%:%265=108%:%
+%:%266=109%:%
+%:%273=110%:%
+%:%274=110%:%
+%:%275=111%:%
+%:%276=111%:%
+%:%277=112%:%
+%:%278=112%:%
+%:%279=112%:%
+%:%280=113%:%
+%:%281=114%:%
+%:%282=114%:%
+%:%283=115%:%
+%:%284=115%:%
+%:%285=115%:%
+%:%286=116%:%
+%:%287=117%:%
+%:%288=117%:%
+%:%289=118%:%
+%:%290=119%:%
+%:%291=119%:%
+%:%292=120%:%
+%:%293=120%:%
+%:%294=120%:%
+%:%295=121%:%
+%:%296=122%:%
+%:%297=122%:%
+%:%298=123%:%
+%:%299=123%:%
+%:%300=123%:%
+%:%301=124%:%
+%:%307=124%:%
+%:%310=125%:%
+%:%311=126%:%
+%:%312=126%:%
+%:%313=127%:%
+%:%314=128%:%
+%:%315=128%:%
+%:%316=129%:%
+%:%317=130%:%
+%:%318=131%:%
+%:%319=132%:%
+%:%320=133%:%
+%:%321=134%:%
+%:%322=135%:%
+%:%324=138%:%
+%:%325=139%:%
+%:%327=141%:%
+%:%328=141%:%
+%:%329=142%:%
+%:%330=143%:%
+%:%334=147%:%
+%:%336=148%:%
+%:%337=148%:%
+%:%344=149%:%
+%:%345=149%:%
+%:%346=150%:%
+%:%347=150%:%
+%:%348=151%:%
+%:%349=151%:%
+%:%350=151%:%
+%:%351=152%:%
+%:%352=152%:%
+%:%353=153%:%
+%:%354=153%:%
+%:%355=154%:%
+%:%356=154%:%
+%:%357=154%:%
+%:%358=155%:%
+%:%359=155%:%
+%:%360=156%:%
+%:%361=156%:%
+%:%362=157%:%
+%:%363=157%:%
+%:%364=158%:%
+%:%365=158%:%
+%:%366=159%:%
+%:%367=159%:%
+%:%368=159%:%
+%:%369=160%:%
+%:%370=160%:%
+%:%371=161%:%
+%:%372=161%:%
+%:%373=161%:%
+%:%374=162%:%
+%:%375=163%:%
+%:%376=163%:%
+%:%377=164%:%
+%:%378=164%:%
+%:%379=165%:%
+%:%380=165%:%
+%:%381=166%:%
+%:%382=166%:%
+%:%383=166%:%
+%:%384=167%:%
+%:%385=167%:%
+%:%386=168%:%
+%:%387=169%:%
+%:%388=169%:%
+%:%389=169%:%
+%:%390=170%:%
+%:%391=171%:%
+%:%392=171%:%
+%:%393=172%:%
+%:%394=172%:%
+%:%395=173%:%
+%:%396=174%:%
+%:%397=174%:%
+%:%398=175%:%
+%:%399=175%:%
+%:%400=176%:%
+%:%401=176%:%
+%:%402=177%:%
+%:%403=177%:%
+%:%404=177%:%
+%:%405=178%:%
+%:%406=178%:%
+%:%407=179%:%
+%:%408=179%:%
+%:%409=180%:%
+%:%419=183%:%
+%:%421=184%:%
+%:%422=184%:%
+%:%423=185%:%
+%:%424=186%:%
+%:%431=187%:%
+%:%432=187%:%
+%:%433=188%:%
+%:%434=188%:%
+%:%435=189%:%
+%:%436=189%:%
+%:%437=190%:%
+%:%438=190%:%
+%:%439=191%:%
+%:%440=192%:%
+%:%441=192%:%
+%:%442=193%:%
+%:%443=193%:%
+%:%444=194%:%
+%:%445=194%:%
+%:%446=195%:%
+%:%447=196%:%
+%:%448=196%:%
+%:%449=197%:%
+%:%450=197%:%
+%:%451=197%:%
+%:%452=198%:%
+%:%453=199%:%
+%:%454=199%:%
+%:%455=200%:%
+%:%456=200%:%
+%:%457=200%:%
+%:%458=201%:%
+%:%459=201%:%
+%:%460=202%:%
+%:%461=202%:%
+%:%462=203%:%
+%:%463=204%:%
+%:%464=204%:%
+%:%465=205%:%
+%:%467=207%:%
+%:%468=208%:%
+%:%469=208%:%
+%:%470=209%:%
+%:%471=210%:%
+%:%472=210%:%
+%:%473=210%:%
+%:%474=211%:%
+%:%475=211%:%
+%:%476=211%:%
+%:%477=212%:%
+%:%478=212%:%
+%:%479=213%:%
+%:%480=213%:%
+%:%481=214%:%
+%:%482=215%:%
+%:%483=215%:%
+%:%484=216%:%
+%:%485=216%:%
+%:%486=216%:%
+%:%487=217%:%
+%:%497=220%:%
+%:%499=221%:%
+%:%500=221%:%
+%:%501=222%:%
+%:%502=223%:%
+%:%505=224%:%
+%:%509=224%:%
+%:%510=224%:%
+%:%511=224%:%
+%:%520=227%:%
+%:%521=228%:%
+%:%523=230%:%
+%:%524=230%:%
+%:%525=231%:%
+%:%526=232%:%
+%:%528=234%:%
+%:%535=235%:%
+%:%536=235%:%
+%:%537=236%:%
+%:%538=236%:%
+%:%539=237%:%
+%:%540=237%:%
+%:%541=237%:%
+%:%542=238%:%
+%:%543=239%:%
+%:%544=239%:%
+%:%545=239%:%
+%:%546=240%:%
+%:%547=240%:%
+%:%548=241%:%
+%:%549=242%:%
+%:%550=242%:%
+%:%551=243%:%
+%:%553=245%:%
+%:%554=246%:%
+%:%555=246%:%
+%:%556=247%:%
+%:%557=248%:%
+%:%558=248%:%
+%:%559=248%:%
+%:%560=249%:%
+%:%561=250%:%
+%:%562=251%:%
+%:%563=251%:%
+%:%564=252%:%
+%:%565=253%:%
+%:%566=253%:%
+%:%567=253%:%
+%:%568=254%:%
+%:%569=254%:%
+%:%570=255%:%
+%:%580=258%:%
+%:%582=259%:%
+%:%583=259%:%
+%:%590=260%:%
+%:%591=260%:%
+%:%592=261%:%
+%:%593=261%:%
+%:%594=262%:%
+%:%595=262%:%
+%:%596=262%:%
+%:%597=263%:%
+%:%598=263%:%
+%:%599=264%:%
+%:%600=264%:%
+%:%601=265%:%
+%:%602=265%:%
+%:%603=266%:%
+%:%604=266%:%
+%:%605=267%:%
+%:%606=267%:%
+%:%607=268%:%
+%:%608=268%:%
+%:%609=269%:%
+%:%610=269%:%
+%:%611=269%:%
+%:%612=270%:%
+%:%613=270%:%
+%:%614=270%:%
+%:%615=270%:%
+%:%616=271%:%
+%:%617=271%:%
+%:%618=272%:%
+%:%619=272%:%
+%:%620=273%:%
+%:%621=273%:%
+%:%622=274%:%
+%:%623=274%:%
+%:%624=274%:%
+%:%625=275%:%
+%:%626=275%:%
+%:%627=275%:%
+%:%628=275%:%
+%:%629=276%:%
+%:%630=276%:%
+%:%631=277%:%
+%:%641=279%:%
+%:%643=280%:%
+%:%644=280%:%
+%:%645=281%:%
+%:%646=282%:%
+%:%649=283%:%
+%:%653=283%:%
+%:%654=283%:%
+%:%655=283%:%
+%:%664=286%:%
+%:%665=287%:%
+%:%667=289%:%
+%:%668=289%:%
+%:%669=290%:%
+%:%670=291%:%
+%:%677=292%:%
+%:%678=292%:%
+%:%679=293%:%
+%:%680=293%:%
+%:%681=294%:%
+%:%682=294%:%
+%:%683=294%:%
+%:%684=294%:%
+%:%685=295%:%
+%:%686=295%:%
+%:%687=295%:%
+%:%688=296%:%
+%:%689=296%:%
+%:%690=296%:%
+%:%691=296%:%
+%:%692=297%:%
+%:%693=297%:%
+%:%694=297%:%
+%:%695=297%:%
+%:%696=298%:%
+%:%706=301%:%
+%:%707=302%:%
+%:%709=304%:%
+%:%710=304%:%
+%:%711=305%:%
+%:%712=306%:%
+%:%714=308%:%
+%:%721=309%:%
+%:%722=309%:%
+%:%723=310%:%
+%:%724=310%:%
+%:%725=311%:%
+%:%726=311%:%
+%:%727=311%:%
+%:%728=312%:%
+%:%729=312%:%
+%:%730=312%:%
+%:%731=313%:%
+%:%732=313%:%
+%:%733=313%:%
+%:%734=314%:%
+%:%735=314%:%
+%:%736=314%:%
+%:%737=315%:%
+%:%738=315%:%
+%:%739=315%:%
+%:%740=316%:%
+%:%741=316%:%
+%:%742=316%:%
+%:%743=316%:%
+%:%744=317%:%
+%:%745=318%:%
+%:%746=318%:%
+%:%747=319%:%
+%:%748=319%:%
+%:%749=319%:%
+%:%750=320%:%
+%:%751=321%:%
+%:%752=321%:%
+%:%753=322%:%
+%:%754=322%:%
+%:%755=323%:%
+%:%765=325%:%
+%:%767=326%:%
+%:%768=326%:%
+%:%769=327%:%
+%:%771=329%:%
+%:%773=330%:%
+%:%774=330%:%
+%:%775=331%:%
+%:%776=332%:%
+%:%783=333%:%
+%:%784=333%:%
+%:%785=334%:%
+%:%786=334%:%
+%:%787=334%:%
+%:%788=334%:%
+%:%789=335%:%
+%:%790=335%:%
+%:%791=336%:%
+%:%792=336%:%
+%:%793=336%:%
+%:%794=337%:%
+%:%795=337%:%
+%:%796=337%:%
+%:%797=338%:%
+%:%798=338%:%
+%:%799=338%:%
+%:%800=339%:%
+%:%801=339%:%
+%:%802=339%:%
+%:%803=340%:%
+%:%804=340%:%
+%:%805=341%:%
+%:%815=343%:%
+%:%817=344%:%
+%:%818=344%:%
+%:%821=345%:%
+%:%825=345%:%
+%:%826=345%:%
+%:%827=345%:%
+%:%836=347%:%
+%:%838=348%:%
+%:%839=348%:%
+%:%846=349%:%
+%:%847=349%:%
+%:%848=350%:%
+%:%849=350%:%
+%:%850=351%:%
+%:%851=351%:%
+%:%852=351%:%
+%:%853=351%:%
+%:%854=352%:%
+%:%855=352%:%
+%:%856=353%:%
+%:%857=353%:%
+%:%858=354%:%
+%:%859=354%:%
+%:%860=354%:%
+%:%861=354%:%
+%:%862=355%:%
+%:%872=357%:%
+%:%874=358%:%
+%:%875=358%:%
+%:%876=359%:%
+%:%877=360%:%
+%:%884=361%:%
+%:%885=361%:%
+%:%886=362%:%
+%:%887=362%:%
+%:%888=363%:%
+%:%889=363%:%
+%:%890=364%:%
+%:%891=364%:%
+%:%892=364%:%
+%:%893=365%:%
+%:%894=365%:%
+%:%895=366%:%
+%:%896=366%:%
+%:%897=367%:%
+%:%898=367%:%
+%:%899=368%:%
+%:%900=368%:%
+%:%901=369%:%
+%:%902=369%:%
+%:%903=370%:%
+%:%904=370%:%
+%:%905=371%:%
+%:%906=371%:%
+%:%907=371%:%
+%:%908=371%:%
+%:%909=372%:%
+%:%910=372%:%
+%:%911=372%:%
+%:%912=373%:%
+%:%913=373%:%
+%:%914=374%:%
+%:%915=374%:%
+%:%916=374%:%
+%:%917=374%:%
+%:%918=375%:%
+%:%919=375%:%
+%:%920=376%:%
+%:%921=376%:%
+%:%922=377%:%
+%:%923=377%:%
+%:%924=377%:%
+%:%925=377%:%
+%:%926=378%:%
+%:%927=378%:%
+%:%928=378%:%
+%:%929=379%:%
+%:%930=379%:%
+%:%931=380%:%
+%:%941=382%:%
+%:%943=383%:%
+%:%944=383%:%
+%:%945=384%:%
+%:%948=385%:%
+%:%952=385%:%
+%:%953=385%:%
+%:%962=388%:%
+%:%964=390%:%
+%:%965=390%:%
+%:%966=391%:%
+%:%973=392%:%
+%:%974=392%:%
+%:%975=393%:%
+%:%976=393%:%
+%:%977=394%:%
+%:%978=394%:%
+%:%979=395%:%
+%:%980=395%:%
+%:%981=396%:%
+%:%982=396%:%
+%:%983=397%:%
+%:%984=397%:%
+%:%985=397%:%
+%:%986=397%:%
+%:%987=398%:%
+%:%988=398%:%
+%:%989=398%:%
+%:%990=399%:%
+%:%991=399%:%
+%:%992=399%:%
+%:%993=399%:%
+%:%994=400%:%
+%:%995=400%:%
+%:%996=401%:%
+%:%997=401%:%
+%:%998=402%:%
+%:%999=402%:%
+%:%1000=403%:%
+%:%1001=403%:%
+%:%1002=404%:%
+%:%1003=404%:%
+%:%1004=404%:%
+%:%1005=404%:%
+%:%1006=404%:%
+%:%1007=405%:%
+%:%1008=405%:%
+%:%1009=406%:%
+%:%1010=406%:%
+%:%1011=407%:%
+%:%1012=407%:%
+%:%1013=407%:%
+%:%1014=407%:%
+%:%1015=407%:%
+%:%1016=408%:%
+%:%1017=408%:%
+%:%1018=409%:%
+%:%1028=411%:%
+%:%1030=412%:%
+%:%1031=412%:%
+%:%1032=413%:%
+%:%1035=414%:%
+%:%1039=414%:%
+%:%1040=414%:%
+%:%1045=414%:%
+%:%1048=415%:%
+%:%1049=416%:%
+%:%1050=416%:%
+%:%1051=417%:%
+%:%1054=418%:%
+%:%1058=418%:%
+%:%1059=418%:%
+%:%1060=418%:%
+%:%1065=418%:%
+%:%1068=419%:%
+%:%1069=420%:%
+%:%1070=420%:%
+%:%1071=421%:%
+%:%1074=422%:%
+%:%1078=422%:%
+%:%1079=422%:%
+%:%1080=422%:%
+%:%1089=425%:%
+%:%1091=427%:%
+%:%1092=427%:%
+%:%1093=428%:%
+%:%1094=429%:%
+%:%1095=430%:%
+%:%1102=431%:%
+%:%1103=431%:%
+%:%1104=432%:%
+%:%1105=432%:%
+%:%1106=433%:%
+%:%1107=433%:%
+%:%1108=433%:%
+%:%1109=434%:%
+%:%1110=434%:%
+%:%1111=435%:%
+%:%1112=436%:%
+%:%1113=436%:%
+%:%1114=436%:%
+%:%1115=437%:%
+%:%1116=437%:%
+%:%1117=438%:%
+%:%1118=438%:%
+%:%1119=438%:%
+%:%1120=439%:%
+%:%1121=439%:%
+%:%1122=439%:%
+%:%1123=439%:%
+%:%1124=440%:%
+%:%1134=443%:%
+%:%1135=444%:%
+%:%1137=447%:%
+%:%1138=447%:%
+%:%1139=448%:%
+%:%1140=449%:%
+%:%1141=450%:%
+%:%1148=451%:%
+%:%1149=451%:%
+%:%1150=452%:%
+%:%1151=452%:%
+%:%1152=453%:%
+%:%1153=453%:%
+%:%1154=453%:%
+%:%1155=454%:%
+%:%1156=455%:%
+%:%1157=455%:%
+%:%1158=456%:%
+%:%1160=458%:%
+%:%1161=459%:%
+%:%1162=459%:%
+%:%1163=460%:%
+%:%1164=461%:%
+%:%1165=461%:%
+%:%1166=462%:%
+%:%1167=462%:%
+%:%1168=463%:%
+%:%1169=463%:%
+%:%1170=464%:%
+%:%1171=464%:%
+%:%1172=465%:%
+%:%1182=468%:%
+%:%1184=470%:%
+%:%1185=470%:%
+%:%1186=471%:%
+%:%1187=472%:%
+%:%1188=473%:%
+%:%1191=476%:%
+%:%1198=477%:%
+%:%1199=477%:%
+%:%1200=478%:%
+%:%1201=478%:%
+%:%1202=479%:%
+%:%1203=479%:%
+%:%1204=480%:%
+%:%1205=481%:%
+%:%1206=481%:%
+%:%1207=482%:%
+%:%1208=483%:%
+%:%1209=484%:%
+%:%1210=484%:%
+%:%1211=484%:%
+%:%1212=485%:%
+%:%1213=486%:%
+%:%1214=486%:%
+%:%1215=487%:%
+%:%1216=487%:%
+%:%1217=488%:%
+%:%1218=489%:%
+%:%1219=489%:%
+%:%1220=490%:%
+%:%1221=490%:%
+%:%1222=491%:%
+%:%1223=491%:%
+%:%1224=491%:%
+%:%1225=492%:%
+%:%1226=492%:%
+%:%1227=493%:%
+%:%1228=493%:%
+%:%1229=493%:%
+%:%1230=494%:%
+%:%1231=494%:%
+%:%1232=495%:%
+%:%1238=495%:%
+%:%1241=496%:%
+%:%1242=497%:%
+%:%1243=497%:%
+%:%1244=498%:%
+%:%1245=499%:%
+%:%1246=499%:%
+%:%1247=500%:%
+%:%1248=501%:%
+%:%1249=502%:%
+%:%1250=502%:%
+%:%1257=503%:%
+%:%1258=503%:%
+%:%1259=504%:%
+%:%1260=504%:%
+%:%1261=505%:%
+%:%1262=505%:%
+%:%1263=506%:%
+%:%1264=506%:%
+%:%1265=507%:%
+%:%1266=507%:%
+%:%1267=507%:%
+%:%1268=508%:%
+%:%1269=508%:%
+%:%1270=509%:%
+%:%1271=509%:%
+%:%1272=510%:%
+%:%1273=510%:%
+%:%1274=511%:%
+%:%1275=511%:%
+%:%1276=512%:%
+%:%1277=512%:%
+%:%1278=513%:%
+%:%1279=513%:%
+%:%1280=514%:%
+%:%1281=514%:%
+%:%1282=515%:%
+%:%1283=515%:%
+%:%1284=516%:%
+%:%1285=516%:%
+%:%1286=516%:%
+%:%1287=517%:%
+%:%1288=517%:%
+%:%1289=518%:%
+%:%1295=518%:%
+%:%1298=519%:%
+%:%1299=520%:%
+%:%1300=520%:%
+%:%1303=521%:%
+%:%1308=522%:%
