@@ -1,7 +1,7 @@
 chapter AFP
 
 session Submodular_Greedy_AFP = HOL +
-  options [timeout = 1800, document = pdf, document_output = "output"]
+  options [timeout = 1800]
   sessions
     "HOL-Library"
     "HOL-Analysis"
