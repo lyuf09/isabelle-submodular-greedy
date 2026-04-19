@@ -38,7 +38,6 @@ Algorithms/Lazy_Greedy_Oracle
 
 Proofs/Greedy_Step_Spec
 Proofs/Greedy_Submodular_Approx
-Proofs/Greedy_Approx_From_Spec
 Proofs/Lazy_Greedy_Stateful_StepSpec
 Proofs/Lazy_Greedy_Stateful_Approx
 ```
@@ -63,9 +62,7 @@ The AFP-oriented development is organized into three layers.
 
 `Proofs/Greedy_Step_Spec` isolates the abstract one-step greedy specification used by the approximation argument.
 
-`Proofs/Greedy_Submodular_Approx` proves the classical finite-step approximation bound for deterministic greedy.
-
-`Proofs/Greedy_Approx_From_Spec` packages the generic transfer from the step specification to the approximation guarantee.
+`Proofs/Greedy_Submodular_Approx` includes both the main Nemhauser–Wolsey approximation proof and the generic corollary for any oracle satisfying the step specification.
 
 `Proofs/Lazy_Greedy_Stateful_StepSpec` packages the per-iteration facts for the verified stateful lazy run.
 

@@ -1,6 +1,6 @@
 theory Greedy_Submodular_Approx
   imports
-    "../Algorithms/Greedy_Submodular_Construct"
+    Greedy_Step_Spec
 begin
 
 text \<open>
@@ -750,6 +750,26 @@ next
     using main False OPT_pos
     by (simp add: field_simps)
 qed
+
+end
+
+section \<open>Step-spec corollary\<close>
+
+text \<open>
+  Any oracle satisfying the step-spec assumptions inherits the
+  Nemhauser--Wolsey approximation guarantee immediately via the
+  sublocale from \<open>Greedy_Step_Oracle\<close> to \<open>Greedy_Setup\<close>.
+\<close>
+
+context Greedy_Step_Oracle
+begin
+
+theorem greedy_step_oracle_approximation:
+  assumes "k > 0"
+  shows
+    "f (Greedy_Setup.greedy_set V select k)
+       \<ge> (1 - 1 / exp 1) * Greedy_Setup.OPT_k V f k"
+  using greedy_approximation[OF assms] .
 
 end
 
