@@ -71,9 +71,13 @@ section \<open>Submodular setting\<close>
 subsection \<open>Non-emptiness lemmas\<close>
 
 text \<open>
-  Two basic non-emptiness facts:
-  \<midarrow> if \<open>S \<subseteq> V\<close> and \<open>|S| < k \<le> |V|\<close>, then the candidate set \<open>V - S\<close> is non-empty;
-  \<midarrow> if \<open>S, Opt \<subseteq> V\<close> and \<open>f S < f Opt\<close>, then the gap set \<open>Opt - S\<close> is non-empty.
+  We use two basic non-emptiness facts.
+
+  First, if S is a subset of V and card S < k, then the candidate set V - S
+  is non-empty.
+
+  Second, if both S and Opt are subsets of V and f S < f Opt, then the gap
+  set Opt - S is non-empty.
 \<close>
 
 lemma nonempty_candidates:

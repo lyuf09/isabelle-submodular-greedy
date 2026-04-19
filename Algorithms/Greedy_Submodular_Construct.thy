@@ -22,7 +22,7 @@ text \<open>
 
 subsection \<open>Preliminaries on finite maximizers\<close>
 
-text \<open>Finite arg-max via the standard predicate is_arg_max.\<close>
+text \<open>Finite arg-max via the standard maximality predicate.\<close>
 
 (* We rely on the standard predicate is_arg_max and arg_max_def from the library.
    The following lemma establishes existence on finite domains. *)
@@ -73,13 +73,11 @@ lemma is_arg_maxD_le:
 
 text \<open>
   Abstract setup for the greedy algorithm:
-  \<midarrow> finite ground set \<open>V\<close>
-  \<midarrow> budget \<open>k\<close>
-  \<midarrow> non-negative, monotone, submodular function \<open>f\<close> with \<open>f {} = 0\<close>.
+  a finite ground set V, a budget k, and a non-negative monotone
+  submodular function f with f {} = 0.
 
   This theory focuses on the greedy construction and basic structural
-  properties (subset relations, cardinality bounds, and a sequence view),
-  without yet proving any approximation guarantees.
+  properties, without yet proving approximation guarantees.
 \<close>
 
 section \<open>Concrete argmax oracle for marginal gain\<close>

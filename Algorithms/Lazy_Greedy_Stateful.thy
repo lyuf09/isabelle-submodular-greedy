@@ -170,7 +170,7 @@ definition lazy_set :: "nat \<Rightarrow> 'a set" where
   "lazy_set i = Sg (lazy_state i)"
 
 
-subsection "Main invariants: S \<subseteq> V and ub_valid on remaining set"
+subsection "Main invariants: subset property and validity on the remaining set"
 
 lemma lazy_step_idle:
   assumes "remaining st = {}"

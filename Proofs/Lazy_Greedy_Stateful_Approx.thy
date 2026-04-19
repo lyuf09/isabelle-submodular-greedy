@@ -5,15 +5,17 @@ theory Lazy_Greedy_Stateful_Approx
 begin
 
 text \<open>
-  Approximation guarantee for the verified stateful LazyGreedy construction.
-  This theory treats the stateful lazy algorithm as a separate implementation-level
-  refinement line. It reuses the OPT_k and submodular infrastructure from
-  Greedy_Submodular_Approx, together with the per-iteration lemmas packaged in
-  Lazy_Greedy_Stateful_StepSpec, and proves its own gap recurrence for lazy_set.
+  Approximation guarantee for the verified stateful lazy greedy construction.
 
-  In particular, this theory does not instantiate the stateless step-spec locale
-  Greedy_Step_Oracle. Instead, it works directly with the verified lazy run
-  and its sequence-level properties.
+  This theory treats the stateful lazy algorithm as an implementation-level
+  refinement. It reuses the optimal-value infrastructure from the greedy
+  approximation development, together with the per-iteration lemmas from the
+  lazy step-spec theory, and proves a corresponding gap recurrence for the
+  lazy construction.
+
+  In particular, this theory does not instantiate the stateless step-spec
+  locale. Instead, it works directly with the verified lazy run and its
+  sequence-level properties.
 \<close>
  
 context Cardinality_Constraint

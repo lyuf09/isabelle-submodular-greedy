@@ -5,10 +5,12 @@ begin
 text \<open>
   Sequence-level lemmas for the verified stateful lazy run.
 
-  This theory packages the per-iteration facts needed by the approximation proof,
-  such as membership and maximal-gain properties of lazy_choice i and the update
-  equation for lazy_set (Suc i). It is not an instance of the stateless locale
-  Greedy_Step_Oracle; instead it exposes properties of the concrete verified run.
+  This theory packages the per-iteration facts needed by the approximation
+  proof, such as the membership and maximal-gain properties of the chosen
+  lazy element at step i, together with the update equation for the next lazy set.
+
+  It is not an instance of the stateless greedy step oracle locale.
+  Instead, it exposes properties of the concrete verified run.
 \<close>
 
 context Cardinality_Constraint

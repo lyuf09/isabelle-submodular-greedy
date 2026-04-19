@@ -1,4 +1,7 @@
+chapter AFP
+
 session Submodular_Greedy_AFP = HOL +
+  options [timeout = 1800]
   sessions
     "HOL-Library"
     "HOL-Analysis"
@@ -17,3 +20,6 @@ session Submodular_Greedy_AFP = HOL +
     "Proofs/Greedy_Submodular_Approx"
     "Proofs/Lazy_Greedy_Stateful_StepSpec"
     "Proofs/Lazy_Greedy_Stateful_Approx"
+  document_files
+    "root.tex"
+    "root.bib"

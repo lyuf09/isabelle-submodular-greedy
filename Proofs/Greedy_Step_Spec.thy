@@ -6,9 +6,9 @@ begin
 text \<open>
 Step-spec interface for greedy-style algorithms.
 
-Any oracle select that (on every finite non-empty candidate set A)
-returns an element in A whose marginal gain is maximal
-can be interpreted as the argmax oracle in locale Greedy_Setup.
+Any oracle that, on every finite non-empty candidate set, returns
+an element with maximal marginal gain can be interpreted as an
+instance of the greedy setup locale.
 \<close>
 
 locale Greedy_Step_Oracle =
