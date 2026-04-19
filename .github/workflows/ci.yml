@@ -2,24 +2,38 @@ name: Isabelle CI
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
+      - afp-cleanup
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
+    name: Build Submodular_Greedy_AFP
     runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    permissions:
+      contents: read
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Isabelle
         uses: gauravpartha/setup-isabelle@v1
         with:
           isabelle-version: 2025-2
 
-      - name: Isabelle version
+      - name: Show Isabelle version
         run: isabelle version
 
-      - name: Build sessions
-        run: isabelle build -j2 -D .
+      - name: Build AFP session
+        run: isabelle build -v -j 2 -d . Submodular_Greedy_AFP
