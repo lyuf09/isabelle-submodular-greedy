@@ -74,27 +74,28 @@ lemma card_lazy_lt_k:
   using card_lazy_le_i by (meson le_less_trans)
 
 lemma lazy_remainder_nonempty:
-  "i < k \<Longrightarrow> k \<le> card V \<Longrightarrow> V - lazy_set i \<noteq> {}"
+  "i < k \<Longrightarrow> V - lazy_set i \<noteq> {}"
 proof -
   assume i_lt_k: "i < k"
-  assume k_le: "k \<le> card V"
 
-  have "card (lazy_set i) \<le> i" by (rule card_lazy_le_i)
-  also have "... < k" using i_lt_k by simp
-  also have "... \<le> card V" using k_le by simp
+  have "card (lazy_set i) \<le> i"
+    by (rule card_lazy_le_i)
+  also have "... < k"
+    using i_lt_k by simp
+  also have "... \<le> card V"
+    using k_le_cardV by simp
   finally have ltV: "card (lazy_set i) < card V" .
 
-  have S_sub: "lazy_set i \<subseteq> V" by simp
+  have S_sub: "lazy_set i \<subseteq> V"
+    by simp
 
   show "V - lazy_set i \<noteq> {}"
   proof
     assume empty: "V - lazy_set i = {}"
     have V_sub: "V \<subseteq> lazy_set i"
       using empty by auto
-
     have eq: "lazy_set i = V"
       using subset_antisym[OF S_sub V_sub] by simp
-
     thus False
       using ltV by simp
   qed
@@ -125,35 +126,35 @@ proof -
 qed
 
 lemma lazy_step_ineq:
-  "i < k \<Longrightarrow> k \<le> card V \<Longrightarrow> gain (lazy_set i) (lazy_choice i) \<ge> gapL i / real k"
+  "i < k \<Longrightarrow> gain (lazy_set i) (lazy_choice i) \<ge> gapL i / real k"
 proof -
   assume i_lt_k: "i < k"
-  assume k_le: "k \<le> card V"
 
-  have S_sub: "lazy_set i \<subseteq> V" by simp
-  have cardS_lt_k: "card (lazy_set i) < k" using card_lazy_lt_k[OF i_lt_k] .
+  have S_sub: "lazy_set i \<subseteq> V"
+    by simp
+  have cardS_lt_k: "card (lazy_set i) < k"
+    using card_lazy_lt_k[OF i_lt_k] .
 
-    obtain X where X_feas: "feasible X" and X_opt: "f X = OPT_k"
-      using Greedy_Some.exists_opt_set by blast
+  obtain X where X_feas: "feasible X" and X_opt: "f X = OPT_k"
+    using Greedy_Some.exists_opt_set by blast
 
-    from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
-      unfolding feasible_def by auto
+  from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
+    unfolding feasible_def by auto
 
-    from Greedy_Some.marginal_gain_lower_bound[OF S_sub X_sub k_le cardS_lt_k cardX_le_k]
-    obtain e where e_in: "e \<in> V - lazy_set i"
-         and e_lb: "gain (lazy_set i) e \<ge> (f X - f (lazy_set i)) / real k"
-      by blast
+  from Greedy_Some.marginal_gain_lower_bound[OF S_sub X_sub cardS_lt_k cardX_le_k]
+  obtain e where e_in: "e \<in> V - lazy_set i"
+       and e_lb: "gain (lazy_set i) e \<ge> (f X - f (lazy_set i)) / real k"
+    by blast
 
   have rem_ne: "V - lazy_set i \<noteq> {}"
-    using lazy_remainder_nonempty[OF i_lt_k k_le] .
+    using lazy_remainder_nonempty[OF i_lt_k] .
+
   have argmax:
     "\<forall>y\<in>V - lazy_set i. gain (lazy_set i) y \<le> gain (lazy_set i) (lazy_choice i)"
     using lazy_choice_argmax_V_minus_S[OF rem_ne] .
+
   have e_le: "gain (lazy_set i) e \<le> gain (lazy_set i) (lazy_choice i)"
     using argmax e_in by auto
-
-  have "(f X - f (lazy_set i)) / real k = gapL i / real k"
-    using X_opt by (simp add: gapL_def)
 
   have e_lb': "gapL i / real k \<le> gain (lazy_set i) e"
     using e_lb X_opt
@@ -162,29 +163,30 @@ proof -
   have "gapL i / real k \<le> gain (lazy_set i) (lazy_choice i)"
     using order_trans[OF e_lb' e_le] .
 
-  show "gain (lazy_set i) (lazy_choice i) \<ge> gapL i / real k"
-    by (simp add: \<open>gapL i / real k \<le> gain (lazy_set i) (lazy_choice i)\<close>)
+  thus "gain (lazy_set i) (lazy_choice i) \<ge> gapL i / real k"
+    by simp
 qed
 
 lemma gapL_step:
-  "i < k \<Longrightarrow> k \<le> card V \<Longrightarrow> gapL (Suc i) \<le> (1 - 1 / real k) * gapL i"
+  "i < k \<Longrightarrow> gapL (Suc i) \<le> (1 - 1 / real k) * gapL i"
 proof -
   assume i_lt_k: "i < k"
-  assume k_le: "k \<le> card V"
 
   have rem_ne: "V - lazy_set i \<noteq> {}"
-    using lazy_remainder_nonempty[OF i_lt_k k_le] .
+    using lazy_remainder_nonempty[OF i_lt_k] .
+
   have ins: "lazy_set (Suc i) = insert (lazy_choice i) (lazy_set i)"
     using lazy_set_Suc_insert_V_minus_S[OF rem_ne] .
 
-  have step_gain: "f (lazy_set (Suc i)) = f (lazy_set i) + gain (lazy_set i) (lazy_choice i)"
+  have step_gain:
+    "f (lazy_set (Suc i)) = f (lazy_set i) + gain (lazy_set i) (lazy_choice i)"
     using ins by (simp add: gain_def algebra_simps)
 
   have gap_suc: "gapL (Suc i) = gapL i - gain (lazy_set i) (lazy_choice i)"
     by (simp add: gapL_def step_gain)
 
   have gain_lb: "gain (lazy_set i) (lazy_choice i) \<ge> gapL i / real k"
-    using lazy_step_ineq[OF i_lt_k k_le] .
+    using lazy_step_ineq[OF i_lt_k] .
 
   have "gapL (Suc i) \<le> gapL i - gapL i / real k"
     using gap_suc gain_lb by linarith
@@ -194,52 +196,59 @@ proof -
 qed
 
 lemma gapL_geometric:
-  "k > 0 \<Longrightarrow> k \<le> card V \<Longrightarrow> i \<le> k \<Longrightarrow> gapL i \<le> (1 - 1 / real k) ^ i * OPT_k"
+  "k > 0 \<Longrightarrow> i \<le> k \<Longrightarrow> gapL i \<le> (1 - 1 / real k) ^ i * OPT_k"
 proof (induction i)
   case 0
   then show ?case
     by (simp add: gapL_def f_empty)
 next
   case (Suc i)
-  have i_le_k: "i \<le> k" using Suc.prems by simp
-  have i_lt_k: "i < k" using Suc.prems by simp
+  have i_le_k: "i \<le> k"
+    using Suc.prems by simp
+  have i_lt_k: "i < k"
+    using Suc.prems by simp
 
   have step: "gapL (Suc i) \<le> (1 - 1 / real k) * gapL i"
-    using gapL_step[OF i_lt_k Suc.prems(2)] .
+    using gapL_step[OF i_lt_k] .
 
   have coef_nonneg: "0 \<le> (1 - 1 / real k)"
   proof -
-    have "1 \<le> real k" using Suc.prems(1) by simp
-    then have "1 / real k \<le> 1" by (simp add: field_simps)
-    thus ?thesis by simp
+    have "1 \<le> real k"
+      using Suc.prems(1) by simp
+    then have "1 / real k \<le> 1"
+      by (simp add: field_simps)
+    thus ?thesis
+      by simp
   qed
 
   have IH: "gapL i \<le> (1 - 1 / real k) ^ i * OPT_k"
-    using Suc.IH[OF Suc.prems(1) Suc.prems(2) i_le_k] .
+    using Suc.IH[OF Suc.prems(1) i_le_k] .
 
   have mult_mono:
     "(1 - 1 / real k) * gapL i
      \<le> (1 - 1 / real k) * ((1 - 1 / real k) ^ i * OPT_k)"
-    using IH coef_nonneg by (rule mult_left_mono)
+    using IH coef_nonneg
+    by (rule mult_left_mono)
 
   have pow_Suc:
     "(1 - 1 / real k) * ((1 - 1 / real k) ^ i * OPT_k)
-     = (1 - 1 / real k) ^ (Suc i) * OPT_k"
+     = (1 - 1 / real k) ^ Suc i * OPT_k"
     by (simp add: mult_ac)
 
   have "gapL (Suc i) \<le> (1 - 1 / real k) * ((1 - 1 / real k) ^ i * OPT_k)"
-    using step mult_mono by (rule order_trans)
-  thus ?case by (simp add: pow_Suc)
+    using step mult_mono
+    by (rule order_trans)
+  thus ?case
+    by (simp add: pow_Suc)
 qed
 
 theorem lazy_stateful_approximation:
-  "k > 0 \<Longrightarrow> k \<le> card V \<Longrightarrow> f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
+  assumes k_pos: "k > 0"
+  shows "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
 proof -
-  assume k_pos: "k > 0"
-  assume k_le: "k \<le> card V"
-
   have gap_bound: "gapL k \<le> (1 - 1 / real k) ^ k * OPT_k"
-    using gapL_geometric[OF k_pos k_le, of k] by simp
+    using gapL_geometric[OF k_pos, of k]
+    by simp
 
   have f_eq: "f (lazy_set k) = OPT_k - gapL k"
     by (simp add: gapL_def)
@@ -257,7 +266,9 @@ proof -
     finally show ?thesis .
   qed
 
-  have k_ge1: "k \<ge> 1" using k_pos by simp
+  have k_ge1: "k \<ge> 1"
+    using k_pos by simp
+
   have coeff_bound: "1 - (1 - 1 / real k) ^ k \<ge> 1 - 1 / exp 1"
     using coeff_ge_1_minus_inv_exp[OF k_ge1] .
 
@@ -266,10 +277,12 @@ proof -
 
   have coeff_mono:
     "(1 - (1 - 1 / real k) ^ k) * OPT_k \<ge> (1 - 1 / exp 1) * OPT_k"
-    using coeff_bound nonneg by (rule mult_right_mono)
+    using coeff_bound nonneg
+    by (rule mult_right_mono)
 
   show "f (lazy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
-    using base_bound coeff_mono by (meson order_trans)
+    using base_bound coeff_mono
+    by (meson order_trans)
 qed
 
 end

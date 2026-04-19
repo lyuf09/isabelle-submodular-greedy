@@ -77,13 +77,13 @@ text \<open>
 \<close>
 
 lemma nonempty_candidates:
-  assumes "S \<subseteq> V" "card S < k" "k \<le> card V"
+  assumes "S \<subseteq> V" "card S < k"
   shows "V - S \<noteq> {}"
 proof
   assume "V - S = {}"
   hence "V \<subseteq> S" by auto
   with assms(1) have "V = S" by auto
-  with assms(2,3) show False by simp
+  with assms(2) k_le_cardV show False by simp
 qed
 
 lemma nonempty_gap:
@@ -165,7 +165,6 @@ lemma marginal_gain_lower_bound:
   fixes Opt S :: "'a set"
   assumes S_sub: "S \<subseteq> V"
     and O_sub: "Opt \<subseteq> V"
-    and k_le_V: "k \<le> card V"
     and cardS_lt_k: "card S < k"
     and cardO_le_k: "card Opt \<le> k"
   shows "\<exists>e\<in>V - S. gain S e \<ge> (f Opt - f S) / real k"
@@ -178,7 +177,7 @@ proof -
   proof cases
     case le
     have VS_ne: "V - S \<noteq> {}"
-      using nonempty_candidates[OF S_sub cardS_lt_k k_le_V] .
+      using nonempty_candidates[OF S_sub cardS_lt_k] .
 
     then obtain e where eVS: "e \<in> V - S" by blast
     hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
@@ -380,9 +379,8 @@ text \<open>
 \<close>
 lemma greedy_step_ineq:
   assumes "i < k"
-      and S_sub: "greedy_set i \<subseteq> V"
-      and R_nonempty: "V - greedy_set i \<noteq> {}"
-      and k_le_V: "k \<le> card V"
+    and S_sub: "greedy_set i \<subseteq> V"
+    and R_nonempty: "V - greedy_set i \<noteq> {}"
   shows "gain (greedy_set i)
            (argmax_gain (greedy_set i) (V - greedy_set i))
          \<ge> (OPT_k - f (greedy_set i)) / real k"
@@ -407,7 +405,7 @@ proof -
   qed
 
   from marginal_gain_lower_bound[
-        OF S_sub' X_sub k_le_V cardS_lt_k cardX_le_k]
+        OF S_sub' X_sub cardS_lt_k cardX_le_k]
   obtain e where e_inR: "e \<in> V - ?S"
     and e_lb: "gain ?S e \<ge> (f X - f ?S) / real k"
     by blast
@@ -486,9 +484,8 @@ text \<open>
 \<close>
 lemma gap_step_diff:
   assumes "i < k"
-      and S_sub: "greedy_set i \<subseteq> V"
-      and R_nonempty: "V - greedy_set i \<noteq> {}"
-      and k_le_V: "k \<le> card V"
+    and S_sub: "greedy_set i \<subseteq> V"
+    and R_nonempty: "V - greedy_set i \<noteq> {}"
   shows "gap (Suc i) \<le> gap i - gap i / real k"
 proof -
   let ?S = "greedy_set i"
@@ -537,9 +534,8 @@ text \<open>
 \<close>
 lemma gap_step:
   assumes "i < k"
-      and "greedy_set i \<subseteq> V"
-      and "V - greedy_set i \<noteq> {}"
-      and "k \<le> card V"
+    and "greedy_set i \<subseteq> V"
+    and "V - greedy_set i \<noteq> {}"
   shows "gap (Suc i) \<le> (1 - 1 / real k) * gap i"
 proof -
   have "gap (Suc i) \<le> gap i - gap i / real k"
@@ -565,8 +561,7 @@ text \<open>
 \<close>
 lemma gap_geometric:
   assumes k_pos: "k > 0"
-      and k_le_V: "k \<le> card V"
-      and i_le_k: "i \<le> k"
+    and i_le_k: "i \<le> k"
   shows "gap i \<le> (1 - 1 / real k) ^ i * OPT_k"
 using i_le_k
 proof (induction i)
@@ -591,7 +586,7 @@ next
     have "card (greedy_set i) \<le> i"
       by (rule card_greedy_le_i)
     also have "... < k" using i_lt_k by simp
-    also have "... \<le> card V" using k_le_V by simp
+    also have "... \<le> card V" using k_le_cardV by simp
     finally show ?thesis .
   qed
 
@@ -600,7 +595,7 @@ next
 
   have step:
     "gap (Suc i) \<le> (1 - 1 / real k) * gap i"
-    using gap_step[OF i_lt_k S_sub R_nonempty k_le_V] .
+    using gap_step[OF i_lt_k S_sub R_nonempty] .
 
   have coef_nonneg: "0 \<le> (1 - 1 / real k)"
   proof -
@@ -643,12 +638,11 @@ text \<open>
 \<close>
 lemma greedy_sequence_bound:
   assumes k_pos: "k > 0"
-      and k_le_V: "k \<le> card V"
   shows "f (greedy_set k) \<ge> (1 - (1 - 1 / real k) ^ k) * OPT_k"
 proof -
   have gap_bound:
     "gap k \<le> (1 - 1 / real k) ^ k * OPT_k"
-    using gap_geometric[OF k_pos k_le_V le_refl] .
+    using gap_geometric[OF k_pos le_refl] .
 
   have f_eq:
     "f (greedy_set k) = OPT_k - gap k"
@@ -699,12 +693,11 @@ text \<open>
 \<close>
 theorem greedy_approximation:
   assumes k_pos: "k > 0"
-      and k_le_V: "k \<le> card V"
   shows "f (greedy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
 proof -
   have base_bound:
     "f (greedy_set k) \<ge> (1 - (1 - 1 / real k) ^ k) * OPT_k"
-    using greedy_sequence_bound[OF k_pos k_le_V] .
+    using greedy_sequence_bound[OF k_pos] .
 
   have k_ge1: "k \<ge> 1"
     using k_pos by simp
@@ -735,28 +728,25 @@ text \<open>
   (with the convention that the ratio is \<open>1\<close> when \<open>OPT_k = 0\<close>), and show
   that it is always at least \<open>1 - 1/exp 1\<close>.
 \<close>
-definition approx_ratio :: "nat \<Rightarrow> real" where
-  "approx_ratio \<equiv>
-     (\<lambda>k. if OPT_k = 0 then 1 else f (greedy_set k) / OPT_k)"
+definition greedy_ratio :: real where
+  "greedy_ratio = (if OPT_k = 0 then 1 else f (greedy_set k) / OPT_k)"
 
-corollary approx_ratio_ge_1_minus_inv_exp:
-  assumes "k > 0" "k \<le> card V"
-  shows   "approx_ratio k \<ge> 1 - 1 / exp 1"
+corollary greedy_ratio_ge_1_minus_inv_exp:
+  assumes "k > 0"
+  shows "greedy_ratio \<ge> 1 - 1 / exp 1"
 proof (cases "OPT_k = 0")
   case True
   then show ?thesis
-    unfolding approx_ratio_def
+    unfolding greedy_ratio_def
     by simp
 next
   case False
   then have OPT_pos: "OPT_k > 0"
     using OPT_k_nonneg by auto
-
   have main: "f (greedy_set k) \<ge> (1 - 1 / exp 1) * OPT_k"
     using greedy_approximation[OF assms] .
-
   show ?thesis
-    unfolding approx_ratio_def
+    unfolding greedy_ratio_def
     using main False OPT_pos
     by (simp add: field_simps)
 qed

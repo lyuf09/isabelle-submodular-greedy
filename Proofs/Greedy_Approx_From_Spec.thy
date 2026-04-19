@@ -30,7 +30,7 @@ lemmas spec_greedy_approximation = greedy_approximation
 
 text \<open>Optional: a wrapper theorem with an explicit statement.\<close>
 theorem spec_greedy_approximation':
-  assumes "k > 0" "k \<le> card V"
+  assumes "k > 0"
   shows "f (spec_greedy_set k) \<ge> (1 - 1 / exp 1) * spec_OPT_k"
   using spec_greedy_approximation[OF assms] .
 
