@@ -90,7 +90,6 @@ lemma lazy_argmax_gain_fuel_max:
          \<forall>y\<in>A. gain S y \<le> gain S (lazy_argmax_gain_fuel n S A ub)"
 proof (induction n arbitrary: ub)
   case 0
-  (* 不使用 note，直接在 have 中引用 0 的前提 *)
   from 0 have ubv: "ub_valid S A ub" by simp
   from 0 have bound: "card (untight S A ub) \<le> 0" by simp
 
