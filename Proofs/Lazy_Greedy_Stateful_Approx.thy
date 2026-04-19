@@ -19,11 +19,11 @@ text \<open>
 context Cardinality_Constraint
 begin
 
-interpretation Greedy_Some: Greedy_Setup V f k argmax_gain_some
+interpretation Greedy_Base: Greedy_Setup V f k argmax_gain_some
   by (unfold_locales) (auto intro: argmax_gain_some_mem argmax_gain_some_max)
 
 abbreviation OPT_k :: real where
-  "OPT_k \<equiv> Greedy_Some.OPT_k"
+  "OPT_k \<equiv> Greedy_Base.OPT_k"
 
 definition gapL :: "nat \<Rightarrow> real" where
   "gapL i = OPT_k - f (lazy_set i)"
@@ -120,7 +120,7 @@ proof -
   have feas: "feasible (lazy_set i)"
     using lazy_set_feasible[OF assms] .
   have ub: "f (lazy_set i) \<le> OPT_k"
-    using Greedy_Some.OPT_k_upper_bound[OF feas] by simp
+    by (rule Greedy_Base.OPT_k_upper_bound[OF feas])
   show ?thesis
     using ub by (simp add: gapL_def)
 qed
@@ -136,12 +136,12 @@ proof -
     using card_lazy_lt_k[OF i_lt_k] .
 
   obtain X where X_feas: "feasible X" and X_opt: "f X = OPT_k"
-    using Greedy_Some.exists_opt_set by blast
+    using Greedy_Base.exists_opt_set by blast
 
   from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
     unfolding feasible_def by auto
 
-  from Greedy_Some.marginal_gain_lower_bound[OF S_sub X_sub cardS_lt_k cardX_le_k]
+  from Greedy_Base.marginal_gain_lower_bound[OF S_sub X_sub cardS_lt_k cardX_le_k]
   obtain e where e_in: "e \<in> V - lazy_set i"
        and e_lb: "gain (lazy_set i) e \<ge> (f X - f (lazy_set i)) / real k"
     by blast
@@ -273,7 +273,7 @@ proof -
     using coeff_ge_1_minus_inv_exp[OF k_ge1] .
 
   have nonneg: "0 \<le> OPT_k"
-    using Greedy_Some.OPT_k_nonneg by simp
+    by (rule Greedy_Base.OPT_k_nonneg)
 
   have coeff_mono:
     "(1 - (1 - 1 / real k) ^ k) * OPT_k \<ge> (1 - 1 / exp 1) * OPT_k"

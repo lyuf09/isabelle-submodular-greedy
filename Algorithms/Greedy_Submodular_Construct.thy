@@ -303,8 +303,8 @@ text \<open>
   Under \<open>k \<le> card V\<close>, the greedy transition up to step \<open>k\<close> always adds a new
   element.
 \<close>
- lemma state_transition_upto_k:
-  assumes "0 < i" "i \<le> k" "k \<le> card V"
+lemma state_transition_upto_k:
+  assumes "0 < i" "i \<le> k"
   shows   "greedy_set i =
            greedy_set (i - 1)
            \<union> {argmax_gain (greedy_set (i - 1)) (V - greedy_set (i - 1))}"
@@ -314,7 +314,7 @@ proof -
   also have "... < k"
     using assms(1,2) by simp
   also have "... \<le> card V"
-    using assms(3) by simp
+    using k_le_cardV by simp
   finally have ltV: "card (greedy_set (i - 1)) < card V" .
 
   have rem_ne: "V - greedy_set (i - 1) \<noteq> {}"

@@ -462,6 +462,11 @@ proof -
     unfolding feasible_def by auto
 qed
 
+corollary greedy_feasible:
+  assumes "i \<le> k"
+  shows "feasible (greedy_set i)"
+  using greedy_set_feasible[OF greedy_subset_V card_greedy_le_i assms] .
+
 text \<open>The gap is non-negative along the greedy sequence.\<close>
 lemma gap_nonneg:
   assumes S_sub: "greedy_set i \<subseteq> V"
@@ -477,6 +482,26 @@ proof -
     by simp
   thus ?thesis
     unfolding gap_def by simp
+qed
+
+corollary greedy_gap_nonneg:
+  assumes "i \<le> k"
+  shows "0 \<le> gap i"
+  using gap_nonneg[OF greedy_subset_V card_greedy_le_i assms] .
+
+corollary greedy_remainder_nonempty:
+  assumes "i < k"
+  shows "V - greedy_set i \<noteq> {}"
+proof -
+  have "card (greedy_set i) \<le> i"
+    by (rule card_greedy_le_i)
+  also have "... < k"
+    using assms by simp
+  also have "... \<le> card V"
+    using k_le_cardV by simp
+  finally have "card (greedy_set i) < card V" .
+  thus ?thesis
+    by (rule remainder_nonempty_if_card_ltV)
 qed
 
 text \<open>
