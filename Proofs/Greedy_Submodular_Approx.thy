@@ -270,103 +270,6 @@ proof -
   qed
 qed
 
-subsection \<open>Existence of maximal element in finite sets\<close>
-
-text \<open>
-  Set-function version of the finite arg-max lemma: there is a maximizer
-  of \<open>f\<close> over any finite non-empty family of sets.
-\<close>
-lemma finite_has_maximal_is_arg:
-  assumes "finite A" "A \<noteq> {}"
-  shows "\<exists>x\<in>A. is_arg_max f (\<lambda>x. x \<in> A) x"
-  using finite_is_arg_max_in[of A f] assms by blast
-
-corollary finite_has_maximal:
-  assumes "finite A" "A \<noteq> {}"
-  shows "\<exists>x\<in>A. \<forall>y\<in>A. f y \<le> f x"
-proof -
-  from finite_has_maximal_is_arg[OF assms]
-  obtain x where xA: "x \<in> A" and xarg: "is_arg_max f (\<lambda>x. x \<in> A) x"
-    by blast
-  have "\<forall>y\<in>A. f y \<le> f x"
-  proof
-    fix y assume "y \<in> A"
-    thus "f y \<le> f x"
-      using is_arg_maxD_le[OF xarg] by blast
-  qed
-  thus ?thesis using xA by blast
-qed
-
-
-subsection \<open>OPT as a maximizer over feasible sets\<close>
-
-text \<open>
-  Using the choice operator \<open>SOME\<close>, we select a canonical optimal set
-  \<open>OPT_set\<close> and define \<open>OPT_k = f OPT_set\<close>. All subsequent bounds
-  are expressed in terms of this quantity.
-\<close>
-
-definition OPT_set :: "'a set" where
-  "OPT_set =
-     (SOME X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X))"
-
-lemma exists_max_feasible:
-  "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
-proof -
-  from finite_has_maximal[OF finite_feasible_family feasible_family_nonempty]
-  obtain X where X_feas: "X \<in> Collect feasible"
-    and X_max: "\<forall>Y \<in> Collect feasible. f Y \<le> f X"
-    by blast
-  have "feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
-    using X_feas X_max by auto
-  thus ?thesis ..
-qed
-
-lemma OPT_set_props:
-  shows OPT_set_in: "feasible OPT_set"
-    and OPT_set_max: "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
-proof -
-  from exists_max_feasible
-  obtain X where X_in: "feasible X"
-    and X_max: "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X"
-    by blast
-  then have ex_spec:
-    "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
-    by blast
-  from someI_ex[OF ex_spec]
-  have "feasible OPT_set \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set)"
-    unfolding OPT_set_def by simp
-  then show "feasible OPT_set"
-    and "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
-    by auto
-qed
-
-definition OPT_k :: real where
-  "OPT_k = f OPT_set"
-
-lemma exists_opt_set:
-  "\<exists>X. feasible X \<and> f X = OPT_k"
-proof -
-  have "feasible OPT_set"
-    by (rule OPT_set_in)
-  moreover have "f OPT_set = OPT_k"
-    unfolding OPT_k_def by simp
-  ultimately show ?thesis
-    by blast
-qed
-
-lemma OPT_k_upper_bound:
-  assumes "feasible S"
-  shows "f S \<le> OPT_k"
-proof -
-  have "\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f OPT_set"
-    by (rule OPT_set_max)
-  with assms have "f S \<le> f OPT_set"
-    by auto
-  thus ?thesis
-    unfolding OPT_k_def by simp
-qed
-
 subsection \<open>Gap sequence\<close>
 
 text \<open>
@@ -705,17 +608,6 @@ qed
 
 subsection \<open>Non-negativity of OPT and approximation ratio\<close>
 
-text \<open>\<open>OPT_k\<close> is non-negative because \<open>f {} = 0\<close> is a feasible value.\<close>
-lemma OPT_k_nonneg: "0 \<le> OPT_k"
-proof -
-  have "feasible {}"
-    by (rule feasible_empty)
-  then have "f {} \<le> OPT_k"
-    by (rule OPT_k_upper_bound)
-  thus ?thesis
-    by (simp add: f_empty)
-qed
-
 text \<open>
   Combining the discrete bound with the analytic inequality for
   \<open>1 - (1 - 1/k)^k\<close> yields the standard \<open>1 - 1/e\<close> approximation factor.
@@ -797,7 +689,7 @@ theorem greedy_step_oracle_approximation:
   assumes "k > 0"
   shows
     "f (Greedy_Setup.greedy_set V select k)
-       \<ge> (1 - 1 / exp 1) * Greedy_Setup.OPT_k V f k"
+       \<ge> (1 - 1 / exp 1) * OPT_k"
   using greedy_approximation[OF assms] .
 
 end
