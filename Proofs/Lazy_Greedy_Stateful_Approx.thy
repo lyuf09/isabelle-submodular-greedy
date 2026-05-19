@@ -17,7 +17,7 @@ text \<open>
   locale. Instead, it works directly with the verified lazy run and its
   sequence-level properties.
 \<close>
- 
+
 context Cardinality_Constraint
 begin
 
@@ -285,5 +285,13 @@ proof -
 qed
 
 end
+
+section \<open>Acknowledgements\<close>
+
+text \<open>
+  The author is grateful to Wenda Li for careful reviews, comments, and
+  guidance from the early stages of this project through the preparation of
+  this AFP entry.
+\<close>
 
 end

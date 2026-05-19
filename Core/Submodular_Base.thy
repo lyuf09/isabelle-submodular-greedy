@@ -37,11 +37,12 @@ proof -
 qed
 
 text \<open>
-  This entry focuses on normalized monotone submodular functions, which are
-  the setting needed for the greedy approximation guarantees formalized below.
-  Some basic submodular facts do not require monotonicity or normalization;
-  nevertheless, we keep the present locale bundled in order to keep the AFP
-  entry focused and the main development lightweight.
+  The main development is carried out in a single locale for normalized
+  monotone submodular functions, since this is the setting needed for the
+  cardinality-constrained greedy approximation guarantees below. Some
+  auxiliary facts are valid under weaker assumptions, but separating these
+  assumptions into additional locales would add little benefit for this AFP
+  entry.
 \<close>
 
 locale Submodular_Func =
@@ -145,10 +146,10 @@ qed
 end
 
 text \<open>
-  This entry focuses on cardinality-constrained monotone submodular
-  maximization.  More general constraint systems, such as matroid or knapsack
-  constraints, are natural extensions, but are outside the scope of the present
-  AFP entry.
+  This entry treats cardinality-constrained monotone submodular
+  maximization. Extensions to other constraint systems, such as matroid or
+  knapsack constraints, are natural future developments but are not part of
+  this entry.
 \<close>
 
 locale Cardinality_Constraint = Submodular_Func +
@@ -191,7 +192,7 @@ proof -
     by (rule finite_subset)
 qed
 
-subsection \<open>Finite maximizers and optimal feasible sets\<close>
+subsection \<open>Finite maximizers\<close>
 
 lemma finite_has_maximal:
   assumes fin: "finite A"
@@ -450,13 +451,5 @@ proof -
 qed
 
 end
-
-section \<open>Acknowledgements\<close>
-
-text \<open>
-  The author is grateful to Wenda Li for careful reviews, comments, and
-  guidance from the early stages of this project through the preparation of
-  this AFP entry.
-\<close>
 
 end

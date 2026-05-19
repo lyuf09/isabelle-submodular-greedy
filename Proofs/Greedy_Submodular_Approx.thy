@@ -10,8 +10,8 @@ text \<open>
 \<close>
 
 text \<open>
-  First, we relate the discrete quantity \<open>(1 - 1/k)^k\<close> to the exponential
-  function via a standard limit inequality.
+  First, we relate the finite quantity \<open>(1 - 1/k)^k\<close> to the exponential
+  function via a standard exponential inequality.
 \<close>
 
 lemma pow_one_minus_inv_le_exp_neg1:
@@ -481,9 +481,9 @@ end
 section \<open>Step-spec corollary\<close>
 
 text \<open>
-  Any oracle satisfying the step-spec assumptions inherits the
-  Nemhauser--Wolsey approximation guarantee immediately via the
-  sublocale from \<open>Greedy_Step_Oracle\<close> to \<open>Greedy_Setup\<close>.
+  Any oracle satisfying the step-specification assumptions inherits the
+  Nemhauser--Wolsey approximation guarantee immediately, since
+  \<open>Greedy_Step_Oracle\<close> is defined as an instance of \<open>Greedy_Setup\<close>.
 \<close>
 
 context Greedy_Step_Oracle

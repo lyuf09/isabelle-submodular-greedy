@@ -6,18 +6,11 @@ section \<open>Greedy construction\<close>
 
 text \<open>
   This theory sets up the greedy construction for monotone submodular
-  maximization under a cardinality constraint. We fix a finite ground set
-  \<open>V\<close>, a budget \<open>k\<close>, and a non-negative monotone submodular function
-  \<open>f\<close> over subsets of \<open>V\<close>. The greedy sequence starts from the empty set
-  and repeatedly adds an element with the largest marginal gain
-  (ties broken arbitrarily).
-\<close>
-
-text \<open>
-  Locale \<open>Greedy_Setup\<close> encapsulates this standard setting. All subsequent
-  definitions and lemmas are expressed relative to a fixed ground set \<open>V\<close>,
-  budget \<open>k\<close>, and set function \<open>f\<close> satisfying the usual assumptions
-  (finiteness, non-negativity, monotonicity, and submodularity).
+  maximization under a cardinality constraint. The locale \<open>Greedy_Setup\<close>
+  fixes a finite ground set \<open>V\<close>, a budget \<open>k\<close>, and a normalized monotone
+  submodular set function \<open>f\<close>. The greedy sequence starts from the empty set
+  and repeatedly adds an element of maximum marginal gain, with ties broken
+  by the abstract oracle.
 \<close>
 
 subsection \<open>Preliminaries on finite maximizers\<close>
@@ -80,7 +73,7 @@ text \<open>
   properties, without yet proving approximation guarantees.
 \<close>
 
-section \<open>Concrete argmax oracle for marginal gain\<close>
+subsection \<open>Concrete arg-max oracle for marginal gain\<close>
 
 context Submodular_Func
 begin

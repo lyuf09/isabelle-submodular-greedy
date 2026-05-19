@@ -3,13 +3,13 @@ theory Lazy_Greedy_Oracle
 begin
 
 text \<open>
-  Auxiliary oracle-style lazy selection primitives based on cached upper bounds.
-  This theory is not the main theorem-facing LazyGreedy development.
-  Its role is to provide backend selection machinery reused by the stateful
-  LazyGreedy line.
+  This theory provides auxiliary lazy-selection primitives based on cached
+  upper bounds for marginal gains. It is used by the stateful lazy greedy
+  construction below, while the final approximation theorem is stated in the
+  proof layer.
 \<close>
 
-section "Lazy (accelerated) selection via upper bounds"
+section \<open>Lazy (accelerated) selection via upper bounds\<close>
 
 context Submodular_Func
 begin

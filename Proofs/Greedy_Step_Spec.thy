@@ -4,10 +4,10 @@ theory Greedy_Step_Spec
 begin
 
 text \<open>
-  Step-spec interface for greedy-style algorithms.
+  Step-specification interface for greedy-style algorithms.
 
-  The main construction locale is \<open>Greedy_Setup\<close>.  This locale provides a
-  thin interface with the more implementation-neutral name \<open>select\<close> for the
+  The main construction locale is \<open>Greedy_Setup\<close>. This locale provides a
+  minimal implementation-neutral interface, using the name \<open>select\<close> for an
   oracle that chooses a maximum-marginal-gain element from every finite
   non-empty candidate set.
 \<close>

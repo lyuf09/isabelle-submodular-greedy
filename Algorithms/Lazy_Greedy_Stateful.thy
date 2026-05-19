@@ -2,7 +2,7 @@ theory Lazy_Greedy_Stateful
   imports Lazy_Greedy_Oracle
 begin
 
-section "Stateful Lazy Greedy with cached upper bounds"
+section \<open>Stateful lazy greedy with cached upper bounds\<close>
 
 record 'a lg_state =
   Sg  :: "'a set"
@@ -11,7 +11,7 @@ record 'a lg_state =
 context Cardinality_Constraint
 begin
 
-subsection "State (selected set + cached upper bounds)"
+subsection \<open>State: selected set and cached upper bounds\<close>
 
 definition init_ub :: "'a \<Rightarrow> real" where
   "init_ub x = gain {} x"
@@ -23,7 +23,7 @@ definition remaining :: "'a lg_state \<Rightarrow> 'a set" where
   "remaining st = V - Sg st"
 
 
-subsection "Inner lazy selection that returns updated ub"
+subsection \<open>Inner lazy selection returning updated upper bounds\<close>
 
 fun lazy_argmax_gain_fuel_state ::
   "nat \<Rightarrow> 'a set \<Rightarrow> 'a set \<Rightarrow> ('a \<Rightarrow> real) \<Rightarrow> ('a \<times> ('a \<Rightarrow> real))"
@@ -93,7 +93,7 @@ lemma lazy_select_ub_valid:
   unfolding lazy_select_def
   using lazy_argmax_gain_fuel_state_ub_valid[OF ubv] .
 
-subsection "ub validity carried over to the next outer iteration"
+subsection \<open>Preservation of upper-bound validity across outer iterations\<close>
 
 lemma ub_valid_init:
   "ub_valid {} V init_ub"
@@ -131,7 +131,7 @@ proof (unfold ub_valid_def, intro ballI)
 qed
 
 
-subsection "One outer step and the full stateful algorithm"
+subsection \<open>One outer step and the full stateful algorithm\<close>
 
 definition lazy_step :: "'a lg_state \<Rightarrow> 'a lg_state" where
   "lazy_step st =
@@ -170,7 +170,7 @@ definition lazy_set :: "nat \<Rightarrow> 'a set" where
   "lazy_set i = Sg (lazy_state i)"
 
 
-subsection "Main invariants: subset property and validity on the remaining set"
+subsection \<open>Main invariants: subset property and validity on the remaining set\<close>
 
 lemma lazy_step_idle:
   assumes "remaining st = {}"
@@ -315,7 +315,7 @@ next
   qed
 qed
 
-subsection "Greedy-step correctness (each chosen x is a true argmax of gain)"
+subsection \<open>Correctness of the lazy greedy step\<close>
 
 lemma lazy_step_is_argmax:
   assumes rem_ne: "remaining st \<noteq> {}"
