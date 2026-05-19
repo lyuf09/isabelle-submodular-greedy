@@ -36,6 +36,14 @@ proof -
     using xA by blast
 qed
 
+text \<open>
+  This entry focuses on normalized monotone submodular functions, which are
+  the setting needed for the greedy approximation guarantees formalized below.
+  Some basic submodular facts do not require monotonicity or normalization;
+  nevertheless, we keep the present locale bundled in order to keep the AFP
+  entry focused and the main development lightweight.
+\<close>
+
 locale Submodular_Func =
   fixes V :: "'a set" and f :: "'a set \<Rightarrow> real"
   assumes finite_V: "finite V"
@@ -102,7 +110,46 @@ proof -
     by (simp add: gain_def)
 qed
 
+text \<open>Set-valued diminishing returns.\<close>
+lemma gain_decreasing_set:
+  assumes "S \<subseteq> T" "T \<subseteq> V" "A \<subseteq> V"
+  shows "f (S \<union> A) - f S \<ge> f (T \<union> A) - f T"
+proof -
+  have SUA_subV: "S \<union> A \<subseteq> V"
+    using assms by auto
+
+  have subm:
+    "f ((S \<union> A) \<union> T) + f ((S \<union> A) \<inter> T) \<le> f (S \<union> A) + f T"
+    using submodular_f[OF SUA_subV assms(2)] .
+
+  have union_eq: "(S \<union> A) \<union> T = T \<union> A"
+    using assms by auto
+
+  have S_sub_inter: "S \<subseteq> (S \<union> A) \<inter> T"
+    using assms by auto
+
+  have inter_subV: "(S \<union> A) \<inter> T \<subseteq> V"
+    using assms by auto
+
+  have mono_inter: "f S \<le> f ((S \<union> A) \<inter> T)"
+    using monotone_f[OF S_sub_inter inter_subV] .
+
+  have "f (T \<union> A) + f ((S \<union> A) \<inter> T) \<le> f (S \<union> A) + f T"
+    using subm by (simp add: union_eq)
+  then have "f (T \<union> A) + f S \<le> f (S \<union> A) + f T"
+    using mono_inter by linarith
+  then show ?thesis
+    by linarith
+qed
+
 end
+
+text \<open>
+  This entry focuses on cardinality-constrained monotone submodular
+  maximization.  More general constraint systems, such as matroid or knapsack
+  constraints, are natural extensions, but are outside the scope of the present
+  AFP entry.
+\<close>
 
 locale Cardinality_Constraint = Submodular_Func +
   fixes k :: nat
