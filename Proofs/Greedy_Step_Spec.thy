@@ -4,33 +4,21 @@ theory Greedy_Step_Spec
 begin
 
 text \<open>
-Step-spec interface for greedy-style algorithms.
+  Step-spec interface for greedy-style algorithms.
 
-Any oracle that, on every finite non-empty candidate set, returns
-an element with maximal marginal gain can be interpreted as an
-instance of the greedy setup locale.
+  The main construction locale is \<open>Greedy_Setup\<close>.  This locale provides a
+  thin interface with the more implementation-neutral name \<open>select\<close> for the
+  oracle that chooses a maximum-marginal-gain element from every finite
+  non-empty candidate set.
 \<close>
 
 locale Greedy_Step_Oracle =
-  Cardinality_Constraint V f k
-  for V :: "'a set" and f :: "'a set \<Rightarrow> real" and k :: nat +
-  fixes select :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a"
-  assumes select_mem:
-    "finite A \<Longrightarrow> A \<noteq> {} \<Longrightarrow> select S A \<in> A"
-  assumes select_max:
-    "finite A \<Longrightarrow> A \<noteq> {} \<Longrightarrow> (\<forall>y \<in> A. gain S y \<le> gain S (select S A))"
+  Greedy_Setup V f k select
+  for V :: "'a set"
+    and f :: "'a set \<Rightarrow> real"
+    and k :: nat
+    and select :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a"
 begin
-
-sublocale Greedy_Setup V f k select
-proof
-  fix S :: "'a set" and A :: "'a set"
-  assume finA: "finite A"
-  assume neA: "A \<noteq> {}"
-  show "select S A \<in> A"
-    using select_mem[OF finA neA] .
-  show "\<forall>y \<in> A. gain S y \<le> gain S (select S A)"
-    using select_max[OF finA neA] .
-qed
 
 end
 
