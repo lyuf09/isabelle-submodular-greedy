@@ -2,6 +2,40 @@ theory Submodular_Base
   imports Complex_Main
 begin
 
+lemma finite_has_maximal_on:
+  fixes g :: "'a \<Rightarrow> real"
+  assumes fin: "finite A"
+    and nonempty: "A \<noteq> {}"
+  shows "\<exists>x\<in>A. \<forall>y\<in>A. g y \<le> g x"
+proof -
+  have fin_image: "finite (g ` A)"
+    using fin by simp
+  have nonempty_image: "g ` A \<noteq> {}"
+    using nonempty by auto
+
+  have max_in_image: "Max (g ` A) \<in> g ` A"
+    using Max_in[OF fin_image nonempty_image] .
+
+  then obtain x where xA: "x \<in> A" and x_eq: "g x = Max (g ` A)"
+    by auto
+
+  have "\<forall>y\<in>A. g y \<le> g x"
+  proof
+    fix y
+    assume yA: "y \<in> A"
+    have "g y \<in> g ` A"
+      using yA by auto
+    then have "g y \<le> Max (g ` A)"
+      using Max_ge[OF fin_image] by blast
+    also have "\<dots> = g x"
+      using x_eq by simp
+    finally show "g y \<le> g x" .
+  qed
+
+  then show ?thesis
+    using xA by blast
+qed
+
 locale Submodular_Func =
   fixes V :: "'a set" and f :: "'a set \<Rightarrow> real"
   assumes finite_V: "finite V"
@@ -116,34 +150,7 @@ lemma finite_has_maximal:
   assumes fin: "finite A"
     and nonempty: "A \<noteq> {}"
   shows "\<exists>x\<in>A. \<forall>y\<in>A. f y \<le> f x"
-proof -
-  have fin_image: "finite (f ` A)"
-    using fin by simp
-  have nonempty_image: "f ` A \<noteq> {}"
-    using nonempty by auto
-
-  have max_in_image: "Max (f ` A) \<in> f ` A"
-    using Max_in[OF fin_image nonempty_image] .
-
-  then obtain x where xA: "x \<in> A" and x_eq: "f x = Max (f ` A)"
-    by auto
-
-  have "\<forall>y\<in>A. f y \<le> f x"
-  proof
-    fix y
-    assume yA: "y \<in> A"
-    have fy_image: "f y \<in> f ` A"
-      using yA by auto
-    have "f y \<le> Max (f ` A)"
-      using Max_ge[OF fin_image fy_image] .
-    also have "... = f x"
-      using x_eq by simp
-    finally show "f y \<le> f x" .
-  qed
-
-  then show ?thesis
-    using xA by blast
-qed
+  using finite_has_maximal_on[OF fin nonempty, of f] .
 
 subsection \<open>Optimal feasible sets\<close>
 
@@ -215,6 +222,29 @@ proof -
     unfolding OPT_k_def by simp
 qed
 
+subsection \<open>Basic non-emptiness facts\<close>
+
+lemma nonempty_candidates:
+  assumes "S \<subseteq> V" "card S < k"
+  shows "V - S \<noteq> {}"
+proof
+  assume "V - S = {}"
+  hence "V \<subseteq> S" by auto
+  with assms(1) have "V = S" by auto
+  with assms(2) k_le_cardV show False by simp
+qed
+
+lemma nonempty_gap:
+  assumes "S \<subseteq> V" "Opt \<subseteq> V" "f S < f Opt"
+  shows "Opt - S \<noteq> {}"
+proof
+  assume "Opt - S = {}"
+  hence "Opt \<subseteq> S" by auto
+  with assms(1,2) have "f Opt \<le> f S"
+    using monotone_f by auto
+  with assms(3) show False by linarith
+qed
+
 lemma OPT_k_nonneg: "0 \<le> OPT_k"
 proof -
   have "feasible {}"
@@ -223,6 +253,153 @@ proof -
     by (rule OPT_k_upper_bound)
   thus ?thesis
     by (simp add: f_empty)
+qed
+
+text \<open>Submodular telescoping: sum of marginals upper-bounds the joint gain.\<close>
+lemma submod_sum_upper:
+  assumes "finite A" "A \<subseteq> V" "S \<subseteq> V" "A \<inter> S = {}"
+  shows "f (S \<union> A) - f S \<le> (\<Sum>x\<in>A. gain S x)"
+  using assms
+proof (induction rule: finite_induct)
+  case empty
+  then show ?case by simp
+next
+  case (insert a A)
+  from insert.hyps have a_notin: "a \<notin> A" and finA: "finite A" by auto
+
+  from insert.prems have S_sub: "S \<subseteq> V" by auto
+  from insert.prems have ins_subV: "insert a A \<subseteq> V" by auto
+  from insert.prems have ins_disj: "insert a A \<inter> S = {}" by auto
+
+  have A_sub: "A \<subseteq> V" using ins_subV by auto
+  have aV   : "a \<in> V"  using ins_subV by auto
+  have disjA: "A \<inter> S = {}" using ins_disj by auto
+  have a_notS: "a \<notin> S" using ins_disj by auto
+
+  have step:
+    "f (S \<union> insert a A) - f S
+     = (f ((S \<union> A) \<union> {a}) - f (S \<union> A)) + (f (S \<union> A) - f S)"
+    by (simp add: insert_commute Un_assoc)
+
+  have SSUA: "S \<subseteq> S \<union> A" by auto
+  have SUA_subV: "S \<union> A \<subseteq> V" using S_sub A_sub by auto
+  have a_notin_SUA: "a \<notin> S \<union> A" using a_notS a_notin by auto
+  have dec:
+    "f ((S \<union> A) \<union> {a}) - f (S \<union> A) \<le> gain S a"
+    using gain_decreasing[OF SSUA SUA_subV aV a_notin_SUA]
+    by (simp add: gain_def)
+
+  from insert.IH[OF A_sub S_sub disjA]
+  have IH: "f (S \<union> A) - f S \<le> (\<Sum>x\<in>A. gain S x)" .
+
+  have "(f ((S \<union> A) \<union> {a}) - f (S \<union> A)) + (f (S \<union> A) - f S)
+        \<le> gain S a + (\<Sum>x\<in>A. gain S x)"
+    using dec IH by linarith
+  thus ?case
+    by (simp add: step insert_commute finA a_notin)
+qed
+
+text \<open>
+  Average marginal bound against any feasible \<open>Opt\<close> with \<open>|Opt| \<le> k\<close>:
+  there exists an element \<open>e \<in> V - S\<close> such that
+  \<open>gain S e \<ge> (f Opt - f S) / real k\<close>.
+\<close>
+lemma marginal_gain_lower_bound:
+  fixes Opt S :: "'a set"
+  assumes S_sub: "S \<subseteq> V"
+    and O_sub: "Opt \<subseteq> V"
+    and cardS_lt_k: "card S < k"
+    and cardO_le_k: "card Opt \<le> k"
+  shows "\<exists>e\<in>V - S. gain S e \<ge> (f Opt - f S) / real k"
+proof -
+  have finV: "finite V" by (rule finite_V)
+  have k_pos: "0 < k" using cardS_lt_k by (simp add: not_less)
+
+  consider (le) "f Opt \<le> f S" | (gt) "f S < f Opt" by linarith
+  then show ?thesis
+  proof cases
+    case le
+    have VS_ne: "V - S \<noteq> {}"
+      using nonempty_candidates[OF S_sub cardS_lt_k] .
+
+    then obtain e where eVS: "e \<in> V - S" by blast
+    hence ge0: "0 \<le> gain S e" using S_sub gain_nonneg by auto
+
+    moreover have "(f Opt - f S) / real k \<le> 0"
+    proof -
+      have "f Opt - f S \<le> 0" using le by linarith
+      thus ?thesis
+        using k_pos by (simp add: divide_nonpos_pos)
+    qed
+
+    ultimately have "(f Opt - f S) / real k \<le> gain S e"
+      by linarith
+
+    thus ?thesis
+      using eVS by (intro bexI[of _ e]) auto
+  next
+    case gt
+    have OS_ne: "Opt - S \<noteq> {}"
+      using nonempty_gap[OF S_sub O_sub gt] .
+
+    have finOS: "finite (Opt - S)"
+      using finV O_sub by (meson Diff_subset finite_subset)
+    have OS_subV: "Opt - S \<subseteq> V" using O_sub by auto
+    have disj: "(Opt - S) \<inter> S = {}" by auto
+    have finO: "finite Opt" using finV O_sub finite_subset by blast
+
+    have step_sum:
+      "f (S \<union> (Opt - S)) - f S \<le> (\<Sum>x\<in>Opt - S. gain S x)"
+      using submod_sum_upper[OF finOS OS_subV S_sub disj] .
+
+    have SUO_subV: "S \<union> Opt \<subseteq> V" using S_sub O_sub by auto
+    have sum_upper: "f Opt - f S \<le> (\<Sum>x\<in>Opt - S. gain S x)"
+    proof -
+      have "f Opt \<le> f (S \<union> Opt)"
+        using monotone_f[rule_format, of Opt "S \<union> Opt"] SUO_subV by auto
+      then have "f Opt - f S \<le> f (S \<union> Opt) - f S" by linarith
+      also have "S \<union> Opt = S \<union> (Opt - S)" by auto
+      also have "f (S \<union> (Opt - S)) - f S
+                   \<le> (\<Sum>x\<in>Opt - S. gain S x)"
+        using step_sum .
+      finally show ?thesis .
+    qed
+
+    obtain e where e_in: "e \<in> Opt - S"
+      and e_max: "\<forall>y\<in>Opt - S. gain S y \<le> gain S e"
+      using finite_has_maximal_on[OF finOS OS_ne, of "gain S"]
+      by blast
+
+    have "(\<Sum>x\<in>Opt - S. gain S x) \<le> (\<Sum>x\<in>Opt - S. gain S e)"
+      using e_max by (intro sum_mono) simp_all
+    also have "... = real (card (Opt - S)) * gain S e"
+      by simp
+    finally have sum_le_card_max:
+      "(\<Sum>x\<in>Opt - S. gain S x) \<le> real (card (Opt - S)) * gain S e" .
+
+    have base: "f Opt - f S \<le> real (card (Opt - S)) * gain S e"
+      using sum_upper sum_le_card_max by linarith
+
+    have cardOS_le_k: "card (Opt - S) \<le> k"
+    proof -
+      have "card (Opt - S) \<le> card Opt"
+        using finO Diff_subset by (rule card_mono)
+      also have "... \<le> k" using cardO_le_k .
+      finally show ?thesis .
+    qed
+
+    have eVS: "e \<in> V - S" using e_in O_sub by auto
+    have ge0: "0 \<le> gain S e" using S_sub eVS gain_nonneg by auto
+
+    have "real (card (Opt - S)) * gain S e \<le> real k * gain S e"
+      using cardOS_le_k ge0 by (simp add: mult_right_mono)
+    hence main_ineq: "f Opt - f S \<le> real k * gain S e"
+      using base by linarith
+
+    have "gain S e \<ge> (f Opt - f S) / real k"
+      using main_ineq k_pos by (simp add: mult.commute pos_divide_le_eq)
+    thus ?thesis using eVS by blast
+  qed
 qed
 
 end

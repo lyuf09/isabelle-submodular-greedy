@@ -140,7 +140,7 @@ proof -
   from X_feas have X_sub: "X \<subseteq> V" and cardX_le_k: "card X \<le> k"
     unfolding feasible_def by auto
 
-  from Greedy_Base.marginal_gain_lower_bound[OF S_sub X_sub cardS_lt_k cardX_le_k]
+  from marginal_gain_lower_bound[OF S_sub X_sub cardS_lt_k cardX_le_k]
   obtain e where e_in: "e \<in> V - lazy_set i"
        and e_lb: "gain (lazy_set i) e \<ge> (f X - f (lazy_set i)) / real k"
     by blast
