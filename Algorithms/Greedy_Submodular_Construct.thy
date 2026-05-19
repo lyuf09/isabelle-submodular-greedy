@@ -17,7 +17,7 @@ subsection \<open>Preliminaries on finite maximizers\<close>
 
 text \<open>Finite arg-max via the standard maximality predicate.\<close>
 
-(* We rely on the standard predicate is_arg_max and arg_max_def from the library.
+(* We rely on the standard predicate is_arg_max from the library.
    The following lemma establishes existence on finite domains. *)
 lemma finite_is_arg_max_in:
   fixes g :: "'a \<Rightarrow> 'b::linorder"
@@ -73,7 +73,7 @@ text \<open>
   properties, without yet proving approximation guarantees.
 \<close>
 
-subsection \<open>Concrete arg-max oracle for marginal gain\<close>
+subsection \<open>Hilbert-choice arg-max oracle for marginal gain\<close>
 
 context Submodular_Func
 begin
@@ -378,7 +378,7 @@ lemma greedy_card_mono:
   by (meson greedy_chain_mono greedy_set_finite finite_subset card_mono)
 
 text \<open>
-  A compact bound in one line: \<open>card Sᵢ \<le> min i (card V)\<close> for all \<open>i\<close>.
+  A compact cardinality bound: \<open>card Sᵢ \<le> min i (card V)\<close> for all \<open>i\<close>.
 \<close>
 lemma greedy_card_min:
   "card (greedy_set i) \<le> min i (card V)"
@@ -433,8 +433,9 @@ proof -
 qed
 
 text \<open>
-  Increment shape at a non-empty step: \<open>Sᵢ₊₁\<close> is obtained by inserting
-  the arg-max element into \<open>Sᵢ\<close>. This is often useful in counting arguments.
+  At a non-empty step, \<open>greedy_set (Suc i)\<close> is obtained by inserting the
+  arg-max element into \<open>greedy_set i\<close>. This is often useful in counting
+  arguments.
 \<close>
 
 lemma greedy_increment_nonempty[simp]:

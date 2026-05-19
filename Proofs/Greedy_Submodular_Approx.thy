@@ -4,9 +4,10 @@ theory Greedy_Submodular_Approx
 begin
 
 text \<open>
-  This theory derives analytic bounds for the coefficient
+  We first derive analytic bounds for the coefficient
   \<open>1 - (1 - 1/k)^k\<close> appearing in the Nemhauser–Wolsey approximation ratio.
-  In particular we show that it is bounded below by \<open>1 - 1/exp 1\<close>.
+  These bounds are later combined with the greedy gap recurrence to obtain
+  the standard \<open>1 - 1/exp 1\<close> guarantee.
 \<close>
 
 text \<open>
@@ -66,7 +67,7 @@ lemma one_minus_inv_times:
   shows "(1 - 1 / real k) * x = x - x / real k"
   by (simp add: left_diff_distrib)
 
-section \<open>Greedy gap analysis\<close>
+subsection \<open>Greedy gap analysis\<close>
 
 text \<open>
   We use the problem-level optimal value and the reusable marginal-gain
@@ -74,7 +75,7 @@ text \<open>
   gap recurrence.
 \<close>
 
-subsection \<open>Gap sequence\<close>
+subsubsection \<open>Gap sequence\<close>
 
 text \<open>
   We introduce the gap sequence \<open>gap i = OPT_k - f (greedy_set i)\<close> and
@@ -481,9 +482,9 @@ end
 section \<open>Step-spec corollary\<close>
 
 text \<open>
-  Any oracle satisfying the step-specification assumptions inherits the
-  Nemhauser--Wolsey approximation guarantee immediately, since
-  \<open>Greedy_Step_Oracle\<close> is defined as an instance of \<open>Greedy_Setup\<close>.
+  Since \<open>Greedy_Step_Oracle\<close> is a named instance of \<open>Greedy_Setup\<close>, the
+  Nemhauser--Wolsey approximation guarantee transfers directly to any oracle
+  satisfying the step-specification assumptions.
 \<close>
 
 context Greedy_Step_Oracle

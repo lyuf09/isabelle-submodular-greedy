@@ -38,11 +38,10 @@ qed
 
 text \<open>
   The main development is carried out in a single locale for normalized
-  monotone submodular functions, since this is the setting needed for the
+  monotone submodular functions, which is the setting needed for the
   cardinality-constrained greedy approximation guarantees below. Some
-  auxiliary facts are valid under weaker assumptions, but separating these
-  assumptions into additional locales would add little benefit for this AFP
-  entry.
+  auxiliary facts hold under weaker assumptions; for this entry we keep them
+  in the same locale to maintain a compact and uniform development.
 \<close>
 
 locale Submodular_Func =
@@ -146,10 +145,9 @@ qed
 end
 
 text \<open>
-  This entry treats cardinality-constrained monotone submodular
-  maximization. Extensions to other constraint systems, such as matroid or
-  knapsack constraints, are natural future developments but are not part of
-  this entry.
+  This entry treats cardinality-constrained monotone submodular maximization.
+  Other constraint systems, such as matroid or knapsack constraints, are
+  outside the scope of the present development.
 \<close>
 
 locale Cardinality_Constraint = Submodular_Func +

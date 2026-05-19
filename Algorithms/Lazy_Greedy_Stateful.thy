@@ -233,7 +233,6 @@ next
       by simp
 
     show ?thesis
-      (* lazy_state (Suc i) = lazy_step (lazy_state i) *)
       using IH xV
       by (auto simp: Sg_step)
   qed

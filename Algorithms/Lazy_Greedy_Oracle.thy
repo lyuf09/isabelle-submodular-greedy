@@ -9,7 +9,7 @@ text \<open>
   proof layer.
 \<close>
 
-section \<open>Lazy (accelerated) selection via upper bounds\<close>
+section \<open>Lazy selection via cached upper bounds\<close>
 
 context Submodular_Func
 begin

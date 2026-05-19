@@ -9,8 +9,8 @@ text \<open>
   proof, such as the membership and maximal-gain properties of the chosen
   lazy element at step \<open>i\<close>, together with the update equation for the next lazy set.
 
-  It is not an instance of the stateless greedy step-oracle locale.
-  Instead, it exposes properties of the concrete verified run.
+  It is not formalized by instantiating the stateless greedy step-oracle locale.
+  Instead, it exposes the corresponding properties of the concrete verified run.
 \<close>
 
 context Cardinality_Constraint

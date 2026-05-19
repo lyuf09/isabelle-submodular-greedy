@@ -13,8 +13,8 @@ session Submodular_Greedy_AFP = HOL +
     "Core/Submodular_Base"
 
     "Algorithms/Greedy_Submodular_Construct"
-    "Algorithms/Lazy_Greedy_Stateful"
     "Algorithms/Lazy_Greedy_Oracle"
+    "Algorithms/Lazy_Greedy_Stateful"
 
     "Proofs/Greedy_Step_Spec"
     "Proofs/Greedy_Submodular_Approx"
