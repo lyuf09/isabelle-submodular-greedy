@@ -116,7 +116,7 @@ proof (unfold ub_valid_def, intro ballI)
   have TsubV: "insert x S \<subseteq> V"
     using Ssub x_in by auto
 
-   have dec_ge: "gain S y \<ge> gain (insert x S) y"
+  have dec_ge: "gain S y \<ge> gain (insert x S) y"
     using gain_decreasing[OF _ TsubV yV y_notT] Ssub
     by auto
 
@@ -249,12 +249,13 @@ proof (induction i)
 next
   case (Suc i)
   let ?st = "lazy_state i"
-  have IH: "ub_valid (Sg ?st) (remaining ?st) (ubg ?st)" by (rule Suc.IH)
-  
+  have IH: "ub_valid (Sg ?st) (remaining ?st) (ubg ?st)"
+    by (rule Suc.IH)
+
   show ?case
   proof (cases "remaining ?st = {}")
     case True
-    have "lazy_step ?st = ?st" 
+    have "lazy_step ?st = ?st"
       using lazy_step_idle[OF True] .
     then show ?thesis
       using IH by simp
@@ -267,13 +268,17 @@ next
     let ?x = "fst ?p"
     let ?ub' = "snd ?p"
 
-    have ubvA: "ub_valid ?S ?A ?ub" using IH .
+    have ubvA: "ub_valid ?S ?A ?ub"
+      using IH .
     have ubvA': "ub_valid ?S ?A ?ub'"
       using lazy_select_ub_valid[OF ubvA] by simp
 
-    have SsubV: "?S \<subseteq> V" using lazy_state_subset_V .
-    have A_def: "?A = V - ?S" unfolding remaining_def by simp
-    
+    have SsubV: "?S \<subseteq> V"
+      using lazy_state_subset_V[of i] by simp
+
+    have A_def: "?A = V - ?S"
+      unfolding remaining_def by simp
+
     have finA: "finite ?A"
       unfolding remaining_def
       using finite_V
@@ -286,25 +291,21 @@ next
       using lazy_argmax_gain_mem[OF finA neA]
       by (simp add: lazy_select_fst)
 
-    have SsubV: "?S \<subseteq> V"
-  using lazy_state_subset_V[of i] by simp
+    have ubvVS: "ub_valid ?S (V - ?S) ?ub'"
+      using ubvA' by (simp add: A_def)
 
-  have A_def: "?A = V - ?S"
-    unfolding remaining_def by simp
+    have x_in_old: "?x \<in> V - ?S"
+      using x_inA by (simp add: A_def)
 
-  have ubvVS: "ub_valid ?S (V - ?S) ?ub'"
-    using ubvA' by (simp add: A_def)
-
-  have x_in_old: "?x \<in> V - ?S"
-    using x_inA by (simp add: A_def)
-
-  have ubv_next: "ub_valid (insert ?x ?S) (V - insert ?x ?S) ?ub'"
-    using ub_valid_after_insert[OF ubvVS SsubV x_in_old] .
+    have ubv_next: "ub_valid (insert ?x ?S) (V - insert ?x ?S) ?ub'"
+      using ub_valid_after_insert[OF ubvVS SsubV x_in_old] .
 
     have Sg_next: "Sg (lazy_step ?st) = insert ?x ?S"
       using lazy_step_nonempty_Sg[OF False] by simp
+
     have ubg_next: "ubg (lazy_step ?st) = ?ub'"
       using lazy_step_nonempty_ubg[OF False] by (simp add: Let_def)
+
     have rem_next: "remaining (lazy_step ?st) = V - insert ?x ?S"
       unfolding remaining_def Sg_next by simp
 

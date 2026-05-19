@@ -29,20 +29,6 @@ lemma monotone_on_PowV:
   unfolding monotone_on_def
   using monotone_f by auto
 
-lemma monotone_f_from_monotone_on_PowV:
-  assumes mono: "monotone_on (Pow V) (\<subseteq>) (\<le>) f"
-  assumes "S \<subseteq> T" "T \<subseteq> V"
-  shows "f S \<le> f T"
-proof -
-  have SV: "S \<in> Pow V" using assms(3) assms(2) by auto
-  have TV: "T \<in> Pow V" using assms(3) by auto
-  from mono have
-    "\<forall>x\<in>Pow V. \<forall>y\<in>Pow V. x \<subseteq> y \<longrightarrow> f x \<le> f y"
-    unfolding monotone_on_def by simp
-  thus ?thesis
-    using SV TV assms(2) by blast
-qed
-
 lemma gain_nonneg:
   assumes "S \<subseteq> V" and "x \<in> V - S"
   shows "0 \<le> gain S x"
@@ -125,5 +111,13 @@ proof -
 qed
 
 end
+
+section \<open>Acknowledgements\<close>
+
+text \<open>
+  The author is grateful to Wenda Li for careful reviews, comments, and
+  guidance from the early stages of this project through the preparation of
+  this AFP entry.
+\<close>
 
 end
