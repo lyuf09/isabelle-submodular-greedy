@@ -61,27 +61,27 @@ lemma lazy_argmax_gain_fuel_state_ub_valid:
   using ubv
 proof (induction n arbitrary: ub)
   case 0
-  show ?case 
+  show ?case
     using 0 by (simp add: Let_def)
 next
   case (Suc n ub)
   from Suc.prems have ubv_current: "ub_valid S A ub" by simp
-  
+
   let ?x = "pick_ub_some A ub"
-  
+
   show ?case
   proof (cases "ub ?x = gain S ?x")
     case True
-    then show ?thesis 
+    then show ?thesis
       using ubv_current by (simp add: Let_def)
   next
     case False
     have ubv_tight: "ub_valid S A (tighten S ub ?x)"
       using ub_valid_tighten[OF ubv_current] .
-      
+
     have IH_result: "ub_valid S A (snd (lazy_argmax_gain_fuel_state n S A (tighten S ub ?x)))"
       using Suc.IH[OF ubv_tight] .
-      
+
     show ?thesis
       using False IH_result by (simp add: Let_def)
   qed

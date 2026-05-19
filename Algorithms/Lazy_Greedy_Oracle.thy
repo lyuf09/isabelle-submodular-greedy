@@ -96,7 +96,7 @@ proof (induction n arbitrary: ub)
   have finU: "finite (untight S A ub)" using finite_untight[OF finA] .
   have U0: "untight S A ub = {}"
     using bound finU by auto
-    
+
   have ub_le_gain: "\<forall>y\<in>A. ub y \<le> gain S y"
   proof (intro ballI)
     fix y assume yA: "y \<in> A"
@@ -104,7 +104,7 @@ proof (induction n arbitrary: ub)
       using U0 yA unfolding untight_def by auto
     thus "ub y \<le> gain S y" by simp
   qed
-  
+
   have ub_eq_gain: "\<forall>y\<in>A. ub y = gain S y"
   proof (intro ballI)
     fix y assume yA: "y \<in> A"
@@ -128,7 +128,7 @@ proof (induction n arbitrary: ub)
       using pick_ub_some_max[OF finA neA yA] .
     also have "\<dots> = gain S ?x"
       using ubx by simp
-    finally show "gain S y \<le> gain S (lazy_argmax_gain_fuel 0 S A ub)" 
+    finally show "gain S y \<le> gain S (lazy_argmax_gain_fuel 0 S A ub)"
       by (simp add: Let_def)
   qed
 next
@@ -138,7 +138,7 @@ next
 
   let ?x = "pick_ub_some A ub"
   have xA: "?x \<in> A" using pick_ub_some_mem[OF finA neA] .
-  
+
   show ?case
   proof (cases "ub ?x = gain S ?x")
     case True
@@ -161,10 +161,10 @@ next
 
     have Ueq: "untight S A (tighten S ub ?x) = untight S A ub - {?x}"
       using xA gt by (simp add: untight_tighten)
-      
+
     have xU: "?x \<in> untight S A ub"
       using xA gt unfolding untight_def by auto
-      
+
     have finU: "finite (untight S A ub)"
       using finite_untight[OF finA] .
 

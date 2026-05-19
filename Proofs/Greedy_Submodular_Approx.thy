@@ -130,10 +130,6 @@ proof -
   have R_nonempty': "?R \<noteq> {}"
     using R_nonempty by simp
 
-  have argmax_dom:
-    "argmax_gain ?S ?R \<in> ?R"
-    using argmax_gain_mem[OF finR R_nonempty'] .
-
   have argmax_max:
     "\<forall>y\<in>?R. gain ?S y \<le> gain ?S (argmax_gain ?S ?R)"
     using argmax_gain_max[OF finR R_nonempty'] .
@@ -312,11 +308,6 @@ next
 
   have S_sub: "greedy_set i \<subseteq> V"
     by (rule greedy_subset_V)
-  have cardSi_le_i: "card (greedy_set i) \<le> i"
-    by (rule card_greedy_le_i)
-
-  have gap_i_nonneg: "0 \<le> gap i"
-    using gap_nonneg[OF S_sub cardSi_le_i i_le_k] .
 
   have cardSi_lt_V: "card (greedy_set i) < card V"
   proof -
