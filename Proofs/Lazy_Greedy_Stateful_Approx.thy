@@ -21,9 +21,6 @@ text \<open>
 context Cardinality_Constraint
 begin
 
-interpretation Greedy_Base: Greedy_Setup V f k argmax_gain_some
-  by (unfold_locales) (auto intro: argmax_gain_some_mem argmax_gain_some_max)
-
 definition gapL :: "nat \<Rightarrow> real" where
   "gapL i = OPT_k - f (lazy_set i)"
 

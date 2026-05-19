@@ -235,28 +235,4 @@ qed
 
 end
 
-context Cardinality_Constraint
-begin
-
-definition argmax_gain_lazy :: "'a set \<Rightarrow> 'a set \<Rightarrow> 'a" where
-  "argmax_gain_lazy S A = lazy_argmax_gain S A (gain S)"
-
-lemma ub_valid_gain [simp]:
-  "ub_valid S A (gain S)"
-  unfolding ub_valid_def by simp
-
-lemma argmax_gain_lazy_mem:
-  assumes "finite A" and "A \<noteq> {}"
-  shows "argmax_gain_lazy S A \<in> A"
-  unfolding argmax_gain_lazy_def
-  by (rule lazy_argmax_gain_mem[OF assms])
-
-lemma argmax_gain_lazy_max:
-  assumes "finite A" and "A \<noteq> {}"
-  shows "\<forall>y\<in>A. gain S y \<le> gain S (argmax_gain_lazy S A)"
-  unfolding argmax_gain_lazy_def
-  by (rule lazy_argmax_gain_max[OF assms ub_valid_gain])
-
-end
-
 end
