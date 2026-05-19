@@ -6,7 +6,7 @@ This repository contains an Isabelle/HOL formalization of monotone non-negative 
 
 The main formal result is the classical Nemhauser–Wolsey approximation guarantee for deterministic greedy: after `k` steps, the greedy solution satisfies the finite-step bound `1 - (1 - 1/k)^k`, and hence also the standard corollary `1 - 1/e`.
 
-The development also includes a verified lazy greedy refinement. The lazy algorithm is formalized in the same deterministic setting and shown to satisfy the same approximation guarantee.
+The development also includes a verified stateful lazy greedy variant. The lazy algorithm is formalized in the same deterministic setting and shown to satisfy the same approximation guarantee.
 
 ## Scope
 
@@ -15,7 +15,7 @@ This AFP-oriented branch focuses on:
 - monotone non-negative submodular set functions,
 - cardinality constraints,
 - deterministic greedy,
-- lazy greedy as a verified deterministic refinement.
+- lazy greedy as a verified deterministic variant.
 
 It does not include stochastic greedy, executable experiments, or instance-specific auxiliary material.
 

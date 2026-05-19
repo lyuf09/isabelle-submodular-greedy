@@ -7,11 +7,11 @@ begin
 text \<open>
   Approximation guarantee for the verified stateful lazy greedy construction.
 
-  This theory treats the stateful lazy algorithm as an implementation-level
-  refinement. It reuses the optimal-value infrastructure from the greedy
-  approximation development, together with the per-iteration lemmas from the
-  lazy step-spec theory, and proves a corresponding gap recurrence for the
-  lazy construction.
+  This theory treats the stateful lazy algorithm as an implementation-oriented
+  variant of the greedy construction. It reuses the optimal-value infrastructure
+  from the greedy approximation development, together with the per-iteration
+  lemmas from the lazy step-spec theory, and proves a corresponding gap
+  recurrence for the lazy construction.
 
   In particular, this theory does not instantiate the stateless step-spec
   locale. Instead, it works directly with the verified lazy run and its

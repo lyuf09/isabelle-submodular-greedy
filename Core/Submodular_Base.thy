@@ -346,8 +346,9 @@ next
 qed
 
 text \<open>
-  Average marginal bound against any feasible \<open>Opt\<close> with \<open>|Opt| \<le> k\<close>:
-  there exists an element \<open>e \<in> V - S\<close> such that
+  Average marginal bound against any candidate set \<open>Opt \<subseteq> V\<close> with
+  \<open>card Opt \<le> k\<close>: if \<open>S \<subseteq> V\<close> and \<open>card S < k\<close>, then there exists an
+  element \<open>e \<in> V - S\<close> such that
   \<open>gain S e \<ge> (f Opt - f S) / real k\<close>.
 \<close>
 lemma marginal_gain_lower_bound:
