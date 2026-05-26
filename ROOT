@@ -1,6 +1,6 @@
 chapter AFP
 
-session Submodular_Greedy_AFP = HOL +
+session Submodular_Greedy = HOL +
   options [timeout = 1800]
   sessions
     "HOL-Library"
