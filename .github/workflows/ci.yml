@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build Submodular_Greedy_AFP
+    name: Build Submodular_Greedy
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -36,4 +36,4 @@ jobs:
         run: isabelle version
 
       - name: Build AFP session
-        run: isabelle build -v -j 2 -d . Submodular_Greedy_AFP
+        run: isabelle build -v -j 2 -d . Submodular_Greedy
