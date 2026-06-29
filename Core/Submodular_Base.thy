@@ -3,10 +3,10 @@ theory Submodular_Base
 begin
 
 lemma finite_has_maximal_on:
-  fixes g :: "'a \<Rightarrow> real"
+  fixes g :: "'a \<Rightarrow> 'b::linorder"
   assumes fin: "finite A"
     and nonempty: "A \<noteq> {}"
-  shows "\<exists>x\<in>A. \<forall>y\<in>A. g y \<le> g x"
+  shows "\<exists>x\<in>A. \<forall>y\<in>A. g y \<le> g x" using arg_max_on_def[of g A]
 proof -
   have fin_image: "finite (g ` A)"
     using fin by simp
@@ -20,17 +20,7 @@ proof -
     by auto
 
   have "\<forall>y\<in>A. g y \<le> g x"
-  proof
-    fix y
-    assume yA: "y \<in> A"
-    have "g y \<in> g ` A"
-      using yA by auto
-    then have "g y \<le> Max (g ` A)"
-      using Max_ge[OF fin_image] by blast
-    also have "\<dots> = g x"
-      using x_eq by simp
-    finally show "g y \<le> g x" .
-  qed
+    by (simp add: fin_image x_eq)
 
   then show ?thesis
     using xA by blast
@@ -190,14 +180,6 @@ proof -
     by (rule finite_subset)
 qed
 
-subsection \<open>Finite maximizers\<close>
-
-lemma finite_has_maximal:
-  assumes fin: "finite A"
-    and nonempty: "A \<noteq> {}"
-  shows "\<exists>x\<in>A. \<forall>y\<in>A. f y \<le> f x"
-  using finite_has_maximal_on[OF fin nonempty, of f] .
-
 subsection \<open>Optimal feasible sets\<close>
 
 text \<open>
@@ -214,7 +196,7 @@ definition OPT_set :: "'a set" where
 lemma exists_max_feasible:
   "\<exists>X. feasible X \<and> (\<forall>Y. feasible Y \<longrightarrow> f Y \<le> f X)"
 proof -
-  from finite_has_maximal[OF finite_feasible_family feasible_family_nonempty]
+  from finite_has_maximal_on[OF finite_feasible_family feasible_family_nonempty]
   obtain X where X_feas: "X \<in> Collect feasible"
     and X_max: "\<forall>Y \<in> Collect feasible. f Y \<le> f X"
     by blast
