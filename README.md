@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/1124568623.svg)](https://doi.org/10.5281/zenodo.21054717)
+
 # Isabelle Formalization of Greedy Algorithms for Cardinality-Constrained Submodular Maximization
 
 This repository contains an Isabelle/HOL formalization of monotone non-negative submodular maximization under a cardinality constraint on a finite ground set.
@@ -24,7 +26,7 @@ It does not include stochastic greedy, executable experiments, or instance-speci
 The AFP session is:
 
 ```text
-Submodular_Greedy_AFP
+Submodular_Greedy
 ```
 
 It contains the following theories:
@@ -74,5 +76,5 @@ The AFP-oriented development is organized into three layers.
 To build the AFP session, run:
 
 ```bash
-isabelle build -D . Submodular_Greedy_AFP
+isabelle build -D . Submodular_Greedy
 ```
